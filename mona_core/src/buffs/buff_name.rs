@@ -1,12 +1,12 @@
 use num_derive::FromPrimitive;
-use strum_macros::Display;
+use strum_macros::{Display, EnumIter};
 use serde::{Serialize, Deserialize};
 use mona_derive::{BuffData, EnumLen};
 use crate::buffs::buff::{BuffMeta};
 
 #[derive(Copy, Clone)]
 #[derive(Serialize, Deserialize)]
-#[derive(BuffData, EnumLen, FromPrimitive, Display)]
+#[derive(BuffData, EnumLen, FromPrimitive, Display, EnumIter)]
 pub enum BuffName {
     // common
     ATKPercentage,
@@ -23,9 +23,12 @@ pub enum BuffName {
     DEFMinus,
     ResMinus,
     HealingBonus,
+    BaseDmg,
 
     // character
     AlbedoTalent2,
+    AlbedoC4,
+    AlbedoC6,
     AloyTalent1,
     AratakiIttoC4,
     BeidouC6,
@@ -33,6 +36,7 @@ pub enum BuffName {
     BennettC6,
     ChongyunTalent2,
     DionaC6G50,
+    EulaE,
     GanyuTalent2,
     GanyuC1,
     GorouE1,
@@ -81,21 +85,57 @@ pub enum BuffName {
     YelanTalent2,
     YelanC4,
     KamisatoAyatoQ,
+    ShikanoinHeizouTalent2,
+    TighnariC4,
+    DoriC4,
+    NilouTalent1,
+    NilouTalent2,
+    CandaceQ,
+    CandaceTalent2,
+    NahidaTalent1,
+    FaruzanQ,
+    Mika,
+    KavehQ,
+    BaizhuTalent2,
+    BaizhuC4,
+    XianyunTalent1,
+    XianyunTalent2,
+    KachinaC4,
+    XilonenE,
+    XilonenC2,
+    XilonenC4,
+    CitlaliTalent1,
+    CitlaliC1,
+    CitlaliC6,
+    YumemizukiMizukiC1,
+    YumemizukiMizukiC2,
 
+    // weapon
     FreedomSworn,
     SongOfBrokenPines,
     WolfsGravestone,
     ThrillingTalesOfDragonSlayers,
     ElegyOfTheEnd,
     HakushinRing,
+    SapwoodBlade,
+    Moonpiercer,
+    XiphosMoonlight,
+    MakhairaAquamarine,
+    KeyOfKhajNisut,
+    PeakPatrolSong,
+    
 
     ResonancePyro2,
     ResonanceCryo2,
     ResonanceGeo2,
+    ResonanceHydro2,
+    ResonanceDendro2,
 
+    // artifact
     Instructor4,
     NoblesseOblige4,
     ArchaicPetra4,
     ViridescentVenerer4,
     TenacityOfTheMillelith4,
+    DeepwoodMemories4,
 }

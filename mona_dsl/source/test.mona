@@ -1,4 +1,4 @@
-x = 1
-y = 10
-result = select(x != y, 10, 100)
+dmg x=Yelan.E1 //E伤害
+
+result=x.normal.e //E最大期望伤害
 print(result)

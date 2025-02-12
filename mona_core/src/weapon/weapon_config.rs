@@ -1,9 +1,10 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub enum WeaponConfig {
     NoConfig,
 
+    // sword
     MistsplitterReforged { emblem_level: usize },
     SummitShaper { stack: f64, shield_rate: f64 },
     FreedomSworn { rate: f64 },
@@ -18,6 +19,23 @@ pub enum WeaponConfig {
     DarkIronSword { rate: f64 },
     CoolSteel { rate: f64 },
     HaranGeppakuFutsu { stack: f64 },
+    CursedBlade { rate: f64 },
+    SapwoodBlade { rate: f64 },
+    XiphosMoonlight { rate: f64 },
+    KeyOfKhajNisut { stack: f64, rate: f64 },
+    ToukabouShigure { rate: f64 },
+    LightOfFoliarIncision { rate: f64 },
+    WolfFang { e_stack: f64, q_stack: f64 },
+    FinaleOfTheDeep { rate1: f64, rate2: f64 },
+    FleuveCendreFerryman { rate: f64 },
+    TheDockhandsAssistant { stack: f64 },
+    SplendorOfTranquilWaters { stack1: f64, stack2: f64 },
+    UrakuMisugiri { rate: f64 },
+    Absolution { stack: f64 },
+    FluteOfEzpitzal { rate: f64 },
+    SturdyBone { rate: f64 },
+    PeakPatrolSong { stack: f64, rate: f64 },
+    CalamityOfEshu { rate: f64 },
 
     // claymore
     WolfsGravestone { rate: f64 },
@@ -33,6 +51,19 @@ pub enum WeaponConfig {
     SkyriderGreatsword { stack: f64 },
     BloodstainedGreatsword { rate: f64 },
     FerrousShadow { rate: f64 },
+    ForestRegalia { rate: f64 },
+    MakhairaAquamarine { rate: f64 },
+    BeaconOfTheReedSea { rate_atk: f64, rate_hp: f64 },
+    MailedFlower { rate: f64 },
+    TalkingStick { rate1: f64, rate2: f64 },
+    TidalShadow { rate: f64 },
+    PortablePowerSaw { stack: f64 },
+    UltimateOverlordsMegaMagicSword { rate: f64 },
+    Verdict { stack: f64 },
+    EarthShaker { rate: f64 },
+    FangOfTheMountainKing { stack: f64 },
+    FruitfulHook { rate: f64 },
+    AThousandBlazingSuns { rate1: f64, rate2: f64 },
 
     // Polearm
     EngulfingLightning { rate: f64 },
@@ -47,6 +78,16 @@ pub enum WeaponConfig {
     BlackcliffPole { stack: f64 },
     WavebreakersFin { energy: usize },
     BlackTassel { rate: f64 },
+    Moonpiercer { rate: f64 },
+    MissiveWindspear { rate: f64 },
+    StaffOfTheScarletSands { stack: f64 },
+    BalladOfTheFjords { use_effect: bool },
+    ProspectorsDrill { stack: f64 },
+    CrimsonMoonsSemblance { rate1: f64, rate2: f64 },
+    LumidouceElegy { stack: f64 },
+    FootprintOfTheRainbow { rate: f64 },
+    MountainBracingBolt { rate: f64 },
+    TamayurateiNoOhanashi { rate: f64 },
 
     // Catalyst
     LostPrayerToTheSacredWinds { stack: f64 },
@@ -62,6 +103,22 @@ pub enum WeaponConfig {
     MagicGuide { rate: f64 },
     EmeraldOrb { rate: f64 },
     TwinNephrite { rate: f64 },
+    FruitOfFulfillment { stack: f64 },
+    WanderingEvenstar { rate: f64 },
+    AThousandFloatingDreams { same_count: usize, diff_count: usize },
+    TulaytullahsRemembrance { stack: f64 },
+    JadeFallsSplendor { rate: f64 },
+    SacrificialJade { rate: f64 },
+    FlowingPurity { rate1: f64, rate2: f64 },
+    BalladOfTheBoundlessBlue { stack: f64 },
+    CashflowSupervision { stack: f64 },
+    TomeOfTheEternalFlow { stack: f64 },
+    CranesEchoingCall { rate: f64 },
+    RingOfYaxche { rate: f64 },
+    SurfsUp { stack: f64 },
+    WaveridingWhirl { rate: f64, hydro_count: usize },
+    StarcallersWatch { use_buff: bool, rate: f64 },
+    SunnyMorningSleepIn { rate1: f64, rate2: f64, rate3: f64 },
 
     // Bow
     PolarStar { stack: usize },
@@ -82,6 +139,18 @@ pub enum WeaponConfig {
     Slingshot { is_effect: bool, rate: f64 },
     AquaSimulacra { is_enemy_around: bool },
     FadingTwilight { state: usize },
+    HuntersPath { rate: f64 },
+    KingsSquire { rate: f64 },
+    IbisPiercer { stack: f64 },
+    TheFirstGreatMagic { same_count: f64, diff_count: f64 },
+    ScionOfTheBlazingSun { rate: f64 },
+    SongOfStillness { rate: f64 },
+    RangeGauge { stack: f64 },
+    Cloudforged { stack: f64 },
+    SilvershowerHeartstrings { stack: f64, stack3_rate: f64 },
+    ChainBreaker { count: usize },
+    FlowerWreathedFeathers { stack: f64 },
+    AstralVulturesCrimsonPlumage { rate: f64, different_count: usize },
 }
 
 impl Default for WeaponConfig {

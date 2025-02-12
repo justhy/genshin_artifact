@@ -1,11 +1,16 @@
 <template>
     <el-dialog
         title="使用YAS WebUI扫描圣遗物"
-        :visible="visible"
+        :model-value="visible"
         width="80%"
-        @update:visible="$emit('update:visible', $event)"
+        @update:modelValue="$emit('update:visible', $event)"
     >
-        <div :class="$style.webcapturer">
+        <div v-if="win7">
+            <el-alert type="warning" center show-icon :closable="false" title="YAS暂不支持Windows 7系统">
+                您可以换用天目以扫描圣遗物。
+            </el-alert>
+        </div>
+        <div v-else :class="$style.webcapturer">
             <client-comp v-if="visible && !connected" :control="control" @done="onConnected" />
             <div v-if="connected" :class="$style.uimain">
                 <div v-if="step === 2">
@@ -32,17 +37,19 @@
                             <el-checkbox v-model="importDeleteUnseen" style="margin-top: 12px"
                                 >删除不存在的圣遗物</el-checkbox
                             >
+                            <el-checkbox v-model="importBackupKumiDir" style="margin-top: 12px"
+                                >备份“游戏中导入”收藏夹</el-checkbox>
                         </div>
                         <el-button class="start-btn start-gray" @click="startScan">
                             <div class="l">
-                                <i class="el-icon-check"></i>
+                                <i-ep-check />
                             </div>
                             <div class="m">
                                 <div class="t">开始扫描</div>
                                 <div class="d">点击后YAS将自动运行...</div>
                             </div>
                             <div class="r">
-                                <i class="el-icon-arrow-right"></i>
+                                <i-ep-arrow-right />
                             </div>
                         </el-button>
                     </el-form>
@@ -69,6 +76,7 @@ export default {
             type: Boolean,
         },
     },
+    emits: ['update:visible'],
     data() {
         return {
             control: new CocogoatWebControl(),
@@ -83,7 +91,9 @@ export default {
             },
             output: [],
             importDeleteUnseen: false,
+            importBackupKumiDir: false,
             hwnd: -1,
+            win7: navigator.userAgent.includes('NT 6'),
         };
     },
     watch: {
@@ -127,7 +137,7 @@ export default {
                     } else {
                         const yasJson = res.data;
                         try {
-                            importMonaJson(yasJson, this.importDeleteUnseen);
+                            importMonaJson(yasJson, this.importDeleteUnseen, this.importBackupKumiDir);
                             this.output.push(`[YAS DONE] 圣遗物扫描完成，您可以关闭本窗口和辅助插件。`);
                         } catch (e) {
                             this.output.push(`[YAS ERR!] 导入圣遗物数据失败，错误详情如下：\n${res.message}`);
@@ -195,10 +205,20 @@ export default {
     :global {
         .output {
             width: 100%;
-            height: calc(240px + 10vh);
             box-sizing: border-box;
-            font-family: Consolas, monospace;
-            color: #555;
+            font-family: Consolas, Monaco, Microsoft Yahei, monospace;
+            color: #666;
+            position: absolute;
+            top: 65px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 100%;
+            border: 0;
+            padding: 20px;
+            border-top: 1px solid #eee;
+            resize: none;
+            overflow-y: scroll;
         }
         .start-btn {
             margin-top: 10px;
@@ -226,8 +246,9 @@ export default {
 
             .r {
                 opacity: 0.8;
-                i {
-                    font-size: 30px;
+                svg {
+                    font-size: 18px;
+                    padding-top: 6px;
                 }
             }
 
@@ -235,11 +256,12 @@ export default {
                 flex-grow: 1;
             }
 
-            .l i {
+            .l svg {
                 width: 40px;
-                height: 24px;
+                height: 30px;
                 padding-right: 10px;
                 font-size: 30px;
+                padding-top: 5px;
             }
 
             .d {

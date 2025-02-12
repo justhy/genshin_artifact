@@ -18,6 +18,7 @@ use mona::team::team::Team;
 // use mona::team_target::team_targets::{get_default_buff, try_get_team_target_function, try_match_team};
 use mona::weapon::Weapon;
 use mona::utils;
+use serde::Serialize;
 
 pub struct TeamOptimizationWasm;
 
@@ -57,12 +58,12 @@ fn smallvec_to_optimize_entry(v: &SmallVec<[u64; 5]>, artifacts_by_id: &HashMap<
 
 #[wasm_bindgen]
 impl TeamOptimizationWasm {
-    pub fn optimize_team2(val: &JsValue, artifacts: &JsValue) -> JsValue {
+    pub fn optimize_team2(val: JsValue, artifacts: JsValue) -> JsValue {
         utils::set_panic_hook();
 
-        let mut input: OptimizeTeamInterface2 = val.into_serde().unwrap();
+        let mut input: OptimizeTeamInterface2 = serde_wasm_bindgen::from_value(val).unwrap();
 
-        let artifacts: Vec<Artifact> = artifacts.into_serde().unwrap();
+        let artifacts: Vec<Artifact> = serde_wasm_bindgen::from_value(artifacts).unwrap();
 
         let artifacts_ref: Vec<&Artifact> = artifacts.iter().collect();
         let hyper_param = match input.hyper_param {
@@ -94,7 +95,8 @@ impl TeamOptimizationWasm {
             artifacts: results
         };
 
-        JsValue::from_serde(&ret).unwrap()
+        let s = serde_wasm_bindgen::Serializer::new().serialize_maps_as_objects(true);
+        ret.serialize(&s).unwrap()
     }
 
     // pub fn optimize_team(val: &JsValue) -> JsValue {

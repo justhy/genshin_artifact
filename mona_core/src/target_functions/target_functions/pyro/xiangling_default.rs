@@ -3,7 +3,7 @@ use crate::artifacts::effect_config::{ArtifactEffectConfig, ArtifactEffectConfig
 use crate::attribute::{Attribute, AttributeName, SimpleAttributeGraph2};
 use crate::character::{Character, CharacterName};
 use crate::character::character_common_data::CharacterCommonData;
-use crate::character::characters::xiangling::Xiangling;
+use crate::character::characters::pyro::xiangling::Xiangling;
 use crate::character::skill_config::CharacterSkillConfig;
 use crate::character::traits::CharacterTrait;
 use crate::common::item_config_type::{ItemConfig, ItemConfigType};
@@ -56,8 +56,14 @@ impl TargetFunctionMetaTrait for XianglingDefaultTargetFunction {
     #[cfg(not(target_family = "wasm"))]
     const META_DATA: TargetFunctionMeta = TargetFunctionMeta {
         name: TargetFunctionName::XianglingDefault,
-        chs: "香菱-万民百味",
-        description: "普通输出火伤香菱",
+        name_locale: crate::common::i18n::locale!(
+            zh_cn: "香菱-万民百味",
+            en: "Xiangling-Exquisite Delicacy"
+        ),
+        description: crate::common::i18n::locale!(
+            zh_cn: "普通输出火伤香菱",
+            en: "Cryo DPS Xiangling"
+        ),
         tags: "输出",
         four: TargetFunctionFor::SomeWho(CharacterName::Xiangling),
         image: TargetFunctionMetaImage::Avatar
@@ -72,17 +78,26 @@ impl TargetFunctionMetaTrait for XianglingDefaultTargetFunction {
         },
         ItemConfig {
             name: "melt_rate",
-            title: "融化频率",
+            title: crate::common::i18n::locale!(
+                zh_cn: "融化占比",
+                en: "Melt Ratio",
+            ),
             config: ItemConfigType::Float { min: 0.0, max: 1.0, default: 0.0 }
         },
         ItemConfig {
             name: "vaporize_rate",
-            title: "蒸发频率",
+            title: crate::common::i18n::locale!(
+                zh_cn: "蒸发占比",
+                en: "Vaporize Ratio",
+            ),
             config: ItemConfigType::Float { min: 0.0, max: 1.0, default: 0.0 }
         },
         ItemConfig {
             name: "overload_rate",
-            title: "超载频率",
+            title: crate::common::i18n::locale!(
+                zh_cn: "超载频率",
+                en: "Overload Frequency",
+            ),
             config: ItemConfigType::Float { min: 0.0, max: 1.0, default: 0.0 }
         }
     ]);
@@ -94,57 +109,58 @@ impl TargetFunctionMetaTrait for XianglingDefaultTargetFunction {
 
 impl TargetFunction for XianglingDefaultTargetFunction {
     fn get_target_function_opt_config(&self) -> TargetFunctionOptConfig {
-        let em = if self.melt_rate + self.vaporize_rate > 0.5 || self.overload_rate > 0.5 {
-            1.0
-        } else {
-            0.3
-        };
-
-        TargetFunctionOptConfig {
-            atk_fixed: 0.1,
-            atk_percentage: 1.0,
-            hp_fixed: 0.0,
-            hp_percentage: 0.0,
-            def_fixed: 0.0,
-            def_percentage: 0.0,
-            recharge: 1.0,
-            elemental_mastery: em,
-            critical: 1.0,
-            critical_damage: 1.0,
-            healing_bonus: 0.0,
-            bonus_electro: 0.0,
-            bonus_pyro: 2.0,
-            bonus_hydro: 0.0,
-            bonus_anemo: 0.0,
-            bonus_cryo: 0.0,
-            bonus_geo: 0.0,
-            bonus_dendro: 0.0,
-            bonus_physical: 0.0,
-            sand_main_stats: vec![
-                StatName::ATKPercentage,
-                StatName::Recharge,
-            ],
-            goblet_main_stats: vec![
-                StatName::PyroBonus,
-                StatName::ATKPercentage,
-            ],
-            head_main_stats: vec![
-                StatName::CriticalRate,
-                StatName::CriticalDamage,
-                StatName::ATKPercentage,
-            ],
-            set_names: Some(vec![
-                ArtifactSetName::EmblemOfSeveredFate,
-                ArtifactSetName::GladiatorsFinale,
-                ArtifactSetName::ShimenawasReminiscence,
-                ArtifactSetName::CrimsonWitchOfFlames,
-                ArtifactSetName::NoblesseOblige,
-            ]),
-            very_critical_set_names: None,
-            normal_threshold: TargetFunctionOptConfig::DEFAULT_NORMAL_THRESHOLD,
-            critical_threshold: TargetFunctionOptConfig::DEFAULT_CRITICAL_THRESHOLD,
-            very_critical_threshold: TargetFunctionOptConfig::DEFAULT_VERY_CRITICAL_THRESHOLD
-        }
+        // let em = if self.melt_rate + self.vaporize_rate > 0.5 || self.overload_rate > 0.5 {
+        //     1.0
+        // } else {
+        //     0.3
+        // };
+        //
+        // TargetFunctionOptConfig {
+        //     atk_fixed: 0.1,
+        //     atk_percentage: 1.0,
+        //     hp_fixed: 0.0,
+        //     hp_percentage: 0.0,
+        //     def_fixed: 0.0,
+        //     def_percentage: 0.0,
+        //     recharge: 1.0,
+        //     elemental_mastery: em,
+        //     critical: 1.0,
+        //     critical_damage: 1.0,
+        //     healing_bonus: 0.0,
+        //     bonus_electro: 0.0,
+        //     bonus_pyro: 2.0,
+        //     bonus_hydro: 0.0,
+        //     bonus_anemo: 0.0,
+        //     bonus_cryo: 0.0,
+        //     bonus_geo: 0.0,
+        //     bonus_dendro: 0.0,
+        //     bonus_physical: 0.0,
+        //     sand_main_stats: vec![
+        //         StatName::ATKPercentage,
+        //         StatName::Recharge,
+        //     ],
+        //     goblet_main_stats: vec![
+        //         StatName::PyroBonus,
+        //         StatName::ATKPercentage,
+        //     ],
+        //     head_main_stats: vec![
+        //         StatName::CriticalRate,
+        //         StatName::CriticalDamage,
+        //         StatName::ATKPercentage,
+        //     ],
+        //     set_names: Some(vec![
+        //         ArtifactSetName::EmblemOfSeveredFate,
+        //         ArtifactSetName::GladiatorsFinale,
+        //         ArtifactSetName::ShimenawasReminiscence,
+        //         ArtifactSetName::CrimsonWitchOfFlames,
+        //         ArtifactSetName::NoblesseOblige,
+        //     ]),
+        //     very_critical_set_names: None,
+        //     normal_threshold: TargetFunctionOptConfig::DEFAULT_NORMAL_THRESHOLD,
+        //     critical_threshold: TargetFunctionOptConfig::DEFAULT_CRITICAL_THRESHOLD,
+        //     very_critical_threshold: TargetFunctionOptConfig::DEFAULT_VERY_CRITICAL_THRESHOLD
+        // }
+        unimplemented!()
     }
 
     fn get_default_artifact_config(&self, _team_config: &TeamQuantization) -> ArtifactEffectConfig {
@@ -161,7 +177,7 @@ impl TargetFunction for XianglingDefaultTargetFunction {
         };
 
         type S = <Xiangling as CharacterTrait>::DamageEnumType;
-        let dmg_q = Xiangling::damage::<SimpleDamageBuilder>(&context, S::Q4, &CharacterSkillConfig::NoConfig);
+        let dmg_q = Xiangling::damage::<SimpleDamageBuilder>(&context, S::Q4, &CharacterSkillConfig::NoConfig, None);
 
         let normal = dmg_q.normal.expectation;
         let melt = dmg_q.melt.unwrap().expectation;

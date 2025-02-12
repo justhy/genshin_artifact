@@ -21,7 +21,9 @@ pub enum WeaponSubStatFamily {
     CriticalDamage144,
     CriticalDamage192,
 
+    CriticalRate24,
     CriticalRate34,
+    CriticalRate40,
     CriticalRate48,
     CriticalRate51,
     CriticalRate60,
@@ -34,6 +36,7 @@ pub enum WeaponSubStatFamily {
     DEF96,
     DEF113,
     DEF150,
+    DEF180,
 
     EM12,
     EM20,
@@ -43,11 +46,15 @@ pub enum WeaponSubStatFamily {
     EM41,
     EM43,
     EM48,
+    EM58,
 
+    HP60,
     HP77,
     HP90,
     HP102,
     HP108,
+    HP120,
+    HP144,
 
     PhysicalBonus45,
     PhysicalBonus75,
@@ -85,7 +92,9 @@ pub fn get_stat_name_from_family(family: WeaponSubStatFamily) -> StatName {
         WeaponSubStatFamily::CriticalDamage144 => StatName::CriticalDamage,
         WeaponSubStatFamily::CriticalDamage192 => StatName::CriticalDamage,
 
+        WeaponSubStatFamily::CriticalRate24 => StatName::CriticalRate,
         WeaponSubStatFamily::CriticalRate34 => StatName::CriticalRate,
+        WeaponSubStatFamily::CriticalRate40 => StatName::CriticalRate,
         WeaponSubStatFamily::CriticalRate48 => StatName::CriticalRate,
         WeaponSubStatFamily::CriticalRate51 => StatName::CriticalRate,
         WeaponSubStatFamily::CriticalRate60 => StatName::CriticalRate,
@@ -98,6 +107,7 @@ pub fn get_stat_name_from_family(family: WeaponSubStatFamily) -> StatName {
         WeaponSubStatFamily::DEF96 => StatName::DEFPercentage,
         WeaponSubStatFamily::DEF113 => StatName::DEFPercentage,
         WeaponSubStatFamily::DEF150 => StatName::DEFPercentage,
+        WeaponSubStatFamily::DEF180 => StatName::DEFPercentage,
 
         WeaponSubStatFamily::EM12 => StatName::ElementalMastery,
         WeaponSubStatFamily::EM20 => StatName::ElementalMastery,
@@ -107,11 +117,15 @@ pub fn get_stat_name_from_family(family: WeaponSubStatFamily) -> StatName {
         WeaponSubStatFamily::EM41 => StatName::ElementalMastery,
         WeaponSubStatFamily::EM43 => StatName::ElementalMastery,
         WeaponSubStatFamily::EM48 => StatName::ElementalMastery,
+        WeaponSubStatFamily::EM58 => StatName::ElementalMastery,
 
+        WeaponSubStatFamily::HP60 => StatName::HPPercentage,
         WeaponSubStatFamily::HP77 => StatName::HPPercentage,
         WeaponSubStatFamily::HP90 => StatName::HPPercentage,
         WeaponSubStatFamily::HP102 => StatName::HPPercentage,
         WeaponSubStatFamily::HP108 => StatName::HPPercentage,
+        WeaponSubStatFamily::HP120 => StatName::HPPercentage,
+        WeaponSubStatFamily::HP144 => StatName::HPPercentage,
 
         WeaponSubStatFamily::PhysicalBonus45 => StatName::PhysicalBonus,
         WeaponSubStatFamily::PhysicalBonus75 => StatName::PhysicalBonus,
@@ -150,7 +164,9 @@ pub fn get_value_array(family: WeaponSubStatFamily) -> [f64; 8] {
         WeaponSubStatFamily::CriticalDamage144 => [0.144, 0.254, 0.371, 0.429, 0.487, 0.545, 0.603, 0.662],
         WeaponSubStatFamily::CriticalDamage192 => [0.192, 0.339, 0.494, 0.572, 0.65, 0.727, 0.804, 0.882],
 
+        WeaponSubStatFamily::CriticalRate24 => [0.024, 0.0424, 0.0618, 0.0715, 0.0812, 0.0909, 0.1006, 0.1103],
         WeaponSubStatFamily::CriticalRate34 => [0.034, 0.06, 0.088, 0.101, 0.115, 0.129, 0.142, 0.156],
+        WeaponSubStatFamily::CriticalRate40 => [0.04, 0.0707, 0.103, 0.1192, 0.1353, 0.1514, 0.1676, 0.1838],
         WeaponSubStatFamily::CriticalRate48 => [0.048, 0.085, 0.124, 0.143, 0.162, 0.182, 0.201, 0.221],
         WeaponSubStatFamily::CriticalRate51 => [0.051, 0.09, 0.131, 0.152, 0.173, 0.193, 0.201, 0.221],
         WeaponSubStatFamily::CriticalRate60 => [0.06, 0.106, 0.155, 0.179, 0.203, 0.227, 0.251, 0.276],
@@ -163,6 +179,7 @@ pub fn get_value_array(family: WeaponSubStatFamily) -> [f64; 8] {
         WeaponSubStatFamily::DEF96 => [0.096, 0.169, 0.246, 0.285, 0.323, 0.362, 0.401, 0.439],
         WeaponSubStatFamily::DEF113 => [0.113, 0.199, 0.29, 0.335, 0.381, 0.426, 0.472, 0.517],
         WeaponSubStatFamily::DEF150 => [0.15, 0.265, 0.387, 0.447, 0.508, 0.568, 0.629, 0.69],
+        WeaponSubStatFamily::DEF180 => [0.18, 0.3181, 0.4635, 0.5362, 0.6089, 0.6815, 0.7542, 0.8269],
 
         WeaponSubStatFamily::EM12 => [12.0, 21.0, 31.0, 36.0, 41.0, 45.0, 50.0, 55.0],
         WeaponSubStatFamily::EM20 => [20.0, 36.0, 53.0, 61.0, 69.0, 77.0, 85.0, 94.0],
@@ -172,11 +189,15 @@ pub fn get_value_array(family: WeaponSubStatFamily) -> [f64; 8] {
         WeaponSubStatFamily::EM41 => [41.0, 72.0, 105.0, 122.0, 138.0, 154.0, 171.0, 187.0],
         WeaponSubStatFamily::EM43 => [43.0, 76.0, 111.0, 129.0, 146.0, 164.0, 181.0, 198.0],
         WeaponSubStatFamily::EM48 => [48.0, 85.0, 124.0, 143.0, 162.0, 182.0, 201.0, 221.0],
+        WeaponSubStatFamily::EM58 => [57.6, 101.78, 148.32, 171.59, 194.86, 218.07, 241.34, 264.61],
 
+        WeaponSubStatFamily::HP60 => [0.06, 0.106, 0.1545, 0.1787, 0.203, 0.2272, 0.2514, 0.2756],
         WeaponSubStatFamily::HP77 => [0.077, 0.135, 0.197, 0.228, 0.259, 0.29, 0.321, 0.413],
         WeaponSubStatFamily::HP90 => [0.09, 0.159, 0.232, 0.268, 0.304, 0.341, 0.377, 0.413],
         WeaponSubStatFamily::HP102 => [0.102, 0.18, 0.263, 0.304, 0.345, 0.386, 0.427, 0.469],
         WeaponSubStatFamily::HP108 => [0.108, 0.191, 0.278, 0.322, 0.365, 0.409, 0.453, 0.496],
+        WeaponSubStatFamily::HP120 => [0.12, 0.212, 0.309, 0.3575, 0.406, 0.4543, 0.5028, 0.5513],
+        WeaponSubStatFamily::HP144 => [0.144, 0.2544, 0.3708, 0.429, 0.4872, 0.5452, 0.6034, 0.6615],
 
         WeaponSubStatFamily::PhysicalBonus45 => [0.045, 0.08, 0.116, 0.134, 0.152, 0.17, 0.189, 0.207],
         WeaponSubStatFamily::PhysicalBonus75 => [0.075, 0.133, 0.193, 0.224, 0.254, 0.284, 0.315, 0.345],

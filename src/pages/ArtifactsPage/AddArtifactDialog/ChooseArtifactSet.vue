@@ -3,9 +3,9 @@
         <div
             v-for="(artData) in artifactsData"
             :key="artData.eng"
-            :class="{active: artData.eng === value}"
+            :class="{active: artData.eng === props.modelValue}"
             class="item"
-            @click="$emit('input', artData.eng)"
+            @click="emits('update:modelValue', artData.eng)"
         >
             <el-image
                 class="image"
@@ -13,7 +13,7 @@
             >
             </el-image>
             <p class="text">
-                {{ artData.chs }}
+                {{ ta(artData.nameLocale) }}
             </p>
         </div>
         
@@ -21,38 +21,27 @@
     </div>
 </template>
 
-<script>
-import { artifactsData } from "../../../assets/artifacts";
-import { getArtifactThumbnailURL } from "../../../utils/utils";
+<script setup lang="ts">
+import { artifactsData } from "../../../assets/artifacts"
+import { getArtifactThumbnailURL } from "@/utils/utils"
+import type {ArtifactSetName} from "@/types/artifact"
+import {useI18n} from "@/i18n/i18n"
 
-// import colors from "@const/quality_colors";
+const { t, ta } = useI18n()
 
-export default {
-    name: "SetChoose",
-    inject: ["star"],
-    created: function () {
-        this.artifactsData = Object.values(artifactsData);
-        this.artifactsData.sort((a, b) => {
-            return b.maxStar - a.maxStar;
-        });
-        this.getArtifactThumbnailURL = getArtifactThumbnailURL;
-    },
-    props: {
-        value: {
-            type: String
-        }
-    },
-    // computed: {
-    //     glowColor() {
-    //         return colors[this.star - 1];
-    //     },
-
-    //     boxShadow() {
-    //         console.log(this.star);
-    //         return `0 0 20px 1px ${this.glowColor}`;
-    //     }
-    // }
+interface Props {
+    modelValue: ArtifactSetName
 }
+
+const props = withDefaults(defineProps<Props>(), {
+    modelValue: "archaicPetra"
+})
+
+interface Emits {
+    (e: "update:modelValue", v: ArtifactSetName): void
+}
+
+const emits = defineEmits<Emits>()
 </script>
 
 <style lang="scss" scoped>
@@ -69,6 +58,8 @@ export default {
     margin: 0;
     text-align: center;
     width: 48px;
+    word-break: normal;
+    //white-space: break-spaces;
 }
 
 .choose-artifact-set {

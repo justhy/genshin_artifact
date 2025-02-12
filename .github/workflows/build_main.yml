@@ -6,12 +6,13 @@ name: Build main site
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
+#  pull_request:
+#    branches: [ main ]
 
 jobs:
   build:
 
+#    runs-on: ubuntu-18.04
     runs-on: ubuntu-latest
 
 #     strategy:
@@ -27,22 +28,23 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'
+#        cache: 'npm'
     - name: Setup Rust
-      uses: actions-rs/toolchain@v1
+      uses: actions-rust-lang/setup-rust-toolchain@v1
       with:
         toolchain: nightly
+        target: wasm32-unknown-unknown
     - name: Setup wasm-pack
       run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
     - name: Build wasm dependency
-      run: npm run build:wasm
+      run: yarn build:wasm
     - name: Generate meta
-      run: npm run gen_meta
+      run: yarn gen_meta
   
     - name: Install node packages
-      run: npm ci
+      run: yarn install --immutable --immutable-cache --check-cache
     - name: Build
-      run: npm run build --if-present
+      run: yarn build
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:

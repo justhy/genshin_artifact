@@ -1,6 +1,7 @@
-use serde::{Serialize, Deserialize};
-
+use serde::{Deserialize, Serialize};
+use smallvec::SmallVec;
 use crate::common::Element;
+use crate::common::item_config_type::ConfigElements8Multi;
 use crate::common::max_trait::MaxValue;
 
 #[derive(Serialize, Deserialize)]
@@ -61,7 +62,7 @@ impl MaxValue for ConfigPaleFlame {
     fn max_value() -> Self {
         ConfigPaleFlame {
             avg_level: 2.0,
-            full_rate: 1.0
+            full_rate: 1.0,
         }
     }
 }
@@ -112,7 +113,7 @@ pub struct ConfigVermillionHereafter {
 #[derive(Serialize, Deserialize)]
 #[derive(Debug, Clone)]
 pub struct ConfigEchoesOfAnOffering {
-    pub rate: f64
+    pub rate: f64,
 }
 
 impl Default for ConfigEchoesOfAnOffering {
@@ -121,6 +122,76 @@ impl Default for ConfigEchoesOfAnOffering {
             rate: 0.5053
         }
     }
+}
+
+#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Default)]
+pub struct ConfigGildedDreams {
+    pub same_count: usize,
+    pub diff_count: usize,
+    pub rate: f64,
+}
+
+// #[derive(Serialize, Deserialize)]
+// #[derive(Debug, Clone, Default)]
+// pub struct ConfigDesertPavilionChronicle {
+//     pub rate: f64,
+// }
+
+#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Default)]
+pub struct ConfigFlowerOfParadiseLost {
+    pub stack: f64,
+}
+
+#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Default)]
+pub struct ConfigNymphsDream {
+    pub w1: f64,
+    pub w2: f64,
+    pub w3: f64,
+    pub rate: f64,
+}
+
+#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Default)]
+pub struct ConfigVourukashasGlow {
+    pub stack: f64,
+}
+
+#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Default)]
+pub struct ConfigMarechausseeHunter {
+    pub stack: f64,
+}
+
+#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Default)]
+pub struct ConfigSongOfDaysPast {
+    pub regeneration: f64,
+    pub rate: f64,
+}
+
+#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Default)]
+pub struct ConfigNighttimeWhispersInTheEchoingWoods {
+    pub rate1: f64,
+    pub rate2: f64,
+}
+
+#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Default)]
+pub struct ConfigScrollOfTheHeroOfCinder {
+    pub elements: ConfigElements8Multi,
+    pub rate1: f64,
+    pub rate2: f64,
+}
+
+#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Default)]
+pub struct ConfigObsidianCodex {
+    pub set2_rate: f64,
+    pub set4_rate: f64,
 }
 
 #[derive(Default, Debug, Clone)]
@@ -145,6 +216,20 @@ pub struct ArtifactEffectConfig {
     pub config_thundersoother: ConfigRate,
     pub config_vermillion_hereafter: ConfigVermillionHereafter,
     pub config_echoes_of_an_offering: ConfigEchoesOfAnOffering,
+    pub config_deepwood_memories: ConfigRate,
+    pub config_gilded_dreams: ConfigGildedDreams,
+    pub config_desert_pavilion_chronicle: ConfigRate,
+    pub config_flower_of_paradise_lost: ConfigFlowerOfParadiseLost,
+    pub config_nymphs_dream: ConfigNymphsDream,
+    pub config_vourukashas_glow: ConfigVourukashasGlow,
+    pub config_marechaussee_hunter: ConfigMarechausseeHunter,
+    pub config_golden_troupe: ConfigRate,
+    pub config_song_of_days_past: ConfigSongOfDaysPast,
+    pub config_nighttime_whispers_in_the_echoing_woods: ConfigNighttimeWhispersInTheEchoingWoods,
+    pub config_fragment_of_harmonic_whimsy: ConfigLevel,
+    pub config_unfinished_reverie: ConfigRate,
+    pub config_scroll_of_the_hero_of_cinder_city: ConfigScrollOfTheHeroOfCinder,
+    pub config_obsidian_codex: ConfigObsidianCodex,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -168,7 +253,21 @@ pub struct ArtifactConfigInterface {
     pub config_tenacity_of_the_millelith: Option<ConfigRate>,
     pub config_thundersoother: Option<ConfigRate>,
     pub config_vermillion_hereafter: Option<ConfigVermillionHereafter>,
-    pub config_echoes_of_an_offering: Option<ConfigEchoesOfAnOffering>
+    pub config_echoes_of_an_offering: Option<ConfigEchoesOfAnOffering>,
+    pub config_deepwood_memories: Option<ConfigRate>,
+    pub config_gilded_dreams: Option<ConfigGildedDreams>,
+    pub config_desert_pavilion_chronicle: Option<ConfigRate>,
+    pub config_flower_of_paradise_lost: Option<ConfigFlowerOfParadiseLost>,
+    pub config_nymphs_dream: Option<ConfigNymphsDream>,
+    pub config_vourukashas_glow: Option<ConfigVourukashasGlow>,
+    pub config_marechaussee_hunter: Option<ConfigMarechausseeHunter>,
+    pub config_golden_troupe: Option<ConfigRate>,
+    pub config_song_of_days_past: Option<ConfigSongOfDaysPast>,
+    pub config_nighttime_whispers_in_the_echoing_woods: Option<ConfigNighttimeWhispersInTheEchoingWoods>,
+    pub config_fragment_of_harmonic_whimsy: Option<ConfigLevel>,
+    pub config_unfinished_reverie: Option<ConfigRate>,
+    pub config_scroll_of_the_hero_of_cinder_city: Option<ConfigScrollOfTheHeroOfCinder>,
+    pub config_obsidian_codex: Option<ConfigObsidianCodex>,
 }
 
 impl ArtifactConfigInterface {
@@ -193,12 +292,26 @@ impl ArtifactConfigInterface {
             config_thundersoother: self.config_thundersoother.unwrap_or(Default::default()),
             config_vermillion_hereafter: self.config_vermillion_hereafter.unwrap_or(Default::default()),
             config_echoes_of_an_offering: self.config_echoes_of_an_offering.unwrap_or(Default::default()),
+            config_deepwood_memories: self.config_deepwood_memories.unwrap_or(Default::default()),
+            config_gilded_dreams: self.config_gilded_dreams.unwrap_or(Default::default()),
+            config_desert_pavilion_chronicle: self.config_desert_pavilion_chronicle.unwrap_or(Default::default()),
+            config_flower_of_paradise_lost: self.config_flower_of_paradise_lost.unwrap_or(Default::default()),
+            config_nymphs_dream: self.config_nymphs_dream.unwrap_or(Default::default()),
+            config_vourukashas_glow: self.config_vourukashas_glow.unwrap_or(Default::default()),
+            config_marechaussee_hunter: self.config_marechaussee_hunter.unwrap_or(Default::default()),
+            config_golden_troupe: self.config_golden_troupe.unwrap_or(Default::default()),
+            config_song_of_days_past: self.config_song_of_days_past.unwrap_or(Default::default()),
+            config_nighttime_whispers_in_the_echoing_woods: self.config_nighttime_whispers_in_the_echoing_woods.unwrap_or(Default::default()),
+            config_fragment_of_harmonic_whimsy: self.config_fragment_of_harmonic_whimsy.unwrap_or_default(),
+            config_unfinished_reverie: self.config_unfinished_reverie.unwrap_or_default(),
+            config_scroll_of_the_hero_of_cinder_city: self.config_scroll_of_the_hero_of_cinder_city.unwrap_or_default(),
+            config_obsidian_codex: self.config_obsidian_codex.unwrap_or_default(),
         }
     }
 }
 
 pub struct ArtifactEffectConfigBuilder {
-    pub config: ArtifactEffectConfig
+    pub config: ArtifactEffectConfig,
 }
 
 impl ArtifactEffectConfigBuilder {
@@ -282,6 +395,44 @@ impl ArtifactEffectConfigBuilder {
 
     pub fn heart_of_depth(&mut self, rate: f64) -> &mut Self {
         self.config.config_heart_of_depth.rate = rate;
+        self
+    }
+
+    pub fn bloodstained_chivalry(&mut self, rate: f64) -> &mut Self {
+        self.config.config_bloodstained_chivalry.rate = rate;
+        self
+    }
+
+    pub fn gilded_dreams(&mut self, same_count: usize, diff_count: usize, rate: f64) -> &mut Self {
+        self.config.config_gilded_dreams.same_count = same_count;
+        self.config.config_gilded_dreams.diff_count = diff_count;
+        self.config.config_gilded_dreams.rate = rate;
+        self
+    }
+
+    pub fn deepwood_memories(&mut self, rate:f64) -> &mut Self {
+        self.config.config_deepwood_memories.rate = rate;
+        self
+    }
+    
+    pub fn desert_pavilion_chronicle(&mut self, rate:f64) -> &mut Self {
+        self.config.config_desert_pavilion_chronicle.rate = rate;
+        self
+    }
+
+    pub fn flower_of_paradise_lost(&mut self, stack:f64) -> &mut Self {
+        self.config.config_flower_of_paradise_lost.stack = stack;
+        self
+    }
+
+    pub fn golden_troupe(&mut self, rate: f64) -> &mut Self {
+        self.config.config_golden_troupe.rate = rate;
+        self
+    }
+
+    pub fn obsidian_codex(&mut self, set2_rate: f64, set4_rate: f64) -> &mut Self {
+        self.config.config_obsidian_codex.set2_rate = set2_rate;
+        self.config.config_obsidian_codex.set4_rate = set4_rate;
         self
     }
 }

@@ -19,12 +19,40 @@
 </template>
 
 <script>
+/// #if !USE_CDN
+import { use } from "echarts/core"
+import { LineChart, PieChart } from "echarts/charts"
+import {
+    TooltipComponent,
+    // VisualMapComponent,
+    ToolboxComponent,
+    LegendComponent,
+    GridComponent,
+    TitleComponent,
+} from "echarts/components"
+import { CanvasRenderer } from "echarts/renderers"
+
+use([
+    CanvasRenderer,
+    LineChart,
+    PieChart,
+    TooltipComponent,
+    ToolboxComponent,
+    LegendComponent,
+    TitleComponent,
+    GridComponent
+])
+/// #endif
 import { artifactTags } from "@const/artifact"
 import { deviceIsPC } from "@util/device"
+import VChart from "vue-echarts"
+import {useI18n} from "../../i18n/i18n";
+
 
 export default {
     name: "ArtifactPerStatBonus",
     props: ["data"],
+    components: {VChart},
     data() {
         return {
             deviceIsPC
@@ -51,13 +79,17 @@ export default {
             for (let key in keysMap) {
                 // console.log(key)
                 if (this.data[key].length > 0) {
-                    let chs = artifactTags[keysMap[key]].chs
+                    // let chs = artifactTags[keysMap[key]].chs
+                    const title = this.t("stat", keysMap[key])
                     data.push({
-                        name: chs,
+                        // name: chs,
+                        name: title,
                         type: "line",
+                        // data: parseFloat(this.data[key].toFixed(1))
                         data: this.data[key]
                     })
-                    legend.push(chs)
+                    // legend.push(chs)
+                    legend.push(title)
                 }
             }
 
@@ -80,7 +112,7 @@ export default {
 
             return {
                 title: {
-                    text: "1词条收益",
+                    text: this.t("calcPage.bonus1"),
                     left: "center",
                 },
                 tooltip: {
@@ -88,7 +120,7 @@ export default {
                 },
                 series: [
                     {
-                        name: "1词条收益",
+                        name: this.t("calcPage.bonus1"),
                         type: "pie",
                         radius: "50%",
                         data: dataSingle
@@ -114,16 +146,17 @@ export default {
                 xAxis: {
                     type: "category",
                     // min: 1,
-                    name: "词条数",
+                    name: this.t("calcPage.statCount"),
                     axisLabel: {
                         formatter: (value, index) => {
-                            return `${index + 1}词条`
+                            // return `${index + 1}${this.t('misc.stat')}`
+                            return `${index + 1}`
                         }
                     }
 
                 },
                 yAxis: {
-                    name: "相对提升幅度",
+                    name: this.t("calcPage.gain"),
                     axisLabel: {
                         formatter: (value, index) => {
                             return `${(value * 100).toFixed(1)}%`
@@ -134,6 +167,14 @@ export default {
             }
             // console.log(option)
             return option
+        }
+    },
+
+    setup() {
+        const { t } = useI18n()
+
+        return {
+            t
         }
     }
 }

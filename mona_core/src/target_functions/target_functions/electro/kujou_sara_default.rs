@@ -3,7 +3,7 @@ use crate::artifacts::effect_config::{ArtifactEffectConfig, ConfigRate};
 use crate::attribute::{Attribute, AttributeName, SimpleAttributeGraph2};
 use crate::character::{Character, CharacterName};
 use crate::character::character_common_data::CharacterCommonData;
-use crate::character::characters::kujou_sara::KujouSara;
+use crate::character::characters::electro::kujou_sara::KujouSara;
 use crate::character::skill_config::CharacterSkillConfig;
 use crate::character::traits::CharacterTrait;
 use crate::common::item_config_type::ItemConfig;
@@ -24,8 +24,14 @@ impl TargetFunctionMetaTrait for KujouSaraDefaultTargetFunction {
     #[cfg(not(target_family = "wasm"))]
     const META_DATA: TargetFunctionMeta = TargetFunctionMeta {
         name: TargetFunctionName::KujouSaraDefault,
-        chs: "九条裟罗-黑羽鸣镝",
-        description: "普通雷系辅助九条",
+        name_locale: crate::common::i18n::locale!(
+            zh_cn: "九条裟罗-黑羽鸣镝",
+            en: "Kujou Sara-Crowfeather Kaburaya"
+        ),
+        description: crate::common::i18n::locale!(
+            zh_cn: "普通雷系辅助九条",
+            en: "Support Sara"
+        ),
         tags: "辅助",
         four: TargetFunctionFor::SomeWho(CharacterName::KujouSara),
         image: TargetFunctionMetaImage::Avatar
@@ -38,49 +44,50 @@ impl TargetFunctionMetaTrait for KujouSaraDefaultTargetFunction {
 
 impl TargetFunction for KujouSaraDefaultTargetFunction {
     fn get_target_function_opt_config(&self) -> TargetFunctionOptConfig {
-        TargetFunctionOptConfig {
-            atk_fixed: 0.0,
-            atk_percentage: 1.0,
-            hp_fixed: 0.0,
-            hp_percentage: 0.0,
-            def_fixed: 0.0,
-            def_percentage: 0.0,
-            recharge: 1.1,
-            elemental_mastery: 0.0,
-            critical: 1.0,
-            critical_damage: 1.0,
-            healing_bonus: 0.0,
-            bonus_electro: 2.0,
-            bonus_pyro: 0.0,
-            bonus_hydro: 0.0,
-            bonus_anemo: 0.0,
-            bonus_cryo: 0.0,
-            bonus_geo: 0.0,
-            bonus_dendro: 0.0,
-            bonus_physical: 0.0,
-            sand_main_stats: vec![
-                StatName::ATKPercentage,
-                StatName::Recharge,
-            ],
-            goblet_main_stats: vec![
-                StatName::ElectroBonus,
-                StatName::ATKPercentage,
-            ],
-            head_main_stats: vec![
-                StatName::CriticalRate,
-                StatName::CriticalDamage,
-                StatName::ATKPercentage,
-            ],
-            set_names: Some(vec![
-                ArtifactSetName::EmblemOfSeveredFate,
-                ArtifactSetName::GladiatorsFinale,
-                ArtifactSetName::ShimenawasReminiscence,
-            ]),
-            very_critical_set_names: Some(vec![ArtifactSetName::NoblesseOblige]),
-            normal_threshold: TargetFunctionOptConfig::DEFAULT_NORMAL_THRESHOLD,
-            critical_threshold: TargetFunctionOptConfig::DEFAULT_CRITICAL_THRESHOLD,
-            very_critical_threshold: TargetFunctionOptConfig::DEFAULT_VERY_CRITICAL_THRESHOLD
-        }
+        // TargetFunctionOptConfig {
+        //     atk_fixed: 0.0,
+        //     atk_percentage: 1.0,
+        //     hp_fixed: 0.0,
+        //     hp_percentage: 0.0,
+        //     def_fixed: 0.0,
+        //     def_percentage: 0.0,
+        //     recharge: 1.1,
+        //     elemental_mastery: 0.0,
+        //     critical: 1.0,
+        //     critical_damage: 1.0,
+        //     healing_bonus: 0.0,
+        //     bonus_electro: 2.0,
+        //     bonus_pyro: 0.0,
+        //     bonus_hydro: 0.0,
+        //     bonus_anemo: 0.0,
+        //     bonus_cryo: 0.0,
+        //     bonus_geo: 0.0,
+        //     bonus_dendro: 0.0,
+        //     bonus_physical: 0.0,
+        //     sand_main_stats: vec![
+        //         StatName::ATKPercentage,
+        //         StatName::Recharge,
+        //     ],
+        //     goblet_main_stats: vec![
+        //         StatName::ElectroBonus,
+        //         StatName::ATKPercentage,
+        //     ],
+        //     head_main_stats: vec![
+        //         StatName::CriticalRate,
+        //         StatName::CriticalDamage,
+        //         StatName::ATKPercentage,
+        //     ],
+        //     set_names: Some(vec![
+        //         ArtifactSetName::EmblemOfSeveredFate,
+        //         ArtifactSetName::GladiatorsFinale,
+        //         ArtifactSetName::ShimenawasReminiscence,
+        //     ]),
+        //     very_critical_set_names: Some(vec![ArtifactSetName::NoblesseOblige]),
+        //     normal_threshold: TargetFunctionOptConfig::DEFAULT_NORMAL_THRESHOLD,
+        //     critical_threshold: TargetFunctionOptConfig::DEFAULT_CRITICAL_THRESHOLD,
+        //     very_critical_threshold: TargetFunctionOptConfig::DEFAULT_VERY_CRITICAL_THRESHOLD
+        // }
+        unimplemented!()
     }
 
     fn get_default_artifact_config(&self, _team_config: &TeamQuantization) -> ArtifactEffectConfig {
@@ -93,7 +100,7 @@ impl TargetFunction for KujouSaraDefaultTargetFunction {
             attribute, enemy
         };
         type S = <KujouSara as CharacterTrait>::DamageEnumType;
-        let dmg_q = KujouSara::damage::<SimpleDamageBuilder>(&context, S::Q1, &CharacterSkillConfig::NoConfig).normal.expectation;
+        let dmg_q = KujouSara::damage::<SimpleDamageBuilder>(&context, S::Q1, &CharacterSkillConfig::NoConfig, None).normal.expectation;
 
         let atk_for_other_using_other_base = attribute.get_value(AttributeName::ATKBonusForOther);
         let self_base_atk = attribute.get_value(AttributeName::ATKBase);

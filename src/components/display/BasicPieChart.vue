@@ -3,8 +3,30 @@
 </template>
 
 <script>
+/// #if !USE_CDN
+import { use } from "echarts/core"
+import { PieChart } from "echarts/charts"
+import {
+    TooltipComponent,
+    TitleComponent,
+} from "echarts/components"
+import { CanvasRenderer } from "echarts/renderers"
+
+use([
+    CanvasRenderer,
+    PieChart,
+    TooltipComponent,
+    TitleComponent,
+])
+/// #endif
+import VChart from "vue-echarts"
+import {useI18n} from "../../i18n/i18n";
+
 export default {
     name: "BasicPieChart",
+    components: {
+        VChart
+    },
     props: ["title", "data"],
     // mounted() {
     //     console.log(this.option)
@@ -42,7 +64,14 @@ export default {
                 ]
             }
         }
-    }
+    },
+    // setup() {
+    //     const { t } = useI18n()
+    //
+    //     return {
+    //         t
+    //     }
+    // }
 }
 </script>
 

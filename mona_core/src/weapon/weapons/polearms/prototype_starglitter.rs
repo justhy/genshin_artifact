@@ -40,14 +40,21 @@ pub struct PrototypeStarglitter;
 impl WeaponTrait for PrototypeStarglitter {
     const META_DATA: WeaponStaticData = WeaponStaticData {
         name: WeaponName::PrototypeStarglitter,
+        internal_name: "Pole_Proto",
         weapon_type: WeaponType::Polearm,
         weapon_sub_stat: Some(WeaponSubStatFamily::Recharge100),
         weapon_base: WeaponBaseATKFamily::ATK510,
         star: 4,
         #[cfg(not(target_family = "wasm"))]
-        effect: Some("嗜魔：施放元素战技后，普通攻击和重击造成的伤害提高8%/10%/12%/14%/16%。该效果持续12秒，最多叠加2层。"),
+        effect: Some(crate::common::i18n::locale!(
+            zh_cn: "施放元素战技后，普通攻击和重击造成的伤害提高<span style=\"color: #409EFF;\">8%-10%-12%-14%-16%</span>。该效果持续12秒，最多叠加2层。",
+            en: "After using an Elemental Skill, increases Normal and Charged Attack DMG by <span style=\"color: #409EFF;\">8%-10%-12%-14%-16%</span> for 12s. Max 2 stacks."
+        )),
         #[cfg(not(target_family = "wasm"))]
-        chs: "试作星镰"
+        name_locale: crate::common::i18n::locale!(
+            zh_cn: "试作星镰",
+            en: "Prototype Starglitter"
+        )
     };
 
     #[cfg(not(target_family = "wasm"))]

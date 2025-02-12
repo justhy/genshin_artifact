@@ -1,9 +1,9 @@
 <template>
-    <div>
+    <div style="overflow: hidden">
         <el-dialog
-            title="选择圣遗物"
+            :title="t('calcPage.selectArt')"
             :width="deviceIsPC ? '80%' : '90%'"
-            :visible.sync="showSelectArtifactDialog"
+            v-model="showSelectArtifactDialog"
         >
             <select-artifact
                 :position="selectArtifactSlot"
@@ -13,12 +13,12 @@
 
 <!--        damage analysis-->
         <el-dialog
-            :visible.sync="showDamageAnalysisDialog"
-            title="伤害构成"
+            v-model="showDamageAnalysisDialog"
+            :title="t('calcPage.dmgComp')"
             :width="deviceIsPC ? '60%' : '90%'"
         >
             <damage-analysis
-                ref="damageAnalysis"
+                ref="damageAnalysisComponent"
                 :enemy-config="enemyConfig"
                 :character-level="characterLevelNumber"
             ></damage-analysis>
@@ -26,8 +26,8 @@
 
 <!--    select buff    -->
         <el-dialog
-            :visible.sync="showSelectBuffDialog"
-            title="选择BUFF"
+            v-model="showSelectBuffDialog"
+            :title="t('calcPage.selectBuff')"
             :width="deviceIsPC ? '60%' : '90%'"
         >
             <select-buff
@@ -37,84 +37,85 @@
 
 <!--    computation setup    -->
         <el-dialog
-            :visible.sync="showConstraintDialog"
-            title="计算设置"
+            v-model="showConstraintDialog"
+            :title="t('calcPage.setupCalc')"
             :width="deviceIsPC ? '400px' : '90%'"
         >
             <p class="common-title2">
-                算法
+                {{ t("misc.algo") }}
                 <el-tooltip>
-                    <i class="el-icon-question" content=""></i>
+                    <i-fa6-solid-circle-question></i-fa6-solid-circle-question>
                     <template #content>
-                        A*：推荐<br>
-                        启发式剪枝：不保证得到最优解，但是速度快<br>
-                        纯枚举：不推荐
+                        <span v-html="t('calcPage.algoDesc')">
+
+                        </span>
+<!--                        {{ t("calcPage.algoDesc") }}-->
                     </template>
                 </el-tooltip>
             </p>
             <el-alert
                 v-if="algorithm === 'Naive'"
-                title="请限定套装或者主词条，否则计算将十分耗时，可能导致计算超时"
+                :title="t('calcPage.plzSetConst')"
                 type="warning"
                 style="margin-bottom: 12px"
             ></el-alert>
             <el-radio-group v-model="algorithm">
-                <el-radio label="AStar">A*</el-radio>
-                <el-radio label="Heuristic">启发式剪枝</el-radio>
-                <el-radio label="Naive">纯枚举</el-radio>
+                <el-radio label="AStar">{{ t("calcPage.aStar") }}</el-radio>
+<!--                <el-radio label="Heuristic">{{t("calcPage.heuristic")}}</el-radio>-->
+                <el-radio label="Naive">{{ t("calcPage.naive") }}</el-radio>
             </el-radio-group>
 
-            <p class="common-title2">限定套装</p>
+            <p class="common-title2">{{ t("calcPage.constSet") }}</p>
             <div style="margin-top: 12px; margin-bottom: 12px">
                 <select-artifact-set
                     multiple
                     v-model="constraintArtifactSet"
                     :style="{ width: '100%' }"
-                    placeholder="限定套装"
+                    :placeholder="t('calcPage.constSet')"
                 ></select-artifact-set>
             </div>
 
-            <p class="common-title2">限定主词条</p>
+            <p class="common-title2">{{ t("calcPage.constMain") }}</p>
             <div style="margin-top: 12px; margin-bottom: 12px">
                 <div class="constraint-main-stat-item">
-                    <span>时之沙</span>
+                    <span>{{ t("misc.sand") }}</span>
                     <select-artifact-main-stat
                         v-model="constraintSandMainStats"
                         :include-any="false"
                         :multiple="true"
                         position="sand"
                         :style="{ width: 'calc(100% - 48px)' }"
-                        placeholder="限定主词条"
+                        :placeholder="t('calcPage.constMain')"
                     ></select-artifact-main-stat>
                 </div>
                 <div class="constraint-main-stat-item">
-                    <span>空之杯</span>
+                    <span>{{ t("misc.cup") }}</span>
                     <select-artifact-main-stat
                         v-model="constraintGobletMainStats"
                         :include-any="false"
                         :multiple="true"
                         position="cup"
                         :style="{ width: 'calc(100% - 48px)' }"
-                        placeholder="限定主词条"
+                        :placeholder="t('calcPage.constMain')"
                     ></select-artifact-main-stat>
                 </div>
                 <div class="constraint-main-stat-item">
-                    <span>理之冠</span>
+                    <span>{{ t("misc.head") }}</span>
                     <select-artifact-main-stat
                         v-model="constraintHeadMainStats"
                         :include-any="false"
                         :multiple="true"
                         position="head"
                         :style="{ width: 'calc(100% - 48px)' }"
-                        placeholder="限定主词条"
+                        :placeholder="t('calcPage.constMain')"
                     ></select-artifact-main-stat>
                 </div>
             </div>
 
-            <p class="constraint-title">限定最小值</p>
+            <p class="constraint-title">{{ t("calcPage.constMin") }}</p>
             <div>
                 <div class="constraint-min-item">
-                    <span class="constraint-min-title">元素充能效率</span>
+                    <span class="constraint-min-title">{{ t("stat.recharge") }}</span>
                     <div class="slider-div">
                         <el-slider
                             :min="1"
@@ -126,7 +127,7 @@
                     </div>
                 </div>
                 <div class="constraint-min-item">
-                    <span class="constraint-min-title">元素精通</span>
+                    <span class="constraint-min-title">{{ t("stat.elementalMastery") }}</span>
                     <div class="slider-div">
                         <el-slider
                             :min="0"
@@ -138,7 +139,7 @@
                     </div>
                 </div>
                 <div class="constraint-min-item">
-                    <span class="constraint-min-title">暴击率</span>
+                    <span class="constraint-min-title">{{ t("stat.critical") }}</span>
                     <div class="slider-div">
                         <el-slider
                             :min="0"
@@ -150,7 +151,7 @@
                     </div>
                 </div>
                 <div class="constraint-min-item">
-                    <span class="constraint-min-title">暴击伤害</span>
+                    <span class="constraint-min-title">{{ t("stat.criticalDamage") }}</span>
                     <div class="slider-div">
                         <el-slider
                             :min="0"
@@ -162,8 +163,8 @@
                     </div>
                 </div>
             </div>
-            
-            <p class="common-title2">过滤圣遗物组</p>
+
+            <p class="common-title2">{{ t("calcPage.filKumi") }}</p>
             <div style="max-height: 50vh; overflow: auto" class="mona-scroll">
                 <el-tree
                     :data="kumiTreeDataForElementUI"
@@ -172,13 +173,12 @@
                 >
                 </el-tree>
             </div>
-
         </el-dialog>
 
 <!--    artifacts analysis    -->
         <el-dialog
-            :visible.sync="showArtifactAnalysisDialog"
-            title="圣遗物分析"
+            v-model="showArtifactAnalysisDialog"
+            :title="t('calcPage.artAnalysis')"
             :width="deviceIsPC ? '60%' : '90%'"
         >
             <artifacts-set-statistics
@@ -188,8 +188,8 @@
 
 <!--    stats marginal bonus    -->
         <el-dialog
-            :visible.sync="showArtifactPerBonusDialog"
-            title="词条收益曲线"
+            v-model="showArtifactPerBonusDialog"
+            :title="t('calcPage.statCurve')"
             :width="deviceIsPC ? '80%' : '90%'"
         >
             <artifact-per-stat-bonus
@@ -198,21 +198,16 @@
         </el-dialog>
 
 <!--        new artifact kumi-->
-        <el-dialog
-            :visible.sync="showSaveKumiDialog"
-            title="新建圣遗物组"
-            :width="deviceIsPC ? '60%' : '90%'"
-        >
-            <save-as-kumi
-                :default-name="kumiDefaultName"
-                @confirm="handleSaveAsKumi"
-            ></save-as-kumi>
-        </el-dialog>
+        <save-as-kumi
+            v-model="showSaveKumiDialog"
+            :default-name="kumiDefaultName"
+            @confirm="handleSaveAsKumi"
+        ></save-as-kumi>
 
 <!--    select artifact kumi    -->
         <el-dialog
-            :visible.sync="showUseKumiDialog"
-            title="选择圣遗物组"
+            v-model="showUseKumiDialog"
+            :title="t('calcPage.selectKumi')"
             :width="deviceIsPC ? '60%' : '90%'"
         >
             <div style="height: 60vh" class="mona-scroll">
@@ -224,52 +219,51 @@
 
         </el-dialog>
 
+<!--        enemy config-->
         <el-dialog
-            :visible.sync="showEnemyConfigDialog"
-            title="敌人设置"
+            v-model="showEnemyConfigDialog"
+            :title="t('calcPage.setupEnemy')"
             :width="deviceIsPC ? '60%' : '90%'"
         >
-            <enemy-config
+            <enemy-config-component
                 v-model="enemyConfig"
-            ></enemy-config>
+            ></enemy-config-component>
         </el-dialog>
 
+<!--        artifact config-->
         <el-dialog
-            :visible.sync="showConfigArtifactDialog"
-            title="圣遗物设置"
+            v-model="showConfigArtifactDialog"
+            :title="t('calcPage.setupArt')"
             :width="deviceIsPC ? '60%' : '90%'"
         >
-            <h3 class="common-title2">圣遗物特效模式</h3>
+            <h3 class="common-title2">{{ t("calcPage.artMode") }}</h3>
             <el-radio-group
                 v-model="artifactEffectMode"
             >
-                <el-radio label="auto">自动</el-radio>
-                <el-radio label="custom">手动</el-radio>
+                <el-radio label="auto">{{ t("calcPage.modeAuto") }}</el-radio>
+                <el-radio label="custom">{{ t("calcPage.modeCustom") }}</el-radio>
             </el-radio-group>
 
-            <h3 class="common-title2">圣遗物特效（仅在手动模式下有效）</h3>
+            <h3 class="common-title2">{{ t("calcPage.artEffect") }}</h3>
             <artifact-config
                 v-model="artifactConfig"
             ></artifact-config>
         </el-dialog>
 
-<!--        <div class="top-things" ref="topThings">-->
-<!--            <el-breadcrumb>-->
-<!--                <el-breadcrumb-item>Mona</el-breadcrumb-item>-->
-<!--            </el-breadcrumb>-->
-<!--            <el-divider></el-divider>-->
-<!--        </div>-->
-
-        <el-row class="big-container" ref="bigContainer">
+        <el-row class="big-container">
             <el-col class="left-container mona-scroll-hidden" :sm="24" :md="6">
                 <div class="config-character">
-                    <img :src="characterSplash" class="character-splash" />
+                    <img :src="characterSplash" alt="角色" class="character-splash" />
                     <div class="select-character">
-                        <p class="common-title">角色</p>
+                        <p class="common-title">{{ t("misc.character") }}</p>
                         <div style="display: flex; gap: 12px">
+<!--                            <select-character-->
+<!--                                :model-value="characterName"-->
+<!--                                @update:modelValue="changeCharacter"-->
+<!--                                style="flex: 1"-->
+<!--                            ></select-character>-->
                             <select-character
-                                :value="characterName"
-                                @input="changeCharacter"
+                                v-model="characterName"
                                 style="flex: 1"
                             ></select-character>
                             <select-character-level
@@ -279,10 +273,9 @@
                         </div>
 
                         <div class="config-character-skill">
-                            <h3 class="common-title2">技能</h3>
+                            <h3 class="common-title2">{{ t("misc.skill") }}</h3>
                             <div class="skill-div">
                                 <el-input-number
-                                    size="mini"
                                     controls-position="right"
                                     v-model="characterSkill1"
                                     :min="1"
@@ -290,7 +283,6 @@
                                     style="flex: 1; display: block; width: unset"
                                 ></el-input-number>
                                 <el-input-number
-                                    size="mini"
                                     controls-position="right"
                                     v-model="characterSkill2"
                                     :min="1"
@@ -298,7 +290,6 @@
                                     style="flex: 1; display: block; width: unset"
                                 ></el-input-number>
                                 <el-input-number
-                                    size="mini"
                                     controls-position="right"
                                     v-model="characterSkill3"
                                     :min="1"
@@ -309,9 +300,8 @@
                         </div>
 
                         <div class="config-character-constellation">
-                            <h3 class="common-title2">命之座</h3>
+                            <h3 class="common-title2">{{ t("misc.conste") }}</h3>
                             <el-input-number
-                                size="mini"
                                 controls-position="right"
                                 v-model="characterConstellation"
                                 :min="0"
@@ -334,13 +324,18 @@
                 <div class="config-weapon">
                     <!-- <img :src="weaponSplash" class="weapon-splash" /> -->
                     <div class="select-weapon">
-                        <p class="common-title">武器</p>
+                        <p class="common-title">{{ t("misc.weapon") }}</p>
 
                         <div style="display: flex; gap: 12px; margin-bottom: 8px">
+<!--                            <select-weapon-->
+<!--                                :type="characterWeaponType"-->
+<!--                                :model-value="weaponName"-->
+<!--                                @update:modelValue="changeWeapon"-->
+<!--                                style="flex: 1"-->
+<!--                            ></select-weapon>-->
                             <select-weapon
                                 :type="characterWeaponType"
-                                :value="weaponName"
-                                @input="changeWeapon"
+                                v-model="weaponName"
                                 style="flex: 1"
                             ></select-weapon>
                             <select-weapon-level
@@ -352,9 +347,8 @@
                         <weapon-display :weapon-name="weaponName"></weapon-display>
 
                         <div class="config-weapon-refine">
-                            <h3 class="common-title2">精炼</h3>
+                            <h3 class="common-title2">{{ t("misc.refine") }}</h3>
                             <el-input-number
-                                size="mini"
                                 controls-position="right"
                                 v-model="weaponRefine"
                                 :min="1"
@@ -375,40 +369,36 @@
                 <el-divider></el-divider>
 
                 <div class="config-target-function">
-                    <p class="common-title">目标函数</p>
+                    <p class="common-title">{{ t("misc.tf") }}</p>
                     <div class="my-button-list" style="margin-bottom: 12px">
-                        <el-button
-                            type="primary"
-                            size="mini"
-                            icon="el-icon-caret-right"
-                            @click="handleOptimizeArtifact"
-                        >开始计算</el-button>
+                        <el-button-group>
+                            <el-button
+                                type="primary"
+                                :icon="IconEpCaretRight"
+                                @click="handleOptimizeArtifact"
+                            >{{ t("calcPage.start") }}</el-button>
 
-                       <el-button
-                           size="mini"
-                           icon="el-icon-s-tools"
-                           type="text"
-                           @click="handleClickSetupOptimization"
-                       >计算设置</el-button>
+                            <el-button
+                                :icon="IconEpTools"
+                                @click="handleClickSetupOptimization"
+                            >{{ t("calcPage.setupCalc") }}</el-button>
 
-                       <el-button
-                           size="mini"
-                           icon="el-icon-s-help"
-                           type="text"
-                           @click="handleClickArtifactConfig"
-                       >圣遗物设置</el-button>
+                            <el-button
+                                :icon="IconEpTools"
+                                @click="handleClickArtifactConfig"
+                            >{{ t("calcPage.setupArt") }}</el-button>
+                        </el-button-group>
                     </div>
 
                     <div class="my-button-list" style="margin-bottom: 12px">
                         <el-dropdown
                             trigger="click"
-                            size="small"
                             @command="handleCommandPreset"
                             @click="handleSavePreset(miscCurrentPresetName)"
                             split-button
                         >
-                            <template v-if="!miscCurrentPresetName">新建预设</template>
-                            <template v-else>保存预设「{{ miscCurrentPresetName }}」</template>
+                            <template v-if="!miscCurrentPresetName">{{ t("calcPage.newPreset") }}</template>
+                            <template v-else>{{ t("calcPage.savePreset") }}「{{ miscCurrentPresetName }}」</template>
 
                             <template #dropdown>
                                 <el-dropdown-menu>
@@ -416,39 +406,24 @@
                                         v-if="miscCurrentPresetName"
                                         icon="el-icon-s-tools"
                                         command="save-preset"
-                                    >另存为预设</el-dropdown-item>
-    <!--                                    <el-dropdown-item icon="el-icon-s-help" command="setup-artifact">圣遗物设置</el-dropdown-item>-->
+                                    >{{ t("calcPage.saveAsPreset") }}</el-dropdown-item>
 
                                     <el-dropdown-item
-                                        v-for="(item, index) in presetsAllFlat"
-                                        :divided="index === 0 && miscCurrentPresetName"
+                                        v-for="(item, index) in presetStore.allFlat.value"
+                                        :divided="index === 0 && !!miscCurrentPresetName"
                                         :key="item.name"
-                                        icon="el-icon-menu"
+                                        :icon="IconEpMenu"
                                         :command="'apply-' + item.name"
                                     >{{ item.name }}</el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>
                     </div>
-<!--                    <div>-->
-<!--                        <el-button-->
-<!--                            size="mini"-->
-<!--                            icon="el-icon-star-on"-->
-<!--                            type="text"-->
-<!--                            @click="handleClickSaveOptimizeConfig"-->
-<!--                        >存为预设</el-button>-->
-<!--                        <el-button-->
-<!--                            size="mini"-->
-<!--                            icon="el-icon-star-on"-->
-<!--                            type="text"-->
-<!--                            @click="handleClickSaveOptimizeConfig"-->
-<!--                        >应用预设</el-button>-->
-<!--                    </div>-->
+
                     <el-tabs v-model="miscTargetFunctionTab">
-                        <el-tab-pane label="普通" name="normal">
+                        <el-tab-pane :label="t('calcPage.tfNormal')" name="normal">
                             <select-target-function
-                                @input="changeTargetFunction"
-                                :value="targetFunctionName"
+                                v-model="targetFunctionName"
                                 :character-name="characterName"
                             ></select-target-function>
                             <div class="target-function-config" v-if="targetFunctionNeedConfig"
@@ -474,8 +449,8 @@
                             </div>
                         </el-tab-pane>
                         <el-tab-pane label="MONA-DSL" name="dsl">
-                            <el-alert type="warning" title="该功能为测试版" :closable="false" style="margin-bottom: 8px"></el-alert>
-                            <el-input type="textarea" :rows="10" placeholder="代码" v-model="targetFunctionDSLSource" class="code-input"></el-input>
+                            <el-alert type="warning" :title="t('calcPage.beta')" :closable="false" style="margin-bottom: 8px"></el-alert>
+                            <el-input type="textarea" :rows="10" :placeholder="t('misc.code')" v-model="targetFunctionDSLSource" class="code-input"></el-input>
                         </el-tab-pane>
                     </el-tabs>
 
@@ -489,11 +464,10 @@
                             style="margin-bottom: 12px"
                         ></el-alert>
                         <el-input-number
-                            :value="optimizationResultIndex"
-                            @input="handleUseNthOptimizationResult"
+                            :model-value="optimizationResultIndex"
+                            @update:modelValue="handleUseNthOptimizationResult"
                             :min="1"
                             :max="optimizationResults.length"
-                            size="small"
                             style="width: 100%"
                         ></el-input-number>
                         <value-display
@@ -509,16 +483,20 @@
                 <div class="config-buff">
                     <p class="common-title">BUFF</p>
                     <div class="buff-tool" style="margin-bottom: 12px">
-                        <my-button-1 icon="el-icon-plus" title="添加BUFF"
+                        <el-button
+                            :icon="IconEpPlus"
                             @click="handleClickAddBuff"
-                        ></my-button-1>
+                            title="添加BUFF"
+                            circle
+                            text
+                        ></el-button>
                     </div>
                     <div class="buffs" v-if="buffs.length > 0">
                         <buff-item
                             v-for="buff in buffs"
                             :key="buff.id"
                             :buff="buff"
-                            :buff-config.sync="buff.config"
+                            v-model:buffConfig="buff.config"
                             @delete="handleClickDeleteBuff(buff.id)"
                             @toggle="handleClickToggleBuff(buff.id)"
                         ></buff-item>
@@ -530,33 +508,28 @@
             </el-col>
 
             <el-col :sm="24" :md="12" class="middle-container mona-scroll-hidden">
-                <p class="common-title">圣遗物</p>
+                <p class="common-title">{{ t("misc.artifact") }}</p>
 
                 <div class="artifact-tool" style="margin-bottom: 12px">
-                    <el-button
-                        size="mini"
-                        icon="el-icon-s-data"
-                        @click="handleClickArtifactAnalysis"
-                    >词条分析</el-button>
-<!--                    <my-button-1 icon="el-icon-s-data" title="圣遗物分析"-->
-<!--                                 @click="handleClickArtifactAnalysis"-->
-<!--                    ></my-button-1>-->
-                    <el-button
-                        size="mini"
-                        icon="el-icon-star-on"
-                        @click="handleClickSaveAsKumi"
-                    >存为套装</el-button>
-<!--                    <my-button-1 icon="el-icon-star-on" title="存为套装"-->
-<!--                                 @click="handleClickSaveAsKumi"-->
-<!--                    ></my-button-1>-->
-                    <el-button
-                        size="mini"
-                        icon="el-icon-folder"
-                        @click="handleClickUseKumi"
-                    >应用套装</el-button>
-<!--                    <my-button-1 icon="el-icon-folder" title="应用套装"-->
-<!--                                 @click="handleClickUseKumi"-->
-<!--                    ></my-button-1>-->
+                    <el-button-group>
+                        <el-button
+                            :icon="IconEpHistogram"
+                            @click="handleClickArtifactAnalysis"
+                        >{{ t("calcPage.statAnalysis") }}</el-button>
+                        <el-button
+                            :icon="IconEpStarFilled"
+                            @click="handleClickSaveAsKumi"
+                        >{{ t("calcPage.saveKumi") }}</el-button>
+                        <el-button
+                            :icon="IconEpFolder"
+                            @click="handleClickUseKumi"
+                        >{{ t("calcPage.useKumi") }}</el-button>
+                        <el-button
+                            v-show="artifactCount > 0"
+                            :icon="isAllLocked ? IconEpUnlock : IconEpLock"
+                            @click="() => { isAllLocked ? handleUnlockAll() : handleLockAll() }"
+                        >{{ isAllLocked ? t("calcPage.unlockAll") : t("calcPage.lockAll") }}</el-button>
+                    </el-button-group>
                 </div>
 
                 <div class="artifacts">
@@ -571,8 +544,8 @@
                             selectable
                             :buttons="true"
                             :delete-button="true"
-                            @delete="handleRemoveArtifact(index)"
-                            @toggle="handleToggleArtifact(id)"
+                            @delete="removeArtifact(index)"
+                            @toggle="artifactStore.toggleArtifact(artifactItems[index].id)"
                             @click="handleGotoSelectArtifact(index)"
                             class="artifact-display"
                         ></artifact-display>
@@ -584,40 +557,58 @@
                     </div>
                 </div>
 
+                <div v-if="artifactNeedConfig2" style="margin-top: 16px">
+                    <p class="common-description">
+                        <span class="effect2">{{ t("calcPage.effect2") }}</span>
+                        <span v-html="artifactEffect2Text"></span>
+                    </p>
+                    <item-config
+                        v-if="artifactSingleConfig"
+                        v-model="artifactSingleConfig"
+                        :item-name="artifactConfigItemName"
+                        :configs="artifactConfig2Configs"
+                    ></item-config>
+                </div>
+
                 <div v-if="artifactNeedConfig4" style="margin-top: 16px">
                     <p class="common-description">
-                        <span class="effect4">四件套效果：</span>
+                        <span class="effect4">{{ t("calcPage.effect4") }}</span>
                         <span v-html="artifactEffect4Text"></span>
                     </p>
                     <item-config
+                        v-if="artifactSingleConfig"
                         v-model="artifactSingleConfig"
-                        :item-name="artifactConfig4ItemName"
+                        :item-name="artifactConfigItemName"
                         :configs="artifactConfig4Configs"
                     ></item-config>
                 </div>
 
                 <el-divider></el-divider>
 
-                <p class="common-title">伤害计算</p>
+                <p class="common-title">{{ t("calcPage.dmg") }}</p>
                 <div class="my-button-list" style="margin-bottom: 12px">
-                    <el-button
-                        size="mini"
-                        icon="el-icon-s-data"
-                        @click="handleDisplayAnalysis"
-                    >明细</el-button>
-<!--                    <my-button-1 icon="el-icon-s-data" title="明细"-->
-<!--                        @click="handleDisplayAnalysis"-->
-<!--                    ></my-button-1>-->
-                    <el-button
-                        size="mini"
-                        icon="el-icon-s-tools"
-                        @click="handleClickEnemyConfig"
-                    >敌人设置</el-button>
-<!--                    <my-button-1 icon="el-icon-s-operation" title="敌人设置"-->
-<!--                                 @click="handleClickEnemyConfig"-->
-<!--                    ></my-button-1>-->
+                    <el-button-group>
+                        <el-button
+                            :icon="IconEpHistogram"
+                            @click="handleDisplayAnalysis"
+                        >{{ t("calcPage.detail") }}</el-button>
+                        <el-button
+                            :icon="IconEpTools"
+                            @click="handleClickEnemyConfig"
+                        >{{ t("calcPage.setupEnemy") }}</el-button>
+                    </el-button-group>
                 </div>
+
+                <div>
+                    <h3 class="common-title2">{{ t("calcPage.fumo") }}</h3>
+                    <select-element-type
+                        v-model="fumo"
+                        :elements="['Pyro', 'Electro', 'Hydro', 'Anemo', 'Geo', 'Cryo', 'Dendro', 'None']"
+                    ></select-element-type>
+                </div>
+
                 <div v-if="characterNeedSkillConfig" style="margin-bottom: 16px;">
+                    <h3 class="common-title2">{{ t("calcPage.skillConfig") }}</h3>
                     <item-config
                         v-model="characterSkillConfig"
                         :item-name="characterName"
@@ -625,6 +616,7 @@
                     ></item-config>
                 </div>
                 <div class="damage-analysis-div">
+                    <h3 class="common-title2">{{ t("calcPage.skill") }}</h3>
                     <select-character-skill
                         v-model="characterSkillIndex"
                         :character-name="characterName"
@@ -635,24 +627,20 @@
                     ></damage-panel>
                 </div>
 
-                <h3 class="common-title2" style="margin-top: 24px">剧变反应伤害</h3>
+                <h3 class="common-title2" style="margin-top: 24px">{{ t("calcPage.dmg2") }}</h3>
                 <transformative-damage
                     :data="characterTransformativeDamage"
                 ></transformative-damage>
             </el-col>
 
             <el-col :sm="24" :md="6" class="right-container mona-scroll-hidden">
-                <div class="common-title">面板</div>
+                <div class="common-title">{{ t("calcPage.panel") }}</div>
 
                 <div class="my-button-list" style="margin-bottom: 12px">
                     <el-button
-                        size="mini"
-                        icon="el-icon-s-data"
+                        :icon="IconEpHistogram"
                         @click="handleClickAttributeAnalysis"
-                    >词条收益</el-button>
-<!--                    <my-button-1 icon="el-icon-s-data" title="词条收益分析"-->
-<!--                                 @click="handleClickAttributeAnalysis"-->
-<!--                    ></my-button-1>-->
+                    >{{ t("calcPage.statCurve") }}</el-button>
                 </div>
 
                 <attribute-panel
@@ -663,1241 +651,927 @@
     </div>
 </template>
 
-<script>
-import {mapGetters} from "vuex"
-
-import {convertArtifact, convertArtifactName} from "@util/converter"
-import {newDefaultArtifactConfigForWasm} from "@util/artifacts"
-import {getArtifactIdsByKumiId, newKumiWithArtifacts} from "@util/kumi"
-import {deepCopy, toSnakeCase} from "@util/common"
-import {createOrUpdatePreset, getPresetEntryByName} from "@util/preset"
-import {characterData} from "@character"
-import {weaponByType, weaponData} from "@weapon"
-import {targetFunctionByCharacterName, targetFunctionData} from "@targetFunction"
-import {buffData} from "@buff"
-import {artifactsData} from "@artifact"
-import {wasmBonusPerStat} from "@/wasm"
+<script setup lang="ts">
+import {convertArtifact} from "@util/converter"
+import {mergeArtifactConfig, newDefaultArtifactConfigForWasm} from "@util/artifacts"
+import {deepCopy} from "@/utils/common"
 import {wasmSingleOptimize} from "@/wasm/single_optimize"
 import {createComputeResult} from "@/api/misc"
 import {deviceIsPC} from "@util/device"
-
-import SelectArtifact from "@c/select/SelectArtifact"
+import SelectArtifact from "@/components/select/SelectArtifact.vue"
 import SelectArtifactSet from "@c/select/SelectArtifactSet"
-import SelectCharacter from "@c/select/SelectCharacter"
-import SelectCharacterLevel from "@c/select/SelectCharacterLevel"
-import SelectWeapon from "@c/select/SelectWeapon"
-import SelectWeaponLevel from "@c/select/SelectWeaponLevel"
-import SelectTargetFunction from "@c/select/SelectTargetFunction"
-import SelectCharacterSkill from "@c/select/SelectCharacterSkill"
-import SelectBuff from "@c/select/SelectBuff"
+import SelectCharacter from "@/components/select/SelectCharacter.vue"
+import SelectCharacterLevel from "@/components/select/SelectCharacterLevel.vue"
+import SelectWeapon from "@/components/select/SelectWeapon.vue"
+import SelectWeaponLevel from "@/components/select/SelectWeaponLevel.vue"
+import SelectTargetFunction from "@/components/select/SelectTargetFunction.vue"
+import SelectCharacterSkill from "@/components/select/SelectCharacterSkill.vue"
+import SelectBuff from "@/components/select/SelectBuff.vue"
 import ArtifactDisplay from "@c/display/ArtifactDisplay"
 import AddButton from "@c/misc/AddButton"
 import DamagePanel from "./DamagePanel"
-import MyButton1 from "@c/button/MyButton1"
 import AttributePanel from "@c/display/AttributePanel"
 import ItemConfig from "@c/config/ItemConfig"
 import BuffItem from "./BuffItem"
-import WeaponDisplay from "@c/display/WeaponDisplay"
-import SaveAsKumi from "./SaveAsKumi"
+import WeaponDisplay from "@/components/display/WeaponDisplay.vue"
+import SaveAsKumi from "./SaveAsKumi.vue"
 import TransformativeDamage from "./TransformativeDamage"
 import ValueDisplay from "./ValueDisplay"
-import EnemyConfig from "./EnemyConfig"
+import EnemyConfigComponent from "./EnemyConfig"
 import SelectArtifactMainStat from "@c/select/SelectArtifactMainStat"
-import ArtifactConfig from "./ArtifactConfig"
-
-export default {
-    name: "NewArtifactPlanPage",
-    components: {
-        SelectArtifactMainStat,
-        SelectArtifact,
-        SelectArtifactSet,
-        SelectCharacter,
-        SelectCharacterLevel,
-        SelectCharacterSkill,
-        SelectWeapon,
-        SelectWeaponLevel,
-        SelectTargetFunction,
-        SelectBuff,
-        ArtifactDisplay,
-        AddButton,
-        DamagePanel,
-        MyButton1,
-        DamageAnalysis: () => import("@c/display/DamageAnalysis"),
-        AttributePanel,
-        ItemConfig,
-        BuffItem,
-        WeaponDisplay,
-        ArtifactsSetStatistics: () => import("@c/display/ArtifactsSetStatistics"),
-        ArtifactPerStatBonus: () => import("@c/display/ArtifactPerStatBonus"),
-        SaveAsKumi,
-        TransformativeDamage,
-        ValueDisplay,
-        EnemyConfig,
-        ArtifactConfig,
-    },
-    created() {
-        // this.characterData = characterData
-    },
-    data () {
-        return {
-            deviceIsPC,
-
-            characterName: "Amber",
-            characterLevel: "90",
-            characterConfig: "NoConfig",
-            characterSkillConfig: "NoConfig",
-            characterSkillIndex: 0,
-            characterSkill1: 8,
-            characterSkill2: 8,
-            characterSkill3: 8,
-            characterConstellation: 0,
-            characterWeaponType: "Bow",
-
-            weaponName: "PolarStar",
-            weaponLevel: "90",
-            weaponRefine: 1,
-            weaponConfig: {
-                "PolarStar": {
-                    stack: 1
-                }
-            },
-
-            constraintArtifactSet: [],
-            constraintSandMainStats: [],
-            constraintGobletMainStats: [],
-            constraintHeadMainStats: [],
-            algorithm: "AStar",
-            constraintMinRecharge: 1,
-            constraintMinElementalMastery: 0,
-            constraintMinCritical: 0,
-            constraintMinCriticalDamage: 0,
-
-            enemyConfig: {
-                level: 90,
-                electro_res: 0.1,
-                pyro_res: 0.1,
-                hydro_res: 0.1,
-                cryo_res: 0.1,
-                geo_res: 0.1,
-                anemo_res: 0.1,
-                dendro_res: 0.1,
-                physical_res: 0.1
-            },
-
-            buffs: [],
-
-            targetFunctionName: "AmberDefault",
-            targetFunctionConfig: "NoConfig",
-            targetFunctionUseDSL: false,
-            targetFunctionDSLSource: "",
-            optimizationResults: [],
-            optimizationResultIndex: 0,
-
-            artifactIds: [-1, -1, -1, -1, -1],
-            artifactSingleConfig: null,
-            artifactConfig: newDefaultArtifactConfigForWasm(),
-            artifactEffectMode: "auto",
-
-            selectArtifactSlot: "any",
-
-            showSelectArtifactDialog: false,
-            showDamageAnalysisDialog: false,
-            showSelectBuffDialog: false,
-            showConstraintDialog: false,
-            showArtifactAnalysisDialog: false,
-            showArtifactPerBonusDialog: false,
-            showSaveKumiDialog: false,
-            showUseKumiDialog: false,
-            showEnemyConfigDialog: false,
-            showConfigArtifactDialog: false,
-
-            miscPerStatBonus: {},
-            miscCurrentPresetName: null,
-            miscTargetFunctionTab: "normal"
-        }
-    },
-    computed: {
-        ...mapGetters({
-            artifactsById: "artifacts/artifactsById",
-            allArtifactsFlat: "artifacts/allFlat"
-        }),
-
-        ...mapGetters("kumi", {
-            kumiTreeDataForElementUI: "treeDataForElementUI"
-        }),
-
-        ...mapGetters("presets", {
-            presetsAllFlat: "allFlat"
-        }),
-
-        // ...mapState("kumi", {
-        //
-        // }),
-
-        // enemy
-        enemyInterface() {
-            return this.enemyConfig
-        },
-        // end enemy
-
-        // default names
-        kumiDefaultName() {
-            let name = characterData[this.characterName].chs
-            for (const setName in this.artifactSetCount) {
-                if (this.artifactSetCount[setName] >= 2) {
-                    name += '-' + artifactsData[setName].chs
-                }
-            }
-            return name
-        },
-
-        presetDefaultName() {
-            const cName = characterData[this.characterName].chs
-            const wName = weaponData[this.weaponName].chs
-            return `${cName}-${wName}`
-        },
-        // end default names
-
-        // character
-        characterLevelNumber() {
-            return parseInt(this.characterLevel)
-        },
-
-        characterAscend() {
-            return this.characterLevel.includes("+")
-        },
-
-        characterSplash() {
-            const data = characterData[this.characterName]
-            return data.splash
-        },
-
-        characterNeedConfig() {
-            let temp = characterData[this.characterName].config
-            return temp && temp.length > 0
-        },
-
-        characterConfigConfig() {
-            return characterData[this.characterName].config
-        },
-
-        characterNeedSkillConfig() {
-            let temp = characterData[this.characterName].configSkill
-            return temp && temp.length > 0
-        },
-
-        characterSkillConfigConfig() {
-            return characterData[this.characterName].configSkill
-        },
-
-        // characterWeaponType() {
-        //     const item = characterData[this.characterName]
-        //     return item ? item.weapon : "Bow"
-        // },
-
-        characterInterface() {
-            let i = {
-                name: this.characterName,
-                level: this.characterLevelNumber,
-                ascend: this.characterAscend,
-                constellation: this.characterConstellation,
-                skill1: this.characterSkill1 - 1,
-                skill2: this.characterSkill2 - 1,
-                skill3: this.characterSkill3 - 1,
-                params: this.characterConfig
-            }
-            return i
-        },
-
-        characterSkillInterface() {
-            return {
-                index: this.characterSkillIndex,
-                config: this.characterSkillConfig
-            }
-        },
-
-        characterDamageAnalysis() {
-            const temp = this.$mona.CalculatorInterface.get_damage_analysis(this.damageAnalysisWasmInterface)
-            // console.log(temp)
-            return temp
-        },
-
-        characterTransformativeDamage() {
-            return this.$mona.CalculatorInterface.get_transformative_damage(this.damageAnalysisWasmInterface)
-        },
-
-        // weapon
-        weaponLevelNumber() {
-            return parseInt(this.weaponLevel)
-        },
-
-        weaponAscend() {
-            return this.weaponLevel.includes("+")
-        },
-        
-        weaponSplash() {
-            const data = weaponData[this.weaponName]
-            return data.gacha ?? data.url ?? data.tn
-        },
-
-        weaponNeedConfig() {
-            // return !!weaponConfig[this.weaponName]
-            return !!weaponData[this.weaponName].configs
-        },
-
-        weaponConfigConfig() {
-            return weaponData[this.weaponName].configs
-        },
-
-        weaponInterface() {
-            return {
-                name: this.weaponName,
-                level: this.weaponLevelNumber,
-                ascend: this.weaponAscend,
-                refine: this.weaponRefine,
-                params: this.weaponConfig
-            }
-        },
-
-        // tf
-        targetFunctionBadge() {
-            return targetFunctionData[this.targetFunctionName].badge
-        },
-
-        targetFunctionDescription() {
-            return targetFunctionData[this.targetFunctionName].description
-        },
-
-        targetFunctionInterface() {
-            const use_dsl = this.miscTargetFunctionTab === "dsl"
-            return {
-                name: this.targetFunctionName,
-                params: this.targetFunctionConfig,
-                use_dsl,
-                dsl_source: use_dsl ? this.targetFunctionDSLSource : ""
-            }
-        },
-
-        targetFunctionNeedConfig() {
-            const temp = targetFunctionData[this.targetFunctionName].config
-            return temp && temp.length > 0
-        },
-
-        targetFunctionConfigConfig() {
-            return targetFunctionData[this.targetFunctionName].config
-        },
-
-        // artifact computed
-        artifactItems() {
-            let temp = []
-            for (let id of this.artifactIds) {
-                if (this.artifactsById[id]) {
-                    temp.push(this.artifactsById[id])
-                } else {
-                    temp.push(null)
-                }
-            }
-            return temp
-        },
-
-        artifactWasmFormat() {
-            let temp = []
-            for (let id of this.artifactIds) {
-                if (id !== -1) {
-                    const artifact = this.$store.getters["artifacts/artifactsById"][id]
-                    // console.log(artifact)
-                    if (artifact && !artifact.omit) {
-                        const wasmArtifact = convertArtifact(artifact)
-                        temp.push(wasmArtifact)
-                    }
-                }
-            }
-            // console.log(temp)
-            return temp
-        },
-
-        artifactSetCount() {
-            let temp = {}
-            for (let artifact of this.artifactItems) {
-                if (!artifact) {
-                    continue
-                }
-                const setName = artifact.setName
-                if (!Object.prototype.hasOwnProperty.call(temp, setName)) {
-                    temp[setName] = 0
-                }
-                temp[setName] += 1
-            }
-            return temp
-        },
-
-        // if needing config, return set name
-        artifactNeedConfig4() {
-            // console.log(this.artifactSetCount)
-            for (let setName in this.artifactSetCount) {
-                const count = this.artifactSetCount[setName]
-                if (count >= 4) {
-                    const data = artifactsData[setName]
-                    // console.log(data)
-                    if (data.config4 && data.config4.length > 0) {
-                        return setName
-                    }
-                }
-            }
-
-            return null
-        },
-
-        artifactConfig4ItemName() {
-            const setNameWasm = convertArtifactName(this.artifactNeedConfig4)
-            return `config_${toSnakeCase(setNameWasm)}`
-        },
-
-        artifactEffect4Text() {
-            if (!this.artifactNeedConfig4) {
-                return ""
-            }
-            const data = artifactsData[this.artifactNeedConfig4]
-            return data.effect4
-        },
-
-        artifactConfig4Configs() {
-            if (this.artifactNeedConfig4) {
-                const data = artifactsData[this.artifactNeedConfig4]
-                // console.log(data.config4)
-                return data.config4
-            }
-            return []
-        },
-
-        artifactConfigForCalculator() {
-            let base = newDefaultArtifactConfigForWasm()
-
-            if (this.artifactNeedConfig4) {
-                let name = this.artifactConfig4ItemName
-                base[name] = this.artifactSingleConfig[name]
-            }
-
-            // console.log(base)
-            return base
-        },
-
-        // constraint
-        constraintSetMode() {
-            const convertedName = this.constraintArtifactSet.map(x => convertArtifactName(x))
-            const len = convertedName.length
-            if (len === 2) {
-                return {
-                    "Set22": convertedName
-                }
-            } else if (len === 1) {
-                return {
-                    "Set4": convertedName[0]
-                }
-            } else {
-                return "Any"
-            }
-        },
-
-        constraintInterface() {
-            let t = {
-                "set_mode": this.constraintSetMode,
-                "hp_min": null,
-                "atk_min": null,
-                "def_min": null,
-                "recharge_min": this.constraintMinRecharge,
-                "em_min": this.constraintMinElementalMastery,
-                "crit_min": this.constraintMinCritical,
-                "crit_dmg_min": this.constraintMinCriticalDamage
-                // "recharge_min": null,
-                // "em_min": null,
-                // "crit_min": null,
-                // "crit_dmg_min": null
-            }
-            return t
-        },
-
-        damageAnalysisWasmInterface() {
-            // console.log(this.weaponInterface);
-            return {
-                character: this.characterInterface,
-                weapon: this.weaponInterface,
-                buffs: this.buffsInterface,
-                artifacts: this.artifactWasmFormat,
-                artifact_config: this.artifactConfigForCalculator,
-                skill: this.characterSkillInterface,
-                enemy: this.enemyInterface,
-            }
-        },
-
-        getAttributeWasmInterface() {
-            return {
-                character: this.characterInterface,
-                weapon: this.weaponInterface,
-                buffs: this.buffsInterface,
-                artifacts: this.artifactWasmFormat,
-                artifact_config: this.artifactConfigForCalculator,
-            }
-        },
-
-        attributeFromWasm() {
-            return this.$mona.CommonInterface.get_attribute(this.getAttributeWasmInterface)
-        },
-
-        bonusPerStatWasmInterface() {
-            return {
-                character: this.characterInterface,
-                weapon: this.weaponInterface,
-                artifacts: this.artifactWasmFormat,
-                tf: this.targetFunctionInterface,
-                buffs: this.buffsInterface,
-                artifacts_config: this.artifactConfigForCalculator
-            }
-        },
-
-        // buff
-        buffsUnlocked() {
-            return this.buffs.filter(e => !e.lock)
-        },
-
-        buffsInterface() {
-            let temp = []
-            for (let buff of this.buffsUnlocked) {
-                temp.push({
-                    name: buff.name,
-                    config: buff.config
-                })
-            }
-            return temp
-        },
-
-        // buffsAll() {
-        //     let temp = []
-        //     for (let buff of this.buffs) {
-        //         temp.push({
-        //             name: buff.name,
-        //             config: buff.config,
-        //         })
-        //     }
-        // }
-    },
-    methods: {
-        changeWeapon(name) {
-            if (name === this.weaponName) {
-                return
-            }
-
-            this.weaponName = name
-
-            // change config
-            // console.log("change weapon config", name)
-            const hasConfig = !!weaponData[name]?.configs
-            if (hasConfig) {
-                const configs = weaponData[name].configs
-
-                let defaultConfig = {}
-                for (let config of configs) {
-                    defaultConfig[config.name] = config.default
-                }
-
-                this.weaponConfig = {
-                    [name]: defaultConfig
-                }
-            } else {
-                this.weaponConfig = "NoConfig"
-            }
-        },
-
-        changeTargetFunction(name) {
-            if (name === this.targetFunctionName) {
-                return
-            }
-
-            this.targetFunctionName = name
-
-            const hasConfig = targetFunctionData[name].config.length > 0
-
-            if (hasConfig) {
-                let defaultConfig = {}
-                for (let c of targetFunctionData[name].config) {
-                    defaultConfig[c.name] = c.default
-                }
-                this.targetFunctionConfig = {
-                    [name]: defaultConfig
-                }
-            } else {
-                this.targetFunctionConfig = "NoConfig"
-            }
-        },
-
-        changeCharacter(name) {
-            if (name === this.characterName) {
-                return
-            }
-
-            this.characterName = name
-
-            const hasConfigData = characterData[name].config.length > 0;
-            const hasConfigSkill = characterData[name].configSkill.length > 0;
-
-            // change config
-            if (hasConfigData) {
-                const configs = characterData[name].config
-
-                let defaultConfig = {}
-                for (let c of configs) {
-                    defaultConfig[c.name] = c.default
-                }
-                this.characterConfig = {
-                    [name]: defaultConfig
-                }
-            } else {
-                this.characterConfig = "NoConfig"
-            }
-
-            // change skill config
-            if (hasConfigSkill) {
-                let defaultConfig = {}
-                for (let c of characterData[name].configSkill) {
-                    defaultConfig[c.name] = c.default
-                }
-                this.characterSkillConfig = {
-                    [name]: defaultConfig
-                }
-            } else {
-                this.characterSkillConfig = "NoConfig"
-            }
-
-            // change skill index
-            this.characterSkillIndex = 0
-
-            // change weapon
-            const newWeaponType = characterData[name].weapon
-            if (newWeaponType !== this.characterWeaponType) {
-                this.characterWeaponType = newWeaponType
-                const defaultWeaponData = weaponByType[newWeaponType][0]
-                const defaultWeaponName = defaultWeaponData.name
-                this.changeWeapon(defaultWeaponName)
-            }
-
-            // if current target function is common, do not change
-            const currentTargetFunctionData = targetFunctionData[this.targetFunctionName]
-            if (currentTargetFunctionData["for"] !== "common") {
-                // if not common, change to default character specific target function
-                const defaultTargetFunctionData = targetFunctionByCharacterName[name][0]
-                const defaultTargetFunctionName = defaultTargetFunctionData.name
-                this.changeTargetFunction(defaultTargetFunctionName)
-            }
-        },
-
-        handleClickArtifactConfig() {
-            this.showConfigArtifactDialog = true
-        },
-
-        handleClickEnemyConfig() {
-            this.showEnemyConfigDialog = true
-        },
-
-        handleClickSetupOptimization() {
-            this.showConstraintDialog = true
-        },
-
-        usePreset(name) {
-            const entry = getPresetEntryByName(name)
-            const item = deepCopy(entry.item)
-
-            if (!item) {
-                return
-            }
-
-            // use buffs
-            for (let buff of item.buffs) {
-                buff.id = buff.id ?? Math.floor(Math.random() * 1e9)
-            }
-            this.buffs = item.buffs ?? []
-
-            // use character
-            const c = item.character
-            if (c) {
-                // this.characterName = c.name
-                this.changeCharacter(c.name)
-                this.characterLevel = c.level.toString() + (c.ascend ? "+" : "-")
-                this.characterConstellation = c.constellation ?? 0
-                this.characterSkill1 = c.skill1 + 1
-                this.characterSkill2 = c.skill2 + 1
-                this.characterSkill3 = c.skill3 + 1
-
-                this.$nextTick(() => {
-                    this.characterConfig = c.params
-
-                    // use weapon
-                    // this has to be executed after character update, because weapon type will be updated if character is different
-                    const w = item.weapon
-                    if (w) {
-                        this.weaponName = w.name
-                        this.weaponLevel = w.level.toString() + (w.ascend ? "+" : "-")
-                        this.weaponRefine = w.refine
-
-                        this.$nextTick(() => {
-                            // console.log("in next tick", w.name)
-                            this.weaponConfig = w.params
-                        })
-                    }
-                })
-            }
-
-            // use target function
-            const tf = item.targetFunction
-            if (tf) {
-                this.targetFunctionName = tf.name
-
-                // this.$nextTick(() => {
-                    this.targetFunctionConfig = tf.params
-                // })
-            }
-            // is DSL?
-            const use_dsl = !!item.useDSL
-            if (use_dsl) {
-                this.miscTargetFunctionTab = "dsl"
-                this.targetFunctionDSLSource = item.dslSource ?? ""
-            } else {
-                this.miscTargetFunctionTab = "normal"
-            }
-
-
-            // use constraint
-            const constraint = item.constraint
-            if (constraint) {
-                this.constraintArtifactSet = constraint.setNames ?? []
-                this.constraintMinCriticalDamage = 0
-                this.constraintMinCritical = 0
-                this.constraintMinElementalMastery = 0
-                this.constraintMinRecharge = 1
-            }
-
-            // use filter
-            const filter = item.filter
-            if (filter) {
-                this.constraintSandMainStats = filter.sandMainStats ?? []
-                this.constraintGobletMainStats = filter.gobletMainStats ?? []
-                this.constraintHeadMainStats = filter.headMainStats ?? []
-            }
-
-            // use compute mode
-            this.algorithm = item.algorithm ?? "AStar"
-
-            // use artifact effect mode
-            this.artifactEffectMode = item.artifactEffectMode ?? "auto"
-
-            // use artifact config
-            this.artifactConfig = item.artifactConfig ?? newDefaultArtifactConfigForWasm()
-
-            this.miscCurrentPresetName = name
-        },
-
-        handleCommandPreset(cmd) {
-            if (cmd === "save-preset") {
-                this.handleClickSaveOptimizeConfig()
-            } else {
-                if (cmd.startsWith("apply-")) {
-                    const name = cmd.slice(6)
-
-                    this.usePreset(name)
-                }
-            }
-        },
-
-        handleSavePreset(name) {
-            if (!name) {
-                this.handleClickSaveOptimizeConfig()
-            } else {
-                const item = this.getPresetItem()
-                createOrUpdatePreset(item, name)
-
-                this.$message.success("已保存")
-            }
-        },
-
-        getPresetItem() {
-            const config = this.getOptimizeArtifactWasmInterface()
-            // console.log(config.buffs)
-            // console.log(this.buffs)
-
-            let buffs = []
-            for (let buff of this.buffs) {
-                buffs.push({
-                    name: buff.name,
-                    config: deepCopy(buff.config),
-                    lock: buff.lock
-                })
-            }
-            // console.log(buffs)
-
-            const item = {
-                // buffs: deepCopy(config.buffs),
-                buffs,
-                character: deepCopy(config.character),
-                weapon: deepCopy(config.weapon),
-                targetFunction: deepCopy(config.target_function),
-                constraint: {
-                    setNames: deepCopy(this.constraintArtifactSet),
-                    minRecharge: this.constraintMinRecharge,
-                    minCritical: this.constraintMinCritical,
-                    minCriticalDamage: this.constraintMinCriticalDamage,
-                    minElementalMastery: this.constraintMinElementalMastery
-                },
-                filter: {
-                    sandMainStats: deepCopy(this.constraintSandMainStats),
-                    gobletMainStats: deepCopy(this.constraintGobletMainStats),
-                    headMainStats: deepCopy(this.constraintHeadMainStats),
-                },
-                artifactConfig: deepCopy(this.artifactConfig),
-                algorithm: this.algorithm,
-                artifactEffectMode: this.artifactEffectMode,
-                useDSL: this.miscTargetFunctionTab === "dsl",
-                dslSource: this.targetFunctionDSLSource
-            }
-            return item
-        },
-
-        handleClickSaveOptimizeConfig() {
-            const item = this.getPresetItem()
-
-            this.$prompt("输入名称（重复名称将覆盖）", "存为预设", {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
-                inputPattern: /[^\s]+$/,
-                inputValue: this.presetDefaultName
-            }).then(({ value }) => {
-                item.name = value
-                createOrUpdatePreset(item, value)
-                this.miscCurrentPresetName = value
-                this.$message.success("保存成功")
-            })
-        },
-
-        handleClickSaveAsKumi() {
-            this.showSaveKumiDialog = true
-        },
-
-        handleSaveAsKumi({ dirIds, name }) {
-            // console.log(dirIds)
-            let ids = this.artifactIds.filter(x => x)
-            for (let dirId of dirIds) {
-                newKumiWithArtifacts(dirId, name, ids)
-            }
-
-            this.showSaveKumiDialog = false
-        },
-
-        handleClickUseKumi() {
-            this.showUseKumiDialog = true
-        },
-
-        handleUseKumi(node) {
-            if (Object.prototype.hasOwnProperty.call(node, "kumiId")) {
-                const kumiId = node.kumiId
-                // console.log(kumiId)
-                this.showUseKumiDialog = false
-
-                const ids = getArtifactIdsByKumiId(kumiId)
-                let temp = {}
-                for (let id of ids) {
-                    const artifact = this.artifactsById[id]
-                    if (artifact) {
-                        temp[artifact.position] = id
-                    }
-                }
-
-                let idsWithNull = []
-                idsWithNull.push(temp.flower ?? null)
-                idsWithNull.push(temp.feather ?? null)
-                idsWithNull.push(temp.sand ?? null)
-                idsWithNull.push(temp.cup ?? null)
-                idsWithNull.push(temp.head ?? null)
-
-                this.artifactIds = idsWithNull
-            }
-        },
-
-        getAllArtifactsFiltered() {
-            const component = this.$refs["filterKumiRef"]
-
-            // s is artifact ids to be filtered
-            let s = new Set()
-
-            // filter kumi
-            if (component) {
-                const nodes = component.getCheckedNodes(true)
-                for (let node of nodes) {
-                    const kumiId = node.kumiId
-                    const artifactIds = getArtifactIdsByKumiId(kumiId)
-                    for (let i of artifactIds) {
-                        s.add(i)
-                    }
-                }
-            }
-
-            // filter main stat
-            for (let artifact of this.allArtifactsFlat) {
-                const position = artifact.position
-                const mainStatName = artifact.mainTag.name
-                const id = artifact.id
-                if (position === "sand") {
-                    if (this.constraintSandMainStats.length > 0) {
-                        const index = this.constraintSandMainStats.indexOf(mainStatName)
-                        if (index === -1) {
-                            s.add(id)
-                        }
-                    }
-                } else if (position === "cup") {
-                    if (this.constraintGobletMainStats.length > 0) {
-                        const index = this.constraintGobletMainStats.indexOf(mainStatName)
-                        if (index === -1) {
-                            s.add(id)
-                        }
-                    }
-                } else if (position === "head") {
-                    if (this.constraintHeadMainStats.length > 0) {
-                        const index = this.constraintHeadMainStats.indexOf(mainStatName)
-                        if (index === -1) {
-                            s.add(id)
-                        }
-                    }
-                }
-            }
-
-            let filtered = []
-
-            for (let artifact of this.allArtifactsFlat) {
-                if (!artifact.lock && !s.has(artifact.id)) {
-                    filtered.push(artifact)
-                }
-            }
-
-            return filtered.filter(a => !a.omit)
-        },
-
-        getAllArtifactsFilteredWasm() {
-            return this.getAllArtifactsFiltered().map(x => convertArtifact(x))
-        },
-
-        getOptimizeArtifactWasmInterface() {
-            let artifact_config = null
-            if (this.artifactEffectMode === "custom") {
-                artifact_config = this.artifactConfig
-            }
-
-            return {
-                // artifacts: artifacts16,
-                character: this.characterInterface,
-                weapon: this.weaponInterface,
-                target_function: this.targetFunctionInterface,
-                constraint: this.constraintInterface,
-                buffs: this.buffsInterface,
-                artifact_config,
-                algorithm: this.algorithm,
-            }
-        },
-
-        getArtifactsToBeCalculated() {
-            const artifacts = this.getAllArtifactsFilteredWasm()
-            const artifacts16 = artifacts.filter(x => x.level >= 16)
-
-            return artifacts16
-        },
-
-        handleClickArtifactAnalysis() {
-            this.showArtifactAnalysisDialog = true
-        },
-
-        handleOptimizeArtifact() {
-            const start = new Date()
-            const loading = this.$loading({
-                lock: true,
-                text: "莫娜占卜中"
-            })
-
-            wasmSingleOptimize(this.getOptimizeArtifactWasmInterface(), this.getArtifactsToBeCalculated()).then(results => {
-                const end = new Date()
-                console.log(`time: ${(end - start) / 1000}s`)
-
-                if (results.length === 0) {
-                    this.$message.error("没有符合条件的圣遗物")
-                    return
-                }
-                this.optimizationResults = results
-                this.handleUseNthOptimizationResult(1)
-
-                // report best result to server, only report player whose 20 artifacts count is above 100
-                if (this.$store.getters["artifacts/twentyCount"] >= 100) {
-                    const characterInterface = this.characterInterface
-                    const weaponInterface = this.weaponInterface
-                    const buffsInterface = this.buffsInterface
-                    const targetFunctionInterface = this.targetFunctionInterface
-
-                    let result_artifacts_wasm_format = []
-                    let first_result = results[0]
-                    result_artifacts_wasm_format.push(first_result.flower)
-                    result_artifacts_wasm_format.push(first_result.feather)
-                    result_artifacts_wasm_format.push(first_result.sand)
-                    result_artifacts_wasm_format.push(first_result.goblet)
-                    result_artifacts_wasm_format.push(first_result.head)
-                    result_artifacts_wasm_format = result_artifacts_wasm_format
-                        .filter(v => v !== null && v !== undefined)
-                        .map(id => this.artifactsById[id])
-                        .filter(a => !!a)
-                        .map(a => convertArtifact(a))
-                    // console.log(result_artifacts_wasm_format)
-
-                    // the return value can be omitted, because there's nothing valuable
-                    createComputeResult(
-                        characterInterface,
-                        weaponInterface,
-                        buffsInterface,
-                        targetFunctionInterface,
-                        result_artifacts_wasm_format
-                    )
-                }
-            }).catch(e => {
-                this.$message.error(e)
-            }).finally(() => {
-                loading.close()
-            })
-        },
-
-        handleUseNthOptimizationResult(n) {
-            const result = this.optimizationResults[n - 1]
-            const m = x => {
-                if (x !== null) {
-                    return x
-                } else {
-                    return -1
-                }
-            }
-
-            let temp = []
-            temp.push(m(result.flower))
-            temp.push(m(result.feather))
-            temp.push(m(result.sand))
-            temp.push(m(result.goblet))
-            temp.push(m(result.head))
-
-            this.artifactIds = temp
-
-            this.optimizationResultIndex = n
-        },
-
-        handleGotoSelectArtifact(index) {
-            const map = ["flower", "feather", "sand", "cup", "head"]
-            const slotName = map[index]
-            this.showSelectArtifactDialog = true
-            this.selectArtifactSlot = slotName
-        },
-
-        handleSelectArtifact(id) {
-            const map = {
-                "flower": 0,
-                "feather": 1,
-                "sand": 2,
-                "cup": 3,
-                "head": 4
-            }
-            const index = map[this.selectArtifactSlot]
-            this.$set(this.artifactIds, index, id)
-
-            this.showSelectArtifactDialog = false
-        },
-
-        handleRemoveArtifact(index) {
-            this.$set(this.artifactIds, index, -1)
-        },
-
-        handleToggleArtifact(id) {
-            this.$store.commit("artifacts/toggleById", { id })
-        },
-
-        handleDisplayAnalysis() {
-            this.showDamageAnalysisDialog = true;
-            this.$nextTick(() => {
-                const component = this.$refs["damageAnalysis"]
-                component.setValue(this.characterDamageAnalysis)
-            })
-        },
-
-        handleClickAttributeAnalysis() {
-            // const ret = this.$mona.BonusPerStat.bonus_per_stat(this.bonusPerStatWasmInterface)
-            // const atk_ptr = temp.atk_ptr
-            // const arr = new Float64Array(this.$mona.memory.buffer, atk_ptr, 10)
-            // const length = 10;
-
-            // const f = (ret, name) => Array.from(new Float64Array(this.$mona.memory.buffer, ret[`${name}_ptr`], ret[`${name}_len`]))
-
-            wasmBonusPerStat(this.bonusPerStatWasmInterface).then(ret => {
-                // let temp = new Float64Array(this.$mona.memory.buffer, ret.atk_ptr, 100)
-                // console.log(this.$mona.memory.buffer)
-                // console.log(temp)
-                this.miscPerStatBonus = ret
-                // this.miscPerStatBonus = {
-                //     atk: f(ret, "atk"),
-                //     atk_percentage: f(ret, "atk_percentage"),
-                //     def: f(ret, "def"),
-                //     def_percentage: f(ret, "def_percentage"),
-                //     hp: f(ret, "hp"),
-                //     hp_percentage: f(ret, "hp_percentage"),
-                //     critical: f(ret, "critical"),
-                //     critical_damage: f(ret, "critical_damage"),
-                //     recharge: f(ret, "recharge"),
-                //     elemental_mastery: f(ret, "elemental_mastery"),
-                // }
-
-                this.showArtifactPerBonusDialog = true
-
-                // console.log(this.miscPerStatBonus)
-            })
-            // console.log(arr)
-        },
-
-        // BUFF
-        handleClickAddBuff() {
-            this.showSelectBuffDialog = true
-        },
-
-        handleSelectBuff(name) {
-            this.showSelectBuffDialog = false
-            this.addBuff(name)
-        },
-
-        handleClickDeleteBuff(id) {
-            const index = this.buffs.findIndex(e => e.id === id)
-            this.$delete(this.buffs, index)
-        },
-
-        handleClickToggleBuff(id) {
-            const index = this.buffs.findIndex(e => e.id === id)
-            const v = this.buffs[index].lock
-            this.$set(this.buffs[index], "lock", !v)
-        },
-
-        addBuff(name) {
-            const data = buffData[name]
-            let defaultConfig = {}
-            for (let c of data.config) {
-                defaultConfig[c.name] = c.default
-            }
-
-            let config;
-            if (data.config.length === 0) {
-                config = "NoConfig"
-            } else {
-                config = {
-                    [name]: defaultConfig
-                }
-            }
-
-            this.buffs.push({
-                name,
-                config,
-                id: Math.floor(Math.random() * 1e9),
-                lock: false
-            })
-        },
-    },
-    // mounted() {
-    //     console.log(this.$route.params)
-    // },
-    watch: {
-        // weaponName(newName) {
-        //     // console.log("in watch", newName)
-        //     const hasConfig = !!weaponData[newName]?.configs
-        //     if (hasConfig) {
-        //         const configs = weaponData[newName].configs
-        //
-        //         let defaultConfig = {}
-        //         for (let config of configs) {
-        //             defaultConfig[config.name] = config.default
-        //         }
-        //
-        //         this.weaponConfig = {
-        //             [newName]: defaultConfig
-        //         }
-        //     } else {
-        //         this.weaponConfig = "NoConfig"
-        //     }
-        // },
-
-        // characterName(newName) {
-        //     const hasConfigData = characterData[newName].config.length > 0;
-        //     const hasConfigSkill = characterData[newName].configSkill.length > 0;
-        //
-        //     if (hasConfigData) {
-        //         const configs = characterData[newName].config
-        //
-        //         let defaultConfig = {}
-        //         for (let c of configs) {
-        //             defaultConfig[c.name] = c.default
-        //         }
-        //         this.characterConfig = {
-        //             [newName]: defaultConfig
-        //         }
-        //     } else {
-        //         this.characterConfig = "NoConfig"
-        //     }
-        //
-        //     if (hasConfigSkill) {
-        //         let defaultConfig = {}
-        //         for (let c of characterData[newName].configSkill) {
-        //             defaultConfig[c.name] = c.default
-        //         }
-        //         this.characterSkillConfig = {
-        //             [newName]: defaultConfig
-        //         }
-        //     } else {
-        //         this.characterSkillConfig = "NoConfig"
-        //     }
-        //
-        //     this.characterSkillIndex = 0
-        // },
-
-        // targetFunctionName(newName) {
-        //     console.log(newName)
-        //     const hasConfig = targetFunctionData[newName].config.length > 0
-        //
-        //     if (hasConfig) {
-        //         let defaultConfig = {}
-        //         for (let c of targetFunctionData[newName].config) {
-        //             defaultConfig[c.name] = c.default
-        //         }
-        //         this.targetFunctionConfig = {
-        //             [newName]: defaultConfig
-        //         }
-        //     } else {
-        //         this.targetFunctionConfig = "NoConfig"
-        //     }
-        // },
-
-        artifactNeedConfig4(newName) {
-            if (!newName) {
-                this.artifactSingleConfig = null
-            } else {
-                const data = artifactsData[newName]
-
-                let defaultConfig = {}
-                for (let c of data.config4) {
-                    defaultConfig[c.name] = c.default
-                }
-
-                const nameWasm = convertArtifactName(newName)
-                const configItemName = `config_${toSnakeCase(nameWasm)}`
-                this.artifactSingleConfig = {
-                    [configItemName]: defaultConfig
-                }
-                // console.log(this.artifactSingleConfig)
-            }
-        },
+import ArtifactConfig from "./ArtifactConfig.vue"
+import DamageAnalysis from "@/components/display/DamageAnalysis"
+import {useCharacter, useCharacterSkill} from "@/composables/character"
+import {useEnemy} from "@/composables/enemy"
+import {useWeapon} from "@/composables/weapon"
+import {useTargetFunction} from "@/composables/targetFunction"
+import type {ArtifactPosition, IArtifact, IArtifactWasm} from "@/types/artifact"
+import IconEpCaretRight from "~icons/ep/caret-right"
+import IconEpTools from "~icons/ep/tools"
+import IconEpPlus from "~icons/ep/plus"
+import IconEpMenu from "~icons/ep/menu"
+import IconEpHistogram from "~icons/ep/histogram"
+import IconEpStarFilled from "~icons/ep/star-filled"
+import IconEpFolder from "~icons/ep/folder"
+import IconEpLock from "~icons/ep/lock"
+import IconEpUnlock from "~icons/ep/unlock"
+import {useComputeConstraint} from "@/composables/constraint"
+import {BuffEntry, useBuff} from "@/composables/buff"
+import {type PresetEntry, usePresetStore} from "@/store/pinia/preset"
+import {useArtifactStore} from "@/store/pinia/artifact"
+import type {IPreset} from "@/types/preset"
+import {RandomIDProvider} from "@/utils/idProvider"
+import {use5Artifacts} from "@/composables/artifact"
+import {positions} from "@/constants/artifact"
+import {positionToIndex} from "@/utils/artifacts"
+import {useMona} from "@/wasm/mona"
+import {useKumiStore} from "@/store/pinia/kumi"
+import SimpleLoading from "@/components/loading/SimpleLoading.vue"
+import SimpleError from "@/components/loading/SimpleError.vue"
+import {useRoute} from "vue-router"
+import {useI18n} from "@/i18n/i18n"
+import {useAccountStore} from "@/store/pinia/account"
+import {artifactsData} from "@/assets/artifacts"
+
+import {ElMessage} from "element-plus"
+import "element-plus/es/components/message/style/css"
+import SelectElementType from "@/components/select/SelectElementType.vue";
+
+// stores
+const presetStore = usePresetStore()
+const artifactStore = useArtifactStore()
+const kumiStore = useKumiStore()
+const accountStore = useAccountStore()
+
+// mona
+const mona = await useMona()
+
+// router
+const route = useRoute()
+
+// i18n
+const { t, ta } = useI18n()
+
+
+//////////////////////////////////////////////////////////
+// set preset from other place
+function setPresetFromRoute() {
+    const presetName = route.params.presetName
+    if (presetName && typeof presetName === "string") {
+        usePreset(presetName)
     }
-};
+}
 
+onActivated(setPresetFromRoute)
+
+onMounted(setPresetFromRoute)
+
+
+////////////////////////////////////////////////////////
+// enemy
+const {
+    enemyConfig,
+    enemyInterface
+} = useEnemy()
+const showEnemyConfigDialog = ref(false)
+
+function handleClickEnemyConfig() {
+    showEnemyConfigDialog.value = true
+}
+
+
+////////////////////////////////////////////////////////
+// character
+const {
+    characterName,
+    characterLevel,
+    characterConfig,
+    characterSkill1,
+    characterSkill2,
+    characterSkill3,
+    characterConstellation,
+    characterWeaponType,
+    characterLevelNumber,
+    characterAscend,
+    characterSplash,
+    characterNeedConfig,
+    characterConfigConfig,
+    characterInterface,
+    characterLocale,
+} = useCharacter()
+
+const {
+    characterSkillConfig,
+    characterSkillIndex,
+    characterNeedSkillConfig,
+    characterSkillConfigConfig,
+    characterSkillInterface,
+} = useCharacterSkill(characterName)
+
+const fumo = ref("None")
+
+
+//////////////////////////////////////////////////////////////
+// weapon
+const {
+    weaponName,
+    weaponLevel,
+    weaponRefine,
+    weaponConfig,
+    weaponLevelNumber,
+    weaponAscend,
+    weaponSplash,
+    weaponNeedConfig,
+    weaponConfigConfig,
+    weaponInterface,
+    weaponLocale
+} = useWeapon(characterWeaponType)
+
+
+//////////////////////////////////////////////////////////////
+// target function
+const {
+    targetFunctionName,
+    targetFunctionConfig,
+    targetFunctionUseDSL,
+    targetFunctionDSLSource,
+    targetFunctionBadge,
+    targetFunctionDescription,
+    targetFunctionNeedConfig,
+    targetFunctionConfigConfig,
+    targetFunctionInterface
+} = useTargetFunction(characterName)
+const miscTargetFunctionTab = ref<"normal" | "dsl">("normal")
+
+watch(() => miscTargetFunctionTab.value, v => {
+    targetFunctionUseDSL.value = v === "dsl"
+})
+
+
+//////////////////////////////////////////////////////////
+// artifacts
+const {
+    artifactIds,
+    artifactCount,
+    artifactSingleConfig,
+    artifactWasmFormat,
+
+    artifactItems,
+    artifactSetCount,
+    artifactNeedConfig4,
+    artifactNeedConfig2,
+    artifactConfigItemName,
+    artifactEffect4Text,
+    artifactEffect2Text,
+    artifactConfig4Configs,
+    artifactConfig2Configs,
+    artifactConfigForCalculator,
+
+    setArtifact,
+    removeArtifact,
+} = use5Artifacts()
+
+const showSelectArtifactDialog = ref(false)
+const selectArtifactSlot = ref<ArtifactPosition>("flower")
+
+function handleGotoSelectArtifact(index: number) {
+    const slotName = positions[index]
+    showSelectArtifactDialog.value = true
+    selectArtifactSlot.value = slotName
+}
+
+function handleSelectArtifact(id: number) {
+    const index = positionToIndex(selectArtifactSlot.value)
+    setArtifact(index, id)
+
+    showSelectArtifactDialog.value = false
+}
+
+function handleLockAll() {
+    for (const id of artifactIds.value) {
+        artifactStore.lockArtifact(id)
+    }
+}
+
+function handleUnlockAll() {
+    for (const id of artifactIds.value) {
+        artifactStore.unlockArtifact(id)
+    }
+}
+
+const isAllLocked = computed(() => {
+    for (const id of artifactIds.value) {
+        let artifact = artifactStore.getArtifact(id)
+        if (artifact) {
+            if (!artifact.omit) {
+                return false
+            }
+        }
+    }
+    return true
+})
+
+
+//////////////////////////////////////////////////////////////
+// optimization setup
+const showConstraintDialog = ref(false)
+const {
+    algorithm,
+    constraintArtifactSet,
+    constraintSandMainStats,
+    constraintGobletMainStats,
+    constraintHeadMainStats,
+    constraintMinRecharge,
+    constraintMinElementalMastery,
+    constraintMinCritical,
+    constraintMinCriticalDamage,
+
+    constraintSetMode,
+    constraintInterface,
+} = useComputeConstraint()
+const filterKumiRef = ref<InstanceType<typeof ElTree> | null>(null)
+
+function handleClickSetupOptimization() {
+    showConstraintDialog.value = true
+}
+
+
+//////////////////////////////////////////////////////////////
+// artifact config
+const showConfigArtifactDialog = ref(false)
+const artifactEffectMode = ref<"auto" | "custom">("auto")
+const artifactConfig = ref(newDefaultArtifactConfigForWasm())
+
+function handleClickArtifactConfig() {
+    showConfigArtifactDialog.value = true
+}
+
+
+///////////////////////////////////////////////////////////////
+// save and use presets
+const miscCurrentPresetName = ref<null | string>(null)
+const presetDefaultName = computed((): string => {
+    const cName = characterLocale.value
+    const wName = weaponLocale.value
+    return `${cName}-${wName}`
+})
+
+function handleCommandPreset(cmd: string) {
+    if (cmd === "save-preset") {
+        handleClickSaveOptimizeConfig()
+    } else {
+        if (cmd.startsWith("apply-")) {
+            const name = cmd.slice(6)
+
+            usePreset(name)
+        }
+    }
+}
+
+function handleSavePreset(name: string) {
+    if (!name) {
+        handleClickSaveOptimizeConfig()
+    } else {
+        const item = getPresetItem()
+        // console.log(item)
+        item.name = name
+        presetStore.addOrOverwrite(name, item)
+
+        ElMessage.success({
+            message: "已保存"
+        })
+    }
+}
+
+function handleClickSaveOptimizeConfig() {
+    const item = getPresetItem()
+
+    ElMessageBox.prompt("输入名称（重复名称将覆盖）", "存为预设", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        inputPattern: /[^\s]+$/,
+        inputValue: presetDefaultName.value
+    }).then(({ value }) => {
+        item.name = value
+        presetStore.addOrOverwrite(value, item)
+        miscCurrentPresetName.value = value
+        ElMessage.success({
+            message: "保存成功"
+        })
+    })
+}
+
+function getPresetItem() {
+    type BuffType = Omit<BuffEntry, "id">
+    let buffsToBeSaved: BuffType[] = []
+    for (let buff of buffs.value) {
+        buffsToBeSaved.push({
+            name: buff.name,
+            config: deepCopy(buff.config),
+            lock: buff.lock
+        })
+    }
+
+    const item = {
+        // buffs: deepCopy(config.buffs),
+        buffs: buffsToBeSaved,
+        character: deepCopy(characterInterface.value),
+        weapon: deepCopy(weaponInterface.value),
+        targetFunction: deepCopy(targetFunctionInterface.value),
+        constraint: {
+            setNames: deepCopy(constraintArtifactSet.value),
+            minRecharge: constraintMinRecharge.value,
+            minCritical: constraintMinCritical.value,
+            minCriticalDamage: constraintMinCriticalDamage.value,
+            minElementalMastery: constraintMinElementalMastery.value
+        },
+        filter: {
+            sandMainStats: deepCopy(constraintSandMainStats.value),
+            gobletMainStats: deepCopy(constraintGobletMainStats.value),
+            headMainStats: deepCopy(constraintHeadMainStats.value),
+        },
+        artifactConfig: deepCopy(artifactConfig.value),
+        algorithm: algorithm.value,
+        artifactEffectMode: artifactEffectMode.value,
+        useDSL: miscTargetFunctionTab.value === "dsl",
+        dslSource: targetFunctionDSLSource.value,
+        name: ""
+    } as IPreset
+    return item
+}
+
+function usePreset(name: string) {
+    const entry: PresetEntry = presetStore.presets.value[name]
+    if (!entry || !entry.item) {
+        return
+    }
+
+    const item: IPreset = deepCopy(entry.item)
+
+    const idGenerator = new RandomIDProvider()
+
+    // use buffs
+    if (item.buffs) {
+        const newBuffs: BuffItem[] = []
+        for (let buff of item.buffs) {
+            const newBuff: BuffEntry = {
+                id: idGenerator.generateId(),
+                name: buff.name,
+                config: buff.config,
+                lock: buff.lock
+            }
+            newBuffs.push(newBuff)
+        }
+        buffs.value = newBuffs
+    }
+
+    // use character
+    const c = item.character
+    if (c) {
+        // this.characterName = c.name
+        characterName.value = c.name
+        characterLevel.value = c.level.toString() + (c.ascend ? "+" : "-")
+        characterConstellation.value = c.constellation ?? 0
+        characterSkill1.value = c.skill1 + 1
+        characterSkill2.value = c.skill2 + 1
+        characterSkill3.value = c.skill3 + 1
+        characterConfig.value = c.params
+    }
+
+    // use weapon
+    const w = item.weapon
+    if (w) {
+        weaponName.value = w.name
+        weaponLevel.value = w.level.toString() + (w.ascend ? "+" : "-")
+        weaponRefine.value = w.refine
+        weaponConfig.value = w.params
+    }
+
+    // use target function
+    const tf = item.targetFunction
+    if (tf) {
+        targetFunctionName.value = tf.name
+        targetFunctionConfig.value = tf.params
+    }
+
+    // is DSL?
+    const use_dsl = !!item.useDSL
+    if (use_dsl) {
+        miscTargetFunctionTab.value = "dsl"
+        targetFunctionDSLSource.value = item.dslSource ?? ""
+    } else {
+        miscTargetFunctionTab.value = "normal"
+    }
+
+
+    // use constraint
+    const constraint = item.constraint
+    if (constraint) {
+        constraintArtifactSet.value = constraint.setNames ?? []
+        constraintMinCriticalDamage.value = constraint.minCriticalDamage ?? 0
+        constraintMinCritical.value = constraint.minCritical ?? 0
+        constraintMinElementalMastery.value = constraint.minElementalMastery ?? 0
+        constraintMinRecharge.value = constraint.minRecharge ?? 1.0
+    }
+
+    // use filter
+    const filter = item.filter
+    if (filter) {
+        constraintSandMainStats.value = filter.sandMainStats ?? []
+        constraintGobletMainStats.value = filter.gobletMainStats ?? []
+        constraintHeadMainStats.value = filter.headMainStats ?? []
+    }
+
+    // use compute mode
+    algorithm.value = item.algorithm ?? "AStar"
+    // disable heuristic algorithm in 5.11
+    if (algorithm.value === "Heuristic") {
+        algorithm.value = "AStar"
+    }
+
+    // use artifact effect mode
+    artifactEffectMode.value = item.artifactEffectMode ?? "auto"
+
+    // use artifact config
+    if (item.artifactConfig) {
+        artifactConfig.value = mergeArtifactConfig(item.artifactConfig)
+    } else {
+        artifactConfig.value = newDefaultArtifactConfigForWasm()
+    }
+
+    miscCurrentPresetName.value = name
+}
+
+
+///////////////////////////////////////////////////////////
+// buffs
+const {
+    buffs,
+    buffsInterface,
+    addBuff,
+    deleteBuff,
+    toggleBuff
+} = useBuff()
+
+const showSelectBuffDialog = ref(false)
+
+function handleClickAddBuff() {
+    showSelectBuffDialog.value = true
+}
+
+function handleClickDeleteBuff(id: number) {
+    deleteBuff(id)
+}
+
+function handleClickToggleBuff(id: number) {
+    toggleBuff(id)
+}
+
+function handleSelectBuff(name: string) {
+    showSelectBuffDialog.value = false
+    addBuff(name)
+}
+
+
+////////////////////////////////////////////////////////////////////////
+// damage
+const showDamageAnalysisDialog = ref(false)
+const damageAnalysisComponent = ref<null | InstanceType<typeof DamageAnalysis>>(null)
+
+const damageAnalysisWasmInterface = computed(() => {
+    // console.log("123")
+    return {
+        character: characterInterface.value,
+        weapon: weaponInterface.value,
+        buffs: buffsInterface.value,
+        artifacts: artifactWasmFormat.value,
+        artifact_config: artifactConfigForCalculator.value,
+        skill: characterSkillInterface.value,
+        enemy: enemyInterface.value,
+    }
+})
+
+const characterDamageAnalysis = computed(() => {
+    let fumo2 = null
+    if (fumo.value !== "None") {
+        fumo2 = fumo.value
+    }
+    const temp = mona.CalculatorInterface.get_damage_analysis(damageAnalysisWasmInterface.value, fumo2)
+    // console.log(temp)
+    return temp
+})
+
+const characterTransformativeDamage = computed(() => {
+    // return  {
+    //     "electro_charged": 0,
+    //     "overload": 0,
+    //     "shatter": 0,
+    //     "superconduct": 0,
+    //     "swirl_cryo": 0,
+    //     "swirl_pyro": 0,
+    //     "swirl_electro": 0,
+    //     "swirl_hydro": 0
+    // }
+    const temp = mona.CalculatorInterface.get_transformative_damage(damageAnalysisWasmInterface.value)
+    return temp
+    // console.log(temp)
+    // return temp
+    // const ret = {
+    //     "electro_charged": temp.electro_charged,
+    //     "overload": temp.overload,
+    //     "shatter": temp.shatter,
+    //     "superconduct": temp.superconduct,
+    //     "swirl_cryo": temp.swirl_cryo,
+    //     "swirl_pyro": temp.swirl_pyro,
+    //     "swirl_electro": temp.swirl_electro,
+    //     "swirl_hydro": temp.swirl_hydro
+    // }
+    // return ret
+})
+
+function handleDisplayAnalysis() {
+    showDamageAnalysisDialog.value = true
+
+    nextTick(() => {
+        if (damageAnalysisComponent.value) {
+            const component = damageAnalysisComponent.value
+
+            component.setValue(characterDamageAnalysis.value)
+        }
+    })
+}
+
+
+//////////////////////////////////////////////////////////////////
+// attribute
+const getAttributeWasmInterface = computed(() => {
+    return {
+        character: characterInterface.value,
+        weapon: weaponInterface.value,
+        buffs: buffsInterface.value,
+        artifacts: artifactWasmFormat.value,
+        artifact_config: artifactConfigForCalculator.value,
+    }
+})
+
+const attributeFromWasm = computed(() => {
+    const ret = mona.CommonInterface.get_attribute(getAttributeWasmInterface.value)
+    // console.log(ret)
+    return ret
+})
+
+
+//////////////////////////////////////////////////////////////////
+// bonus analysis
+const miscPerStatBonus = ref<any>({})
+const showArtifactPerBonusDialog = ref(false)
+
+const bonusPerStatWasmInterface = computed(() => {
+    return {
+        character: characterInterface.value,
+        weapon: weaponInterface.value,
+        artifacts: artifactWasmFormat.value,
+        tf: targetFunctionInterface.value,
+        buffs: buffsInterface.value,
+        artifacts_config: artifactConfigForCalculator.value
+    }
+})
+
+function handleClickAttributeAnalysis() {
+    miscPerStatBonus.value = mona.BonusPerStat.bonus_per_stat(bonusPerStatWasmInterface.value)
+    showArtifactPerBonusDialog.value = true
+}
+
+const ArtifactPerStatBonus = defineAsyncComponent({
+    loader: () => import("@/components/display/ArtifactPerStatBonus.vue")
+})
+
+
+/////////////////////////////////////////////////////////////////////////
+// kumi
+const showSaveKumiDialog = ref(false)
+const showUseKumiDialog = ref(false)
+
+interface Node {
+    label: string,
+    children?: Node[],
+    id: number,
+}
+
+const kumiDefaultName = computed((): string => {
+    let name = characterLocale.value
+    for (const setName in artifactSetCount.value) {
+        if (artifactSetCount.value[setName] >= 2) {
+            name += '-' + ta(artifactsData[setName].nameLocale)
+        }
+    }
+    return name
+})
+
+const kumiTreeDataForElementUI = computed(() => {
+    const data: Node[] = []
+    for (const item of kumiStore.dirs.value) {
+        const children = item.children ?? []
+
+        if (children.length > 0) {
+            const temp: Node[] = []
+            for (let childId of children) {
+                const item = kumiStore.kumiById.value.get(childId)
+                if (item) {
+                    temp.push({
+                        label: item.title,
+                        id: item.id
+                    })
+                }
+            }
+
+            const node = {
+                label: item.title,
+                children: temp,
+                id: item.id
+            }
+            data.push(node)
+        }
+    }
+
+    return data
+})
+
+function handleClickSaveAsKumi() {
+    showSaveKumiDialog.value = true
+}
+
+function handleSaveAsKumi({ dirIds, name }: { dirIds: number[], name: string }) {
+    showSaveKumiDialog.value = false
+
+    for (const dirId of dirIds) {
+        let kumiId = kumiStore.createKumi(dirId, name)
+        if (kumiId) {
+            for (const artifactId of artifactIds.value) {
+                if (artifactId >= 0) {
+                    kumiStore.addArtifact(kumiId, artifactId)
+                }
+            }
+        }
+    }
+}
+
+function handleClickUseKumi() {
+    showUseKumiDialog.value = true
+}
+
+function handleUseKumi(node: Node) {
+    const item = kumiStore.kumiById.value.get(node.id)
+    if (!item || item.dir || !item.artifactIds) {
+        return
+    }
+
+    showUseKumiDialog.value = false
+    for (let i = 0; i < 5; i++) {
+        const artifactId = item.artifactIds[i]
+        if (artifactId !== null) {
+            artifactIds.value[i] = artifactId
+        } else {
+            artifactIds.value[i] = -1
+        }
+    }
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// artifact analysis
+const showArtifactAnalysisDialog = ref(false)
+
+const ArtifactsSetStatistics = defineAsyncComponent({
+    loader: () => import("@/components/display/ArtifactsSetStatistics"),
+    loadingComponent: SimpleLoading,
+    errorComponent: SimpleError,
+})
+
+function handleClickArtifactAnalysis() {
+    showArtifactAnalysisDialog.value = true
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// optimization
+interface ResultEntry {
+    flower: null | number,
+    feather: null | number,
+    sand: null | number,
+    goblet: null | number,
+    head: null | number,
+}
+
+const optimizationResults = ref<ResultEntry[]>([])
+const optimizationResultIndex = ref(0)
+
+function handleUseNthOptimizationResult(n: number) {
+    const result = optimizationResults.value[n - 1]
+    const m = (x: null | number) => {
+        if (x !== null) {
+            return x
+        } else {
+            return -1
+        }
+    }
+
+    let temp: number[] = []
+    temp.push(m(result.flower))
+    temp.push(m(result.feather))
+    temp.push(m(result.sand))
+    temp.push(m(result.goblet))
+    temp.push(m(result.head))
+
+    artifactIds.value = temp
+
+    optimizationResultIndex.value = n
+}
+
+function getOptimizeArtifactWasmInterface() {
+    let artifact_config: any = null
+    if (artifactEffectMode.value === "custom") {
+        artifact_config = artifactConfig.value
+    }
+
+    const i = {
+        character: characterInterface.value,
+        weapon: weaponInterface.value,
+        target_function: targetFunctionInterface.value,
+        constraint: constraintInterface.value,
+        buffs: buffsInterface.value,
+        artifact_config,
+        algorithm: algorithm.value,
+    }
+
+    // some values may be under a proxy, which cannot be passed to web worker
+    // use deep copy to remove proxy
+    return deepCopy(i)
+}
+
+function getAllArtifactsFiltered(): IArtifact[] {
+    const component = filterKumiRef.value
+
+    // s is artifact ids to be filtered
+    let s = new Set()
+
+    // filter kumi
+    if (component) {
+        const nodes = component.getCheckedNodes(true)
+        for (let node of nodes) {
+            const kumiId = node.id
+            const kumiItem = kumiStore.kumiById.value.get(kumiId)
+            if (kumiItem && kumiItem.artifactIds) {
+                for (const artifactId of kumiItem.artifactIds) {
+                    s.add(artifactId)
+                }
+            }
+        }
+    }
+
+    // filter main stat
+    for (let artifact of artifactStore.artifacts.value.values()) {
+        const position = artifact.position
+        const mainStatName = artifact.mainTag.name
+        const id = artifact.id
+        if (position === "sand") {
+            if (constraintSandMainStats.value.length > 0) {
+                const index = constraintSandMainStats.value.indexOf(mainStatName)
+                if (index === -1) {
+                    s.add(id)
+                }
+            }
+        } else if (position === "cup") {
+            if (constraintGobletMainStats.value.length > 0) {
+                const index = constraintGobletMainStats.value.indexOf(mainStatName)
+                if (index === -1) {
+                    s.add(id)
+                }
+            }
+        } else if (position === "head") {
+            if (constraintHeadMainStats.value.length > 0) {
+                const index = constraintHeadMainStats.value.indexOf(mainStatName)
+                if (index === -1) {
+                    s.add(id)
+                }
+            }
+        }
+    }
+
+    let filtered = []
+
+    for (let artifact of artifactStore.artifacts.value.values()) {
+        if (!artifact.omit && !s.has(artifact.id)) {
+            filtered.push(artifact)
+        }
+    }
+
+    return filtered.filter(a => !a.omit)
+}
+
+function getAllArtifactsFilteredWasm(): IArtifactWasm[] {
+    return getAllArtifactsFiltered().map(x => convertArtifact(x))
+}
+
+function getArtifactsToBeCalculated(): IArtifactWasm[] {
+    const artifacts = getAllArtifactsFilteredWasm()
+    const artifacts16 = artifacts.filter(x => x.level >= 16)
+
+    return artifacts16
+}
+
+function handleOptimizeArtifact() {
+    const start = new Date()
+
+    const optimizeInterface = getOptimizeArtifactWasmInterface()
+    const artifacts = getArtifactsToBeCalculated()
+
+    if (artifacts.length === 0) {
+        ElMessage.error({
+            message: "没有圣遗物，请先添加圣遗物"
+        })
+        return
+    }
+
+    const loading = ElLoading.service({
+        lock: true,
+        fullscreen: true,
+        text: "莫娜占卜中"
+    })
+
+    wasmSingleOptimize(optimizeInterface, artifacts).then(results => {
+        const end = new Date()
+        // @ts-ignore
+        console.log(`time: ${(end - start) / 1000}s`)
+
+        if (results.length === 0) {
+            ElMessage.error({
+                message: "没有符合条件的圣遗物"
+            })
+            return
+        }
+        optimizationResults.value = results
+        handleUseNthOptimizationResult(1)
+
+        // report best result to server, only report player whose 20 artifacts count is above 100
+        if (artifactStore.artifacts20Count.value >= 100 && process.env.NODE_ENV === 'production') {
+            let result_artifacts_wasm_format: any[] = []
+            let first_result = results[0]
+            result_artifacts_wasm_format.push(first_result.flower)
+            result_artifacts_wasm_format.push(first_result.feather)
+            result_artifacts_wasm_format.push(first_result.sand)
+            result_artifacts_wasm_format.push(first_result.goblet)
+            result_artifacts_wasm_format.push(first_result.head)
+            result_artifacts_wasm_format = result_artifacts_wasm_format
+                .filter(v => v !== null && v !== undefined)
+                .map(id => artifactStore.artifacts.value.get(id))
+                .filter(a => !!a)
+                .map(a => convertArtifact(a))
+
+            // the return value can be omitted, because there's nothing valuable
+            createComputeResult(
+                characterInterface.value,
+                weaponInterface.value,
+                buffsInterface.value,
+                targetFunctionInterface.value,
+                result_artifacts_wasm_format
+            )
+        }
+    }).catch(e => {
+        ElMessage.error({
+            message: e.message ?? e
+        })
+    }).finally(() => {
+        loading.close()
+    })
+}
+
+watch(() => accountStore.currentAccountId.value, () => {
+    optimizationResults.value = []
+    optimizationResultIndex.value = 0
+    miscCurrentPresetName.value = null
+    artifactIds.value = [-1, -1, -1, -1, -1]
+})
 </script>
 
 <style lang="scss" scoped>
@@ -2016,7 +1690,7 @@ export default {
         .detail-left {
             width: 64px;
             margin-right: 16px;
-            
+
             img {
                 height: 64px;
                 width: 64px;
@@ -2054,7 +1728,7 @@ export default {
 }
 
  //artifact effect description title
-.effect4 {
+.effect4, .effect2 {
     color: #6eb7ff;
 }
 

@@ -1,8 +1,7 @@
 <template>
     <el-select
-        :value="value"
-        size="small"
-        @input="$emit('input', $event)"
+        :model-value="modelValue"
+        @update:modelValue="$emit('update:modelValue', $event)"
     >
         <el-option
             v-for="item in list"
@@ -15,21 +14,26 @@
 
 <script>
 import { subStats, artifactTags } from "@const/artifact"
+import {useI18n} from "../../i18n/i18n"
 
-let list = []
-for (let name of subStats) {
-    list.push({
-        name,
-        title: artifactTags[name].chs
-    })
-}
-Object.freeze(list)
 
 export default {
     name: "SelectArtifactSubStat",
-    props: ["value"],
-    created() {
-        this.list = list
+    props: ["modelValue"],
+    emits: ["update:modelValue"],
+    computed: {
+        list() {
+            const { t } = useI18n()
+            let result = []
+            for (let name of subStats) {
+                result.push({
+                    name,
+                    // title: artifactTags[name].chs
+                    title: t("stat", name)
+                })
+            }
+            return result
+        }
     }
 }
 </script>

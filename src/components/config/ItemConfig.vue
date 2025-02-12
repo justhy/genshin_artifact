@@ -6,15 +6,17 @@
             v-for="config in configs"
             :key="config.name"
             :params="config"
+            :title="ta(config.title)"
             :type="config.type"
-            :value="value2[config.name]"
-            @input="handleInput(config.name, $event)"
+            :modelValue="value2[config.name]"
+            @update:modelValue="handleInput(config.name, $event)"
         ></ConfigItem>
     </div>
 </template>
 
 <script>
 import ConfigItem from "./ConfigItem"
+import {useI18n} from "@/i18n/i18n"
 
 export default {
     name: "ItemConfig",
@@ -22,7 +24,7 @@ export default {
         ConfigItem
     },
     props: {
-        value: {},
+        modelValue: {},
         itemName: {},
         configs: {
             type: Array
@@ -34,6 +36,7 @@ export default {
             default: true,
         }
     },
+    emits: ["update:modelValue"],
     computed: {
         styleRoot() {
             return {
@@ -43,9 +46,9 @@ export default {
 
         value2() {
             if (this.needItemName) {
-                return this.value[this.itemName]
+                return this.modelValue[this.itemName]
             } else {
-                return this.value
+                return this.modelValue
             }
         }
     },
@@ -53,17 +56,23 @@ export default {
     methods: {
         handleInput(name, value) {
             if (this.needItemName) {
-                let obj = Object.assign({}, this.value[this.itemName])
+                let obj = Object.assign({}, this.modelValue[this.itemName])
                 obj[name] = value
 
-                this.$emit("input", {
+                this.$emit("update:modelValue", {
                     [this.itemName]: obj
                 })
             } else {
-                let obj = Object.assign({}, this.value)
+                let obj = Object.assign({}, this.modelValue)
                 obj[name] = value
-                this.$emit("input", obj)
+                this.$emit("update:modelValue", obj)
             }
+        }
+    },
+    setup() {
+        const { t, ta } = useI18n()
+        return {
+            t, ta
         }
     }
 }

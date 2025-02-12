@@ -1,54 +1,75 @@
-<!-- 选择技能index -->
-
 <template>
+<!-- use :key to force rerender, or there will be a bug   -->
     <el-select
-        :value="value"
-        @input="$emit('input', $event)"
-        size="small"
+        :model-value="props.modelValue"
+        @update:modelValue="emits('update:modelValue', $event)"
+        :key="props.characterName"
     >
+        <template #prefix>
+            <span>{{ t("misc.skill") }}</span>
+        </template>
+
         <el-option-group
-            v-for="(list, groupName) in skillMap"
-            :key="groupName"
-            :label="groupName"
+            v-for="(group, index) in skillMap"
+            :key="group[0]"
+            :label="group[0]"
         >
             <el-option
-                v-for="item in list"
-                :key="item.index"
-                :label="item.chs"
+                v-for="item in group[1]"
+                :key="item.index.toString()"
+                :label="ta(item.text)"
                 :value="item.index"
-            ></el-option>
+            >
+            </el-option>
         </el-option-group>
     </el-select>
 </template>
 
-<script>
+<script setup lang="ts">
 import { characterData } from "@character"
+import type {CharacterName} from "@/types/character"
+import {deepCopy} from "@/utils/common"
+import {useI18n} from "@/i18n/i18n"
 
-export default {
-    name: "SelectCharacterSkill",
-    props: ["characterName", "value"],
-    computed: {
-        skillMap() {
-            const data = characterData[this.characterName]
 
-            let map = {}
-            if (data.skillMap1.length > 0) {
-                map[data.skillName1] = data.skillMap1
-            }
-            if (data.skillMap2.length > 0) {
-                map[data.skillName2] = data.skillMap2
-            }
-            if (data.skillMap3.length > 0) {
-                map[data.skillName3] = data.skillMap3
-            }
-            
-            return map
-        }
-    },
-    watch: {
-        "characterName": function (newValue, oldValue) {
-            this.$emit("input", 0)
-        }
-    }
+const { t, ta } = useI18n()
+
+interface Props {
+    characterName: CharacterName,
+    modelValue: number
 }
+
+const props = defineProps<Props>()
+
+interface Emits {
+    (e: "update:modelValue", v: number): void
+}
+
+const emits = defineEmits<Emits>()
+
+const skillMap = computed(() => {
+    const data = characterData[props.characterName]
+
+    let map: [string, { index: number, text: number }[]][] = []
+    if (data.skillMap1.length > 0) {
+        map.push([
+            // data.skillName1, data.skillMap1
+            ta(data.skillName1), data.skillMap1
+        ])
+    }
+    if (data.skillMap2.length > 0) {
+        map.push([
+            // data.skillName2, data.skillMap2
+            ta(data.skillName2), data.skillMap2
+        ])
+    }
+    if (data.skillMap3.length > 0) {
+        map.push([
+            // data.skillName3, data.skillMap3
+            ta(data.skillName3), data.skillMap3
+        ])
+    }
+
+    return map
+})
 </script>

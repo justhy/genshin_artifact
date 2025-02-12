@@ -3,7 +3,7 @@ use crate::artifacts::effect_config::ArtifactEffectConfig;
 use crate::attribute::{Attribute, AttributeName, SimpleAttributeGraph2};
 use crate::character::{Character, CharacterName};
 use crate::character::character_common_data::CharacterCommonData;
-use crate::character::characters::sayu::Sayu;
+use crate::character::characters::anemo::sayu::Sayu;
 use crate::character::skill_config::CharacterSkillConfig;
 use crate::character::traits::CharacterTrait;
 use crate::common::item_config_type::{ItemConfig, ItemConfigType};
@@ -41,8 +41,14 @@ impl TargetFunctionMetaTrait for SayuDefaultTargetFunction {
     #[cfg(not(target_family = "wasm"))]
     const META_DATA: TargetFunctionMeta = TargetFunctionMeta {
         name: TargetFunctionName::SayuDefault,
-        chs: "早柚-忍里之貉",
-        description: "普通输出型早柚",
+        name_locale: crate::common::i18n::locale!(
+            zh_cn: "早柚-忍里之貉",
+            en: "Sayu-Mujina Ninja"
+        ),
+        description: crate::common::i18n::locale!(
+            zh_cn: "普通输出型早柚",
+            en: "DPS Sayu"
+        ),
         tags: "输出,治疗",
         four: TargetFunctionFor::SomeWho(CharacterName::Sayu),
         image: TargetFunctionMetaImage::Avatar
@@ -64,88 +70,89 @@ impl TargetFunctionMetaTrait for SayuDefaultTargetFunction {
 
 impl TargetFunction for SayuDefaultTargetFunction {
     fn get_target_function_opt_config(&self) -> TargetFunctionOptConfig {
-        if self.c6 {
-            TargetFunctionOptConfig {
-                atk_fixed: 0.0,
-                atk_percentage: 0.9,
-                hp_fixed: 0.0,
-                hp_percentage: 0.0,
-                def_fixed: 0.0,
-                def_percentage: 0.0,
-                recharge: 1.0,
-                elemental_mastery: 1.5,
-                critical: 1.0,
-                critical_damage: 1.0,
-                healing_bonus: 0.0,
-                bonus_electro: 0.0,
-                bonus_pyro: 0.0,
-                bonus_hydro: 0.0,
-                bonus_anemo: 1.0,
-                bonus_cryo: 0.0,
-                bonus_geo: 0.0,
-                bonus_dendro: 0.0,
-                bonus_physical: 0.0,
-                sand_main_stats: vec![
-                    StatName::ElementalMastery,
-                    StatName::Recharge
-                ],
-                goblet_main_stats: vec![
-                    StatName::ElementalMastery,
-                    StatName::AnemoBonus
-                ],
-                head_main_stats: vec![
-                    StatName::ElementalMastery,
-                    StatName::ATKPercentage,
-                ],
-                set_names: Some(vec![
-                    ArtifactSetName::ViridescentVenerer,
-                    ArtifactSetName::GladiatorsFinale,
-                ]),
-                very_critical_set_names: None,
-                normal_threshold: TargetFunctionOptConfig::DEFAULT_NORMAL_THRESHOLD,
-                critical_threshold: TargetFunctionOptConfig::DEFAULT_CRITICAL_THRESHOLD,
-                very_critical_threshold: TargetFunctionOptConfig::DEFAULT_VERY_CRITICAL_THRESHOLD
-            }
-        } else {
-            TargetFunctionOptConfig {
-                atk_fixed: 0.0,
-                atk_percentage: 1.0,
-                hp_fixed: 0.0,
-                hp_percentage: 0.0,
-                def_fixed: 0.0,
-                def_percentage: 0.0,
-                recharge: 1.0,
-                elemental_mastery: if self.c6 { 1.0 } else { 0.0 },
-                critical: 0.0,
-                critical_damage: 0.0,
-                healing_bonus: 0.0,
-                bonus_electro: 0.0,
-                bonus_pyro: 0.0,
-                bonus_hydro: 0.0,
-                bonus_anemo: 0.0,
-                bonus_cryo: 0.0,
-                bonus_geo: 0.0,
-                bonus_dendro: 0.0,
-                bonus_physical: 0.0,
-                sand_main_stats: vec![
-                    StatName::Recharge
-                ],
-                goblet_main_stats: vec![
-                    StatName::ATKPercentage
-                ],
-                head_main_stats: vec![
-                    StatName::HealingBonus
-                ],
-                set_names: Some(vec![
-                    ArtifactSetName::ViridescentVenerer,
-                    ArtifactSetName::GladiatorsFinale,
-                ]),
-                very_critical_set_names: None,
-                normal_threshold: TargetFunctionOptConfig::DEFAULT_NORMAL_THRESHOLD,
-                critical_threshold: TargetFunctionOptConfig::DEFAULT_CRITICAL_THRESHOLD,
-                very_critical_threshold: TargetFunctionOptConfig::DEFAULT_VERY_CRITICAL_THRESHOLD
-            }
-        }
+        // if self.c6 {
+        //     TargetFunctionOptConfig {
+        //         atk_fixed: 0.0,
+        //         atk_percentage: 0.9,
+        //         hp_fixed: 0.0,
+        //         hp_percentage: 0.0,
+        //         def_fixed: 0.0,
+        //         def_percentage: 0.0,
+        //         recharge: 1.0,
+        //         elemental_mastery: 1.5,
+        //         critical: 1.0,
+        //         critical_damage: 1.0,
+        //         healing_bonus: 0.0,
+        //         bonus_electro: 0.0,
+        //         bonus_pyro: 0.0,
+        //         bonus_hydro: 0.0,
+        //         bonus_anemo: 1.0,
+        //         bonus_cryo: 0.0,
+        //         bonus_geo: 0.0,
+        //         bonus_dendro: 0.0,
+        //         bonus_physical: 0.0,
+        //         sand_main_stats: vec![
+        //             StatName::ElementalMastery,
+        //             StatName::Recharge
+        //         ],
+        //         goblet_main_stats: vec![
+        //             StatName::ElementalMastery,
+        //             StatName::AnemoBonus
+        //         ],
+        //         head_main_stats: vec![
+        //             StatName::ElementalMastery,
+        //             StatName::ATKPercentage,
+        //         ],
+        //         set_names: Some(vec![
+        //             ArtifactSetName::ViridescentVenerer,
+        //             ArtifactSetName::GladiatorsFinale,
+        //         ]),
+        //         very_critical_set_names: None,
+        //         normal_threshold: TargetFunctionOptConfig::DEFAULT_NORMAL_THRESHOLD,
+        //         critical_threshold: TargetFunctionOptConfig::DEFAULT_CRITICAL_THRESHOLD,
+        //         very_critical_threshold: TargetFunctionOptConfig::DEFAULT_VERY_CRITICAL_THRESHOLD
+        //     }
+        // } else {
+        //     TargetFunctionOptConfig {
+        //         atk_fixed: 0.0,
+        //         atk_percentage: 1.0,
+        //         hp_fixed: 0.0,
+        //         hp_percentage: 0.0,
+        //         def_fixed: 0.0,
+        //         def_percentage: 0.0,
+        //         recharge: 1.0,
+        //         elemental_mastery: if self.c6 { 1.0 } else { 0.0 },
+        //         critical: 0.0,
+        //         critical_damage: 0.0,
+        //         healing_bonus: 0.0,
+        //         bonus_electro: 0.0,
+        //         bonus_pyro: 0.0,
+        //         bonus_hydro: 0.0,
+        //         bonus_anemo: 0.0,
+        //         bonus_cryo: 0.0,
+        //         bonus_geo: 0.0,
+        //         bonus_dendro: 0.0,
+        //         bonus_physical: 0.0,
+        //         sand_main_stats: vec![
+        //             StatName::Recharge
+        //         ],
+        //         goblet_main_stats: vec![
+        //             StatName::ATKPercentage
+        //         ],
+        //         head_main_stats: vec![
+        //             StatName::HealingBonus
+        //         ],
+        //         set_names: Some(vec![
+        //             ArtifactSetName::ViridescentVenerer,
+        //             ArtifactSetName::GladiatorsFinale,
+        //         ]),
+        //         very_critical_set_names: None,
+        //         normal_threshold: TargetFunctionOptConfig::DEFAULT_NORMAL_THRESHOLD,
+        //         critical_threshold: TargetFunctionOptConfig::DEFAULT_CRITICAL_THRESHOLD,
+        //         very_critical_threshold: TargetFunctionOptConfig::DEFAULT_VERY_CRITICAL_THRESHOLD
+        //     }
+        // }
+        unimplemented!()
     }
 
     fn get_default_artifact_config(&self, _team_config: &TeamQuantization) -> ArtifactEffectConfig {
@@ -159,7 +166,7 @@ impl TargetFunction for SayuDefaultTargetFunction {
         };
 
         type S = <Sayu as CharacterTrait>::DamageEnumType;
-        let dmg_q = Sayu::damage::<SimpleDamageBuilder>(&context, S::Q2, &CharacterSkillConfig::NoConfig).normal.expectation;
+        let dmg_q = Sayu::damage::<SimpleDamageBuilder>(&context, S::Q2, &CharacterSkillConfig::NoConfig, None).normal.expectation;
         let r = attribute.get_value(AttributeName::Recharge).min(self.recharge_demand);
 
         r * dmg_q

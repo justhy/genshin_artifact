@@ -1,5 +1,11 @@
+import { deepCopy } from "../utils/common"
+
 export function wasmComputeArtifactPotential(potentialFunctionInterface, artifacts, timeout = 120000) {
     const worker = new Worker(new URL("@worker/compute_potential.worker.js", import.meta.url))
+    // console.log(potentialFunctionInterface)
+
+    // because passed value cannot be a proxy
+    const a = deepCopy(potentialFunctionInterface)
 
     return new Promise((resolve, reject) => {
         const timer = setTimeout(() => {
@@ -9,7 +15,9 @@ export function wasmComputeArtifactPotential(potentialFunctionInterface, artifac
         worker.onmessage = e => {
             if (e.data.type === "ready") {
                 worker.postMessage({
-                    potentialFunctionInterface,
+                    // potentialFunctionInterface,
+                    potentialFunctionInterface: a,
+                    // a,
                     artifacts,
                 })
             } else {
@@ -20,9 +28,10 @@ export function wasmComputeArtifactPotential(potentialFunctionInterface, artifac
             }
         }
 
-        // worker.onerror = e => {
-        //     reject("计算发生错误：" + e)
-        // }
+        worker.onerror = e => {
+            reject("计算发生错误：" + e.message)
+            clearTimeout(timer)
+        }
     }).finally(() => {
         worker.terminate()
     })

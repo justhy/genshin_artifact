@@ -12,6 +12,7 @@ pub struct WasterGreatsword;
 impl WeaponTrait for WasterGreatsword {
     const META_DATA: WeaponStaticData = WeaponStaticData {
         name: WeaponName::WasterGreatsword,
+        internal_name: "Claymore_Aniki",
         weapon_type: WeaponType::Claymore,
         weapon_sub_stat: None,
         weapon_base: WeaponBaseATKFamily::ATK185,
@@ -19,7 +20,10 @@ impl WeaponTrait for WasterGreatsword {
         #[cfg(not(target_family = "wasm"))]
         effect: None,
         #[cfg(not(target_family = "wasm"))]
-        chs: "训练大剑"
+        name_locale: crate::common::i18n::locale!(
+            zh_cn: "训练大剑",
+            en: "Waster Greatsword"
+        )
     };
 
     fn get_effect<A: Attribute>(_character: &CharacterCommonData, _config: &WeaponConfig) -> Option<Box<dyn WeaponEffect<A>>> {

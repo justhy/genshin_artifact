@@ -49,15 +49,17 @@ impl MyNode {
     }
 }
 
+const MAX_ATTRIBUTE_ENTRY: usize = 200;
+
 pub struct ComplicatedAttributeGraph {
-    pub attributes: RefCell<[MyNode; 150]>,
+    pub attributes: RefCell<[MyNode; MAX_ATTRIBUTE_ENTRY]>,
     pub edges: Vec<MyEdge>,
 }
 
 impl Default for ComplicatedAttributeGraph {
     fn default() -> Self {
         let ret = ComplicatedAttributeGraph {
-            attributes: RefCell::new([(); 150].map(|_| MyNode {
+            attributes: RefCell::new([(); MAX_ATTRIBUTE_ENTRY].map(|_| MyNode {
                 value_self: HashMap::new(),
                 value_from_edge: HashMap::new(),
                 dirty: true,
@@ -189,11 +191,16 @@ impl ComplicatedAttributeGraph {
     }
 
     pub fn get_critical_composition(&self, element: Element, skill: SkillType) -> EntryType {
-        self.get_composition_merge(&vec![
+        let skill_type_critical_name = AttributeName::critical_rate_name_by_skill_type(skill);
+        let mut names = vec![
             AttributeName::CriticalBase,
             AttributeName::CriticalAttacking,
             AttributeName::critical_rate_name_by_element(element),
-            AttributeName::critical_rate_name_by_skill_type(skill)
-        ])
+        ];
+        if let Some(name) = skill_type_critical_name {
+            names.push(name);
+        }
+
+        self.get_composition_merge(&names)
     }
 }

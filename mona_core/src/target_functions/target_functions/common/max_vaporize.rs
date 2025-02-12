@@ -4,6 +4,7 @@ use crate::attribute::{Attribute, SimpleAttributeGraph2, AttributeCommon, Attrib
 use crate::character::Character;
 use crate::character::character_common_data::CharacterCommonData;
 use crate::common::{Element, SkillType, StatName};
+use crate::common::i18n::locale;
 use crate::common::item_config_type::{ItemConfig, ItemConfigType};
 use crate::damage::damage_builder::DamageBuilder;
 use crate::damage::SimpleDamageBuilder;
@@ -25,8 +26,14 @@ impl TargetFunctionMetaTrait for MaxVaporizeTargetFunction {
     #[cfg(not(target_family = "wasm"))]
     const META_DATA: TargetFunctionMeta = TargetFunctionMeta {
         name: TargetFunctionName::MaxVaporize,
-        chs: "最大蒸发伤害",
-        description: "使得蒸发反应的伤害最高。<br><b>注意：</b>仅考虑最简单的情况，特殊机制不考虑（例如某些技能的属性转化等）",
+        name_locale: crate::common::i18n::locale!(
+            zh_cn: "最大蒸发伤害",
+            en: "Max Vaporize DMG"
+        ),
+        description: crate::common::i18n::locale!(
+            zh_cn: "使得蒸发反应的伤害最高。<br><b>注意：</b>仅考虑最简单的情况，特殊机制不考虑（例如某些技能的属性转化等）",
+            en: "Maximize vaporize DMG<br><b>Attention:</b>This function only calculates the simplest case, some attribute conversions are not considered, you may not use this unless you know what you're doing"
+        ),
         tags: "输出",
         four: TargetFunctionFor::Common,
         image: TargetFunctionMetaImage::Custom("misc/sword")
@@ -36,7 +43,10 @@ impl TargetFunctionMetaTrait for MaxVaporizeTargetFunction {
     const CONFIG: Option<&'static [ItemConfig]> = Some(&[
         ItemConfig {
             name: "t",
-            title: "触发元素",
+            title: locale!(
+                zh_cn: "触发元素",
+                en: "Trigger Element",
+            ),
             config: ItemConfigType::Option {
                 options: "火,水",
                 default: 0
@@ -44,7 +54,10 @@ impl TargetFunctionMetaTrait for MaxVaporizeTargetFunction {
         },
         ItemConfig {
             name: "skill",
-            title: "技能",
+            title: locale!(
+                zh_cn: "技能",
+                en: "Skill"
+            ),
             config: ItemConfigType::Skill4 { default: SkillType::NormalAttack }
         }
     ]);
@@ -64,53 +77,54 @@ impl TargetFunctionMetaTrait for MaxVaporizeTargetFunction {
 
 impl TargetFunction for MaxVaporizeTargetFunction {
     fn get_target_function_opt_config(&self) -> TargetFunctionOptConfig {
-        let mut goblets = Vec::new();
-        goblets.push(StatName::ATKPercentage);
-        goblets.push(StatName::ElementalMastery);
-        if self.t == 0 {
-            goblets.push(StatName::PyroBonus);
-        } else {
-            goblets.push(StatName::HydroBonus);
-        }
-
-        TargetFunctionOptConfig {
-            atk_fixed: 1.0,
-            atk_percentage: 0.0,
-            hp_fixed: 0.5,
-            hp_percentage: 1.0,
-            def_fixed: 0.0,
-            def_percentage: 0.0,
-            recharge: 0.0,
-            elemental_mastery: 1.0,
-            critical: 0.0,
-            critical_damage: 1.0,
-            healing_bonus: 0.0,
-            bonus_electro: 0.0,
-            bonus_pyro: if self.t == 0 { 2.0 } else { 0.0 },
-            bonus_hydro: if self.t == 0 { 0.0 } else { 2.0 },
-            bonus_anemo: 0.0,
-            bonus_cryo: 0.0,
-            bonus_geo: 0.0,
-            bonus_dendro: 0.0,
-            bonus_physical: 0.0,
-            sand_main_stats: vec![
-                StatName::ATKPercentage,
-                StatName::ElementalMastery,
-            ],
-            goblet_main_stats: goblets,
-            head_main_stats: vec![
-                StatName::ATKPercentage,
-                StatName::CriticalDamage,
-                StatName::ElementalMastery,
-            ],
-            set_names: Some(vec![
-                ArtifactSetName::CrimsonWitchOfFlames,
-            ]),
-            very_critical_set_names: None,
-            normal_threshold: TargetFunctionOptConfig::DEFAULT_NORMAL_THRESHOLD,
-            critical_threshold: TargetFunctionOptConfig::DEFAULT_CRITICAL_THRESHOLD,
-            very_critical_threshold: TargetFunctionOptConfig::DEFAULT_VERY_CRITICAL_THRESHOLD
-        }
+        // let mut goblets = Vec::new();
+        // goblets.push(StatName::ATKPercentage);
+        // goblets.push(StatName::ElementalMastery);
+        // if self.t == 0 {
+        //     goblets.push(StatName::PyroBonus);
+        // } else {
+        //     goblets.push(StatName::HydroBonus);
+        // }
+        //
+        // TargetFunctionOptConfig {
+        //     atk_fixed: 1.0,
+        //     atk_percentage: 0.0,
+        //     hp_fixed: 0.5,
+        //     hp_percentage: 1.0,
+        //     def_fixed: 0.0,
+        //     def_percentage: 0.0,
+        //     recharge: 0.0,
+        //     elemental_mastery: 1.0,
+        //     critical: 0.0,
+        //     critical_damage: 1.0,
+        //     healing_bonus: 0.0,
+        //     bonus_electro: 0.0,
+        //     bonus_pyro: if self.t == 0 { 2.0 } else { 0.0 },
+        //     bonus_hydro: if self.t == 0 { 0.0 } else { 2.0 },
+        //     bonus_anemo: 0.0,
+        //     bonus_cryo: 0.0,
+        //     bonus_geo: 0.0,
+        //     bonus_dendro: 0.0,
+        //     bonus_physical: 0.0,
+        //     sand_main_stats: vec![
+        //         StatName::ATKPercentage,
+        //         StatName::ElementalMastery,
+        //     ],
+        //     goblet_main_stats: goblets,
+        //     head_main_stats: vec![
+        //         StatName::ATKPercentage,
+        //         StatName::CriticalDamage,
+        //         StatName::ElementalMastery,
+        //     ],
+        //     set_names: Some(vec![
+        //         ArtifactSetName::CrimsonWitchOfFlames,
+        //     ]),
+        //     very_critical_set_names: None,
+        //     normal_threshold: TargetFunctionOptConfig::DEFAULT_NORMAL_THRESHOLD,
+        //     critical_threshold: TargetFunctionOptConfig::DEFAULT_CRITICAL_THRESHOLD,
+        //     very_critical_threshold: TargetFunctionOptConfig::DEFAULT_VERY_CRITICAL_THRESHOLD
+        // }
+        unimplemented!()
     }
 
     fn get_default_artifact_config(&self, _team_config: &TeamQuantization) -> ArtifactEffectConfig {
@@ -125,7 +139,7 @@ impl TargetFunction for MaxVaporizeTargetFunction {
         };
 
         let mut builder = SimpleDamageBuilder::new(3.0, 0.0, 0.0);
-        let result = builder.damage(&attribute, &enemy, element, self.skill, 90);
+        let result = builder.damage(&attribute, &enemy, element, self.skill, 90, None);
 
         result.vaporize.unwrap().critical
     }

@@ -1,12 +1,14 @@
 use serde::{Serialize, Deserialize};
 use rand::{Rng, thread_rng};
+use num_derive::FromPrimitive;
+use strum_macros::{EnumCount as EnumCountMacro};
 
 use crate::artifacts::ArtifactSlotName;
 use crate::attribute::{AttributeName, Attribute, AttributeCommon};
 use super::element::Element;
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone)]
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, FromPrimitive, EnumCountMacro)]
 pub enum StatName {
     ATKFixed,
     ATKPercentage,
@@ -106,13 +108,24 @@ impl StatName {
         }
     }
 
+    pub fn get_slot_main_stats() -> [Vec<StatName>; 5] {
+        use StatName::*;
+        [
+            vec![HPFixed],
+            vec![ATKFixed],
+            vec![ATKPercentage, DEFPercentage, HPPercentage, ElementalMastery, Recharge],
+            vec![ATKPercentage, DEFPercentage, HPPercentage, ElementalMastery, DendroBonus, PyroBonus, ElectroBonus, HydroBonus, CryoBonus, AnemoBonus, GeoBonus, PhysicalBonus],
+            vec![ATKPercentage, DEFPercentage, HPPercentage, ElementalMastery, CriticalRate, CriticalDamage, HealingBonus]
+        ]
+    }
+
     pub fn random_artifact_main_stat(slot: ArtifactSlotName) -> StatName {
         use StatName::*;
         let v = match slot {
             ArtifactSlotName::Flower => return HPFixed,
             ArtifactSlotName::Feather => return ATKFixed,
             ArtifactSlotName::Sand => vec![ATKPercentage, DEFPercentage, HPPercentage, ElementalMastery, Recharge],
-            ArtifactSlotName::Goblet => vec![ATKPercentage, DEFPercentage, HPPercentage, ElementalMastery, PyroBonus, ElectroBonus, HydroBonus, CryoBonus, AnemoBonus, GeoBonus, PhysicalBonus],
+            ArtifactSlotName::Goblet => vec![ATKPercentage, DEFPercentage, HPPercentage, ElementalMastery, DendroBonus, PyroBonus, ElectroBonus, HydroBonus, CryoBonus, AnemoBonus, GeoBonus, PhysicalBonus],
             ArtifactSlotName::Head => vec![ATKPercentage, DEFPercentage, HPPercentage, ElementalMastery, CriticalRate, CriticalDamage, HealingBonus]
         };
 
@@ -135,7 +148,7 @@ impl StatName {
             CriticalDamage => 0.622,
             HealingBonus => 0.359,
             ElementalMastery => 187.0,
-            PyroBonus | ElectroBonus | HydroBonus | CryoBonus | AnemoBonus | GeoBonus => 0.466,
+            PyroBonus | ElectroBonus | HydroBonus | CryoBonus | AnemoBonus | GeoBonus | DendroBonus => 0.466,
             PhysicalBonus => 0.583,
             _ => unreachable!()
         }

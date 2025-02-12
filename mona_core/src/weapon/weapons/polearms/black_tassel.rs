@@ -33,14 +33,21 @@ pub struct BlackTassel;
 impl WeaponTrait for BlackTassel {
     const META_DATA: WeaponStaticData = WeaponStaticData {
         name: WeaponName::BlackTassel,
+        internal_name: "Pole_Noire",
         weapon_type: WeaponType::Polearm,
         weapon_sub_stat: Some(WeaponSubStatFamily::HP102),
         weapon_base: WeaponBaseATKFamily::ATK354,
         star: 3,
         #[cfg(not(target_family = "wasm"))]
-        effect: Some("克柔：对史莱姆类敌人造成的伤害增加40%/50%/60%/70%/80%。"),
+        effect: Some(crate::common::i18n::locale!(
+            zh_cn: "对史莱姆类敌人造成的伤害增加<span style=\"color: #409EFF;\">40%-50%-60%-70%-80%</span>。",
+            en: "Increases DMG against slimes by <span style=\"color: #409EFF;\">40%-50%-60%-70%-80%</span>."
+        )),
         #[cfg(not(target_family = "wasm"))]
-        chs: "黑缨枪"
+        name_locale: crate::common::i18n::locale!(
+            zh_cn: "黑缨枪",
+            en: "Black Tassel"
+        )
     };
 
     #[cfg(not(target_family = "wasm"))]

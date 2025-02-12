@@ -1,10 +1,5 @@
 <template>
     <div class="page-root">
-        <el-breadcrumb>
-            <el-breadcrumb-item>主页</el-breadcrumb-item>
-        </el-breadcrumb>
-        <el-divider></el-divider>
-
         <p
             class="title"
         >
@@ -12,219 +7,136 @@
             V{{ version }}
         </p>
 
-<!--        <el-alert-->
-<!--            class="hidden-sm-and-up"-->
-<!--            title="使用PC访问以启用全部功能，当前仅能查看信息页"-->
-<!--            type="error"-->
-<!--            style="margin-bottom: 16px"-->
-<!--            :closable="false"-->
-<!--        ></el-alert>-->
+<!--        <el-button @click="handleTest"></el-button>-->
 
         <el-row :gutter="16">
             <el-col :sm="6" :xs="24" class="mb16">
-                <use-case-item
-                    text="伤害计算器/单人配装"
-                    icon="calculator"
-                    url="/calculate"
+                <use-case-item :text="t('intro.useCase1')" url="/calculate" :icon="IconFa6SolidCalculator"
+                    :description="t('intro.useCase1Description')"
                 ></use-case-item>
             </el-col>
             <el-col :sm="6" :xs="24" class="mb16">
-                <use-case-item
-                    text="队伍配装"
-                    icon="bell"
-                    url="/team-optimization"
+                <use-case-item :text="t('intro.useCase2')" url="/team-optimization" :icon="IconFa6SolidUserGroup"
+                               :description="t('intro.useCase2Description')"
                 ></use-case-item>
             </el-col>
             <el-col :sm="6" :xs="24" class="mb16">
-                <use-case-item
-                    text="圣遗物潜力"
-                    icon="thumbs-up"
-                    url="/potential"
+                <use-case-item :text="t('intro.useCase3')" url="/potential" :icon="IconFa6SolidRuler"
+                               :description="t('intro.useCase3Description')"
                 ></use-case-item>
             </el-col>
             <el-col :sm="6" :xs="24" class="mb16">
-                <use-case-item
-                    text="导出工具"
-                    icon="chart-pie"
+                <use-case-item :text="t('intro.useCase4')" url="/help/export-tools" :icon="IconFa6SolidFileExport"
+                               :description="t('intro.useCase4Description')"
                 ></use-case-item>
             </el-col>
         </el-row>
 
-        <el-card class="mb16" shadow="never">
-            <p class="big-card-title">开源地址</p>
-            <el-row :gutter="16">
-                <el-col :xs="24" :sm="12">
-                    <div
-                        class="source-code-item"
-                        @click="newPage(links.frontendProject)"
-                    >
-                        <font-awesome-icon :icon="['fab', 'github']" class="icon"></font-awesome-icon>
-                        <p class="item-title">Mona</p>
-                    </div>
-                </el-col>
-                <el-col :xs="24" :sm="12">
-                    <div
-                        class="source-code-item"
-                        @click="newPage(links.yasProject)"
-                    >
-                        <font-awesome-icon :icon="['fab', 'github']" class="icon"></font-awesome-icon>
-                        <p class="item-title">YAS</p>
-                    </div>
-                </el-col>
-            </el-row>
+        <h2>{{ t("intro.opensource") }}</h2>
+        <el-row :gutter="16">
+            <el-col :xs="24" :sm="12" class="mb16">
+                <use-case-item text="MONA" :icon="IconFa6BrandsGithub"
+                               :description="t('intro.opensourceMonaDescription')"
+                               @click="newPage('https://github.com/wormtql/genshin_artifact')"
+                ></use-case-item>
+
+            </el-col>
+            <el-col :xs="24" :sm="12" class="mb16">
+                <use-case-item text="Yas" :icon="IconFa6BrandsGithub"
+                               :description="t('intro.opensourceYasDescription')"
+                               @click="newPage('https://github.com/wormtql/yas')"
+                ></use-case-item>
+            </el-col>
+        </el-row>
+
+        <h2>{{ t("intro.feedback") }}</h2>
+        <el-row :gutter="16">
+            <el-col :xs="24" :sm="8" class="mb16">
+                <use-case-item :text="t('intro.fbGithubIssue')" :icon="IconFa6BrandsGithub"
+                               :description="t('intro.fbIssueDescription')"
+                               @click="newPage('https://github.com/wormtql/genshin_artifact/issues')"
+                ></use-case-item>
+            </el-col>
+            <el-col :xs="24" :sm="8" class="mb16">
+                <use-case-item :text="t('intro.fbQQ')" :icon="IconFa6BrandsQQ"
+                               :description="t('intro.fbQQDescription')"
+                               @click="newPage('https://qm.qq.com/cgi-bin/qm/qr?k=yQaJgPzRmBgEXXk1uiqNbq7CIrq-0biW&jump_from=webapi')"
+                ></use-case-item>
+            </el-col>
+            <el-col :xs="24" :sm="8" class="mb16">
+                <use-case-item :text="t('intro.fbNGA')" :icon="IconFa6SolidComment"
+                               :description="t('intro.fbNGADescription')"
+                               @click="newPage('https://nga.178.com/read.php?tid=31180859')"
+                ></use-case-item>
+            </el-col>
+        </el-row>
+
+        <h2>请莫娜吃饭</h2>
+        <el-card style="margin-bottom: 16px" shadow="never">
+            <el-alert
+                :closable="false"
+                title="才...才不是因为交不起服务器费呢。"
+            ></el-alert>
+            <!-- 暂未开通 -->
+            <div class="pay">
+                <span>微信支付：</span>
+                <img src="./wechat.png">
+            </div>
+            <div class="pay">
+                <span>支付宝：</span>
+                <img src="./alipay.png">
+            </div>
         </el-card>
-
-        <el-row :gutter="16">
-            <el-col :xs="24" :sm="12">
-                <el-card class="mb16" shadow="never">
-                    <p class="card-title">反馈</p>
-                    <el-button @click="newPage(links.issue)" class="data-source">
-                        github Issue
-                        <font-awesome-icon :icon="['fab', 'github']"></font-awesome-icon>
-                    </el-button>
-                    <el-button
-                        class="data-source"
-                        @click="newPage('https://qm.qq.com/cgi-bin/qm/qr?k=yQaJgPzRmBgEXXk1uiqNbq7CIrq-0biW&jump_from=webapi')"
-                    >
-                        QQ群(801106595)
-                        <font-awesome-icon icon="comment"></font-awesome-icon>
-                    </el-button>
-
-                    <div>
-                        <p style="font-size: 12px">站内反馈</p>
-                        <el-input v-model="feedback">
-                            <template #append>
-                                <el-button @click="handleClickSubmitFeedback">提交</el-button>
-                            </template>
-                        </el-input>
-                    </div>
-                </el-card>
-            </el-col>
-
-            <el-col :xs="24" :sm="12">
-                <el-card class="mb16" shadow="never">
-                    <p class="card-title">数据来源</p>
-                    <el-button @click="newPage(links.wiki)" class="data-source">
-                        bilibili原神wiki
-                        <font-awesome-icon icon="database"></font-awesome-icon>
-                    </el-button>
-                    <el-button @click="newPage(links.wiki2)" class="data-source">
-                        Genshin Impact Wiki | Fandom
-                        <font-awesome-icon icon="database"></font-awesome-icon>
-                    </el-button>
-                    <el-button @click="newPage(links.wiki3)" class="data-source">
-                        旅行者创作平台-观测枢-原神wiki
-                        <font-awesome-icon icon="database"></font-awesome-icon>
-                    </el-button>
-                </el-card>
-            </el-col>
-        </el-row>
-
-        <el-row :gutter="16">
-            <el-col :xs="24" :sm="12">
-                <el-card class="mb16" shadow="never">
-                    <p class="card-title">圣遗物导出工具</p>
-                    <el-button
-                        @click="newPage(links.yasDownloadGithub)"
-                        type="primary"
-                        class="data-source"
-                    >
-                        YAS下载地址
-                        <i class="el-icon-aim"></i>
-                    </el-button>
-                    <el-button
-                        @click="$router.push('/help/export-tools')"
-                        class="data-source"
-                    >
-                        导出工具大全
-                        <i class="el-icon-aim"></i>
-                    </el-button>
-                </el-card>
-            </el-col>
-            <el-col :xs="24" :sm="12">
-                <el-card class="mb16" shadow="never">
-                    <p class="card-title">开发者文档</p>
-                    <a class="el-button no-deco" :href="links.doc" target="_blank">
-                        文档
-                        <i class="el-icon-connection"></i>
-                    </a>
-                </el-card>
-            </el-col>
-        </el-row>
-
-<!--        <el-row :gutter="16">-->
-<!--            <el-col :xs="24" :sm="12">-->
-                <el-card style="margin-bottom: 16px" shadow="never">
-                    <p class="card-title">请莫娜吃饭</p>
-                    <el-alert
-                        :closable="false"
-                        title="才...才不是因为交不起服务器费呢。"
-                    ></el-alert>
-                    <!-- 暂未开通 -->
-                    <div class="pay">
-                        <span>微信支付：</span>
-                        <img src="./wechat.png">
-                    </div>
-                    <div class="pay">
-                        <span>支付宝：</span>
-                        <img src="./alipay.png">
-                    </div>
-                </el-card>
-<!--            </el-col>-->
-<!--            <el-col :xs="24" :sm="12">-->
-<!--                <el-card shadow="never"></el-card>-->
-<!--            </el-col>-->
-<!--        </el-row>-->
     </div>
 </template>
 
-<script>
-import links from "@const/links"
+<script setup lang="ts">
 import { createFeedback } from "@/api/misc"
 
-import MigrateNotification from "./MigrateNotification"
-import UseCaseItem from "./UseCaseItem"
+import IconFa6SolidUserGroup from "~icons/fa6-solid/user-group"
+import IconFa6SolidFileExport from "~icons/fa6-solid/file-export"
+import IconFa6SolidCalculator from "~icons/fa6-solid/calculator"
+import IconFa6SolidRuler from "~icons/fa6-solid/ruler"
+import IconFa6SolidComment from "~icons/fa6-solid/comment"
+import IconFa6BrandsGithub from "~icons/fa6-brands/github"
+import IconFa6BrandsQQ from "~icons/fa6-brands/qq"
 
-export default {
-    name: "IntroPage",
-    components: {
-        MigrateNotification,
-        UseCaseItem,
-        // NokNok,
-    },
-    data() {
-        return {
-            feedback: ""
-        }
-    },
-    created: function() {
-        this.links = links;
+import UseCaseItem from "./UseCaseItem.vue"
+import {useRouter} from "vue-router"
+import {useI18n} from "@/i18n/i18n"
 
-        this.version = process.env.MONA_VERSION;
-        this.webTitle = process.env.MONA_TITLE;
-        this.needMigrate = process.env.MONA_NEED_MIGRATE;
-        this.buildDate = process.env.MONA_BUILD_DATE;
 
-        this.host = location.hostname;
-    },
-    methods: {
-        navigateTo(des) {
-            this.$router.replace(des);
-        },
+const version = process.env.MONA_VERSION
+const webTitle = process.env.MONA_TITLE
+const needMigrate = process.env.MONA_NEED_MIGRATE
+const buildDate = process.env.MONA_BUILD_DATA
+const host = location.hostname
 
-        newPage(des) {
-            window.open(des, "_blank");
-        },
 
-        handleClickSubmitFeedback() {
-            if (this.feedback === "") {
-                return
-            }
-            createFeedback(this.feedback)
+const router = useRouter()
 
-            this.$message.success("已发送")
-        }
+const { t } = useI18n()
+
+function navigateTo(r: any) {
+    router.push(r)
+}
+
+function newPage(url: string) {
+    window.open(url, "_blank")
+}
+
+
+const feedback = ref("")
+
+function handleClickSubmitFeedback() {
+    if (feedback.value === "") {
+        return
     }
+    createFeedback(feedback.value)
+
+    ElMessage.success({
+        message: "已发送"
+    })
 }
 </script>
 

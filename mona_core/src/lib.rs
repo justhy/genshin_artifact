@@ -1,5 +1,16 @@
 #![allow(unused_imports)]
+#![allow(unused_variables)]
+#![allow(unreachable_patterns)]
 #![allow(clippy::approx_constant)]
+#![allow(unused_mut)]
+#![allow(unused_assignments)]
+#![allow(dead_code)]
+#![allow(unused_macros)]
+#![allow(unused_imports)]
+#![allow(unused_variables)]
+#![allow(unreachable_patterns)]
+#![allow(non_camel_case_types)]
+#![allow(non_snake_case)]
 #![feature(decl_macro)]
 #[macro_use] extern crate pest_derive;
 
@@ -15,6 +26,7 @@ pub mod utils;
 pub mod damage;
 pub mod team;
 pub mod potential_function;
+pub mod upgrade_predicate;
 // pub mod ast;
 // pub mod compiler;
 // pub mod parser;

@@ -1,14 +1,13 @@
 <template>
     <el-select
-        :value="value"
-        @input="$emit('input', $event)"
-        size="small"
-        :multiple="multiple"
-        :placeholder="placeholder"
+        :model-value="props.modelValue"
+        @update:modelValue="emits('update:modelValue', $event)"
+        :multiple="props.multiple"
+        :placeholder="props.placeholder"
     >
         <el-option
-            v-if="includeAny"
-            label="任意"
+            v-if="props.includeAny"
+            :label="t('misc.any')"
             value="any"
         ></el-option>
         <el-option
@@ -20,44 +19,58 @@
     </el-select>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed } from "vue"
 import { artifactTags, mainStatMap } from "@const/artifact"
+import type {ArtifactMainStatName, ArtifactPosition} from "@/types/artifact"
+import {useI18n} from "@/i18n/i18n";
 
-export default {
-    name: "SelectArtifactMainStat",
-    props: {
-        value: {},
-        includeAny: {
-            default: true
-        },
-        multiple: { default: false },
-        position: { default: null },
-        placeholder: { type: String, default: "请选择" },
-    },
-    // created() {
-    //     this.tagList = list
-    // },
-    computed: {
-        tagList() {
-            let list = []
-            if (!this.position) {
-                for (let name in artifactTags) {
-                    list.push({
-                        name,
-                        title: artifactTags[name].chs
-                    })
-                }
-            } else {
-                for (let name of mainStatMap[this.position]) {
-                    list.push({
-                        name,
-                        title: artifactTags[name].chs
-                    })
-                }
-            }
+interface Emits {
+    (e: "update:modelValue", v: ModelValue): void
+}
 
-            return list
+const emits = defineEmits<Emits>()
+
+type ModelValue = "any" | ArtifactMainStatName | ArtifactMainStatName[] | null
+
+interface Props {
+    modelValue: ModelValue,
+    includeAny?: boolean,
+    multiple?: boolean,
+    position?: ArtifactPosition | null,
+    placeholder?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    modelValue: null,
+    includeAny: true,
+    multiple: false,
+    position: null,
+    placeholder: "Select"
+})
+
+const tagList = computed(() => {
+    let list = []
+    if (!props.position) {
+        for (let name in artifactTags) {
+            list.push({
+                name,
+                // title: artifactTags[name].chs
+                title: t("stat", name)
+            })
+        }
+    } else {
+        for (let name of mainStatMap[props.position]) {
+            list.push({
+                name,
+                // title: artifactTags[name].chs
+                title: t("stat", name)
+            })
         }
     }
-}
+
+    return list
+})
+
+const { t } = useI18n()
 </script>

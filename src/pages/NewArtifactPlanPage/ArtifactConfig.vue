@@ -1,14 +1,13 @@
 <template>
     <div>
         <el-input
-            size="medium"
             v-model="searchString"
             style="margin-bottom: 16px"
-            placeholder="搜索"
+            :placeholder="t('misc.search')"
             clearable
         >
-            <template slot="append">
-                <i class="el-icon-search"></i>
+            <template #append>
+                <i-ep-search></i-ep-search>
             </template>
         </el-input>
 
@@ -21,19 +20,34 @@
                 <div class="top">
                     <img :src="item.thumbnail" class="image" >
                     <div>
-                        <h3 class="artifact-title">{{ item.chs }}</h3>
-                        <p style="font-size: 12px;">
-                            <span class="effect-title">四件套：</span>
-                            <span>{{ item.effect4 }}</span>
-                        </p>
+                        <h3 class="artifact-title">{{ item.title }}</h3>
+                        <div>
+                            <p v-if="hasConfig2(item)" style="font-size: 12px;">
+                                <span class="effect-title">{{ t("misc.art2") }}</span>
+                                <span class="effect-body">{{ item.effect2 }}</span>
+                            </p>
+                            <p v-if="hasConfig4(item)" style="font-size: 12px;">
+                                <span class="effect-title">{{ t("misc.art4") }}</span>
+                                <span class="effect-body">{{ item.effect4 }}</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
 
                 <item-config
-                    :value="value[item.snake]"
+                    v-if="hasConfig2(item)"
+                    :model-value="modelValue[item.snake]"
+                    :configs="item.config2"
+                    :need-item-name="false"
+                    @update:modelValue="handleChangeValue(item.snake, $event)"
+                    style="margin-bottom: 8px"
+                ></item-config>
+                <item-config
+                    v-if="hasConfig4(item)"
+                    :model-value="modelValue[item.snake]"
                     :configs="item.config4"
                     :need-item-name="false"
-                    @input="handleChangeValue(item.snake, $event)"
+                    @update:modelValue="handleChangeValue(item.snake, $event)"
                 ></item-config>
             </div>
         </div>
@@ -48,12 +62,14 @@ import { artifactsData } from "@artifact"
 import { toSnakeCase, deepCopy } from "@util/common"
 import { getArtifactThumbnail } from "@util/artifacts"
 
-import ItemConfig from "@c/config/ItemConfig"
+import ItemConfig from "@/components/config/ItemConfig"
+import {useI18n} from "@/i18n/i18n";
 
 export default {
     name: "ArtifactConfig",
     components: {ItemConfig},
-    props: ["value"],
+    props: ["modelValue"],
+    emits: ["update:modelValue"],
     data() {
         return {
             searchString: ""
@@ -64,16 +80,21 @@ export default {
             let results = []
             for (let name in artifactsData) {
                 const d = artifactsData[name]
-                const config = d.config4 ?? []
+                const config4 = d.config4 ?? []
+                const config2 = d.config2 ?? []
                 const name2 = d.name2
-                if (config.length > 0) {
+                if (config4.length > 0 || config2.length > 0) {
                     results.push({
                         name: name2,
+                        title: this.ta(d.nameLocale),
+                        eng: d.eng,
                         snake: "config_" + toSnakeCase(name2),
-                        config4: config,
-                        effect4: d.effect4,
+                        config4: config4,
+                        config2: config2,
+                        effect4: this.ta(d.effect4),
+                        effect2: this.ta(d.effect2),
                         thumbnail: getArtifactThumbnail(name),
-                        chs: d.chs,
+                        // chs: d.chs,
                     })
                 }
             }
@@ -85,18 +106,34 @@ export default {
                 return this.data
             } else {
                 const fuse = new Fuse(this.data, {
-                    keys: ["chs", "effect4"]
+                    keys: ["title", "effect4", "effect2"]
                 })
                 const results = fuse.search(this.searchString)
                 return results.map(x => x.item)
             }
-        }
+        },
     },
     methods: {
         handleChangeValue(snake, value) {
-            let temp = deepCopy(this.value)
+            // console.log(snake, value)
+            let temp = deepCopy(this.modelValue)
             temp[snake] = value
-            this.$emit("input", temp)
+            this.$emit("update:modelValue", temp)
+        },
+
+        hasConfig2(item) {
+            return item.config2 && item.config2.length > 0
+        },
+
+        hasConfig4(item) {
+            return item.config4 && item.config4.length > 0
+        }
+    },
+    setup() {
+        const { t, ta } = useI18n()
+
+        return {
+            t, ta
         }
     }
 }
@@ -127,6 +164,10 @@ export default {
 
         .effect-title {
             color: #6eb7ff;
+        }
+
+        .effect-body {
+            word-break: normal;
         }
 
         .artifact-title {

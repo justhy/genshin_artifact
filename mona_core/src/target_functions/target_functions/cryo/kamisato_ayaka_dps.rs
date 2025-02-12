@@ -26,8 +26,14 @@ impl TargetFunctionMetaTrait for KamisatoAyakaDpsTargetFunction {
     #[cfg(not(target_family = "wasm"))]
     const META_DATA: TargetFunctionMeta = TargetFunctionMeta {
         name: TargetFunctionName::KamisatoAyakaDps,
-        chs: "神里绫华-DPS",
-        description: "期望DPS输出，输出手法模拟如下循环：4s 左右辅助铺场，平a4段接重击，有e放e，有大开大",
+        name_locale: crate::common::i18n::locale!(
+            zh_cn: "神里绫华-DPS",
+            en: "Ayaka-DPS with Recharge"
+        ),
+        description: crate::common::i18n::locale!(
+            zh_cn: "期望DPS输出，输出手法模拟如下循环：4s 左右辅助铺场，平a4段接重击，有e放e，有大开大",
+            en: "DPS Ayaka, with recharge into consideration, Simulation: 4s 左右辅助铺场，平a4段接重击，有e放e，有大开大"
+        ),
         tags: "输出",
         four: TargetFunctionFor::SomeWho(CharacterName::KamisatoAyaka),
         image: TargetFunctionMetaImage::Avatar
@@ -43,50 +49,51 @@ impl TargetFunctionMetaTrait for KamisatoAyakaDpsTargetFunction {
 
 impl TargetFunction for KamisatoAyakaDpsTargetFunction {
     fn get_target_function_opt_config(&self) -> TargetFunctionOptConfig {
-        TargetFunctionOptConfig {
-            atk_fixed: 0.1,
-            atk_percentage: 1.0,
-            hp_fixed: 0.0,
-            hp_percentage: 0.0,
-            def_fixed: 0.0,
-            def_percentage: 0.0,
-            recharge: 0.5,
-            elemental_mastery: 0.0,
-            critical: 1.0,
-            critical_damage: 1.0,
-            healing_bonus: 0.0,
-            bonus_electro: 0.0,
-            bonus_pyro: 0.0,
-            bonus_hydro: 0.0,
-            bonus_anemo: 0.0,
-            bonus_cryo: 2.0,
-            bonus_geo: 0.0,
-            bonus_dendro: 0.0,
-            bonus_physical: 0.0,
-            sand_main_stats: vec![
-                StatName::ATKPercentage,
-            ],
-            goblet_main_stats: vec![
-                StatName::CryoBonus,
-                StatName::ATKPercentage,
-            ],
-            head_main_stats: vec![
-                StatName::CriticalRate,
-                StatName::CriticalDamage,
-                StatName::ATKPercentage,
-            ],
-            set_names: Some(vec![
-                ArtifactSetName::ShimenawasReminiscence,
-                ArtifactSetName::EmblemOfSeveredFate,
-                ArtifactSetName::GladiatorsFinale,
-            ]),
-            very_critical_set_names: Some(vec![
-                ArtifactSetName::BlizzardStrayer,
-            ]),
-            normal_threshold: TargetFunctionOptConfig::DEFAULT_NORMAL_THRESHOLD,
-            critical_threshold: TargetFunctionOptConfig::DEFAULT_CRITICAL_THRESHOLD,
-            very_critical_threshold: TargetFunctionOptConfig::DEFAULT_VERY_CRITICAL_THRESHOLD
-        }
+        // TargetFunctionOptConfig {
+        //     atk_fixed: 0.1,
+        //     atk_percentage: 1.0,
+        //     hp_fixed: 0.0,
+        //     hp_percentage: 0.0,
+        //     def_fixed: 0.0,
+        //     def_percentage: 0.0,
+        //     recharge: 0.5,
+        //     elemental_mastery: 0.0,
+        //     critical: 1.0,
+        //     critical_damage: 1.0,
+        //     healing_bonus: 0.0,
+        //     bonus_electro: 0.0,
+        //     bonus_pyro: 0.0,
+        //     bonus_hydro: 0.0,
+        //     bonus_anemo: 0.0,
+        //     bonus_cryo: 2.0,
+        //     bonus_geo: 0.0,
+        //     bonus_dendro: 0.0,
+        //     bonus_physical: 0.0,
+        //     sand_main_stats: vec![
+        //         StatName::ATKPercentage,
+        //     ],
+        //     goblet_main_stats: vec![
+        //         StatName::CryoBonus,
+        //         StatName::ATKPercentage,
+        //     ],
+        //     head_main_stats: vec![
+        //         StatName::CriticalRate,
+        //         StatName::CriticalDamage,
+        //         StatName::ATKPercentage,
+        //     ],
+        //     set_names: Some(vec![
+        //         ArtifactSetName::ShimenawasReminiscence,
+        //         ArtifactSetName::EmblemOfSeveredFate,
+        //         ArtifactSetName::GladiatorsFinale,
+        //     ]),
+        //     very_critical_set_names: Some(vec![
+        //         ArtifactSetName::BlizzardStrayer,
+        //     ]),
+        //     normal_threshold: TargetFunctionOptConfig::DEFAULT_NORMAL_THRESHOLD,
+        //     critical_threshold: TargetFunctionOptConfig::DEFAULT_CRITICAL_THRESHOLD,
+        //     very_critical_threshold: TargetFunctionOptConfig::DEFAULT_VERY_CRITICAL_THRESHOLD
+        // }
+        unimplemented!()
     }
 
     fn get_default_artifact_config(&self, _team_config: &TeamQuantization) -> ArtifactEffectConfig {
@@ -104,16 +111,16 @@ impl TargetFunction for KamisatoAyakaDpsTargetFunction {
         type S = <KamisatoAyaka as CharacterTrait>::DamageEnumType;
 
         let config = CharacterSkillConfig::KamisatoAyaka { after_dash: true, use_c6: false };
-        let dmg_a1 = KamisatoAyaka::damage::<SimpleDamageBuilder>(&context, S::Normal1, &config).normal.expectation;
+        let dmg_a1 = KamisatoAyaka::damage::<SimpleDamageBuilder>(&context, S::Normal1, &config, None).normal.expectation;
         let dmg_a = dmg_a1 * (1.0 + 1.0656 + 1.3698 + 0.4955 * 3.0);
         let time_a = 2.66;
 
-        let dmg_b = KamisatoAyaka::damage::<SimpleDamageBuilder>(&context, S::ChargedTimes3, &config).normal.expectation;
+        let dmg_b = KamisatoAyaka::damage::<SimpleDamageBuilder>(&context, S::ChargedTimes3, &config, None).normal.expectation;
 
-        let dmg_e = KamisatoAyaka::damage::<SimpleDamageBuilder>(&context, S::E1, &config).normal.expectation;
+        let dmg_e = KamisatoAyaka::damage::<SimpleDamageBuilder>(&context, S::E1, &config, None).normal.expectation;
         let time_e = 2.53;
 
-        let dmg_q1 = KamisatoAyaka::damage::<SimpleDamageBuilder>(&context, S::Q1, &config).normal.expectation;
+        let dmg_q1 = KamisatoAyaka::damage::<SimpleDamageBuilder>(&context, S::Q1, &config, None).normal.expectation;
         let dmg_q = dmg_q1 * (19.0 + 1.5);
         let time_q = 2.16;
 

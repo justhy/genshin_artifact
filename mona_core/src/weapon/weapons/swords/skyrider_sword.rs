@@ -33,14 +33,21 @@ pub struct SkyriderSword;
 impl WeaponTrait for SkyriderSword {
     const META_DATA: WeaponStaticData = WeaponStaticData {
         name: WeaponName::SkyriderSword,
+        internal_name: "Sword_Mitsurugi",
         weapon_type: WeaponType::Sword,
         weapon_sub_stat: Some(WeaponSubStatFamily::Recharge113),
         weapon_base: WeaponBaseATKFamily::ATK354,
         star: 3,
         #[cfg(not(target_family = "wasm"))]
-        effect: Some("决心：施放元素爆发后，提高12%/15%/18%/21%/24%攻击力和移动速度，持续15秒。"),
+        effect: Some(crate::common::i18n::locale!(
+            zh_cn: "施放元素爆发后，提高<span style=\"color: #409EFF;\">12%-15%-18%-21%-24%</span>攻击力和移动速度，持续15秒。",
+            en: "Using an Elemental Burst grants a <span style=\"color: #409EFF;\">12%-15%-18%-21%-24%</span> increase in ATK and Movement SPD for 15s."
+        )),
         #[cfg(not(target_family = "wasm"))]
-        chs: "飞天御剑"
+        name_locale: crate::common::i18n::locale!(
+            zh_cn: "飞天御剑",
+            en: "Skyrider Sword"
+        )
     };
 
     #[cfg(not(target_family = "wasm"))]

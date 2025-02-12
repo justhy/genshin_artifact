@@ -39,14 +39,21 @@ pub struct MappaMare;
 impl WeaponTrait for MappaMare {
     const META_DATA: WeaponStaticData = WeaponStaticData {
         name: WeaponName::MappaMare,
+        internal_name: "Catalyst_Exotic",
         weapon_type: WeaponType::Catalyst,
         weapon_sub_stat: Some(WeaponSubStatFamily::EM24),
         weapon_base: WeaponBaseATKFamily::ATK565,
         star: 4,
         #[cfg(not(target_family = "wasm"))]
-        effect: Some("注能之卷：触发元素反应后的10秒内，获得8%/10%/12%/14%/16%元素伤害加成，该效果最多可叠加2层"),
+        effect: Some(crate::common::i18n::locale!(
+            zh_cn: "触发元素反应后的10秒内，获得<span style=\"color: #409EFF;\">8%-10%-12%-14%-16%</span>元素伤害加成，该效果最多可以叠加2层。",
+            en: "Triggering an Elemental reaction grants a <span style=\"color: #409EFF;\">8%-10%-12%-14%-16%</span> Elemental DMG Bonus for 10s. Max 2 stacks."
+        )),
         #[cfg(not(target_family = "wasm"))]
-        chs: "万国诸海图谱"
+        name_locale: crate::common::i18n::locale!(
+            zh_cn: "万国诸海图谱",
+            en: "Mappa Mare"
+        )
     };
 
     #[cfg(not(target_family = "wasm"))]

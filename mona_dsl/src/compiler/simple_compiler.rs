@@ -4,6 +4,7 @@ use std::rc::Rc;
 use std::str::FromStr;
 use mona::character::CharacterName;
 use mona::character::skill_config::CharacterSkillConfig;
+use mona::common::Element;
 use pest::Span;
 use crate::ast::expression::expression::{ASTBinaryExpression, ASTBool, ASTExpression, ASTFieldExpression, ASTFunctionCallExpression, ASTIdentifier, ASTNumber, ASTString, ASTUnaryExpression};
 use crate::ast::program::ASTProgram;
@@ -14,10 +15,14 @@ use crate::code::byte_code::access::ByteCodeAccess;
 use crate::code::byte_code::call::ByteCodeCall;
 use crate::code::byte_code::div::ByteCodeDiv;
 use crate::code::byte_code::eq::ByteCodeEq;
+use crate::code::byte_code::ge::ByteCodeGe;
+use crate::code::byte_code::gt::ByteCodeGt;
+use crate::code::byte_code::le::ByteCodeLe;
 use crate::code::byte_code::load_bool::ByteCodeLoadBool;
 use crate::code::byte_code::load_name::ByteCodeLoadName;
 use crate::code::byte_code::load_number::ByteCodeLoadNumber;
 use crate::code::byte_code::load_string::ByteCodeLoadString;
+use crate::code::byte_code::lt::ByteCodeLt;
 use crate::code::byte_code::mul::ByteCodeMul;
 use crate::code::byte_code::ne::ByteCodeNe;
 use crate::code::byte_code::neg::ByteCodeNeg;
@@ -208,6 +213,10 @@ impl<'i> Compiler<'i> for MonaCompilerASTToCode<'i> {
             "^" => ctx.add_code(Box::new(ByteCodePow)),
             "==" => ctx.add_code(Box::new(ByteCodeEq)),
             "!=" => ctx.add_code(Box::new(ByteCodeNe)),
+            "<" => ctx.add_code(Box::new(ByteCodeLt)),
+            "<=" => ctx.add_code(Box::new(ByteCodeLe)),
+            ">" => ctx.add_code(Box::new(ByteCodeGt)),
+            ">=" => ctx.add_code(Box::new(ByteCodeGe)),
             _ => todo!()
         }
 
@@ -331,6 +340,7 @@ impl<'i> Compiler<'i> for MonaCompilerASTToCode<'i> {
             }
         };
 
+        let mut fumo: Option<Element> = None;
         let skill_config = match &node.borrow().skill_param {
             None => {
                 CharacterSkillConfig::NoConfig
@@ -338,6 +348,33 @@ impl<'i> Compiler<'i> for MonaCompilerASTToCode<'i> {
             Some(x) => {
                 let mut temp = String::new();
                 for (k, v) in x.borrow().items.iter() {
+                    if k.borrow().ident == "fumo" {
+                        let value_str = if let Some(x) = v.borrow().as_string() {
+                            (*x.borrow()).value.clone()
+                        } else {
+                            let err = CompileError {
+                                span: get_my_span(&v.borrow().common.span),
+                                desc: format!("fumo have to be a string"),
+                                t: CompileErrorType::TypeError
+                            };
+                            return Err(err);
+                        };
+
+                        let element = serde_json::from_str::<Element>(&value_str);
+                        fumo = match element {
+                            Ok(v) => Some(v),
+                            Err(_) => {
+                                let err = CompileError {
+                                    span: get_my_span(&v.borrow().common.span),
+                                    desc: format!("fumo have to be an element, got `{}`", v.borrow().common.input),
+                                    t: CompileErrorType::ElementNotFound
+                                };
+                                return Err(err);
+                            }
+                        };
+                        continue;
+                    }
+
                     let value_str = if let Some(x) = &(*v.borrow()).value {
                         x.to_string()
                     } else {
@@ -349,22 +386,28 @@ impl<'i> Compiler<'i> for MonaCompilerASTToCode<'i> {
                         };
                         return Err(e);
                     };
+
                     temp.push_str(&format!("\"{}\": {},", k.borrow().ident, value_str));
                 }
-                temp.remove(temp.len() - 1);
-                let config_json = format!("{{ \"{name}\": {{ {config} }} }}", name=character_name, config=temp);
-                // println!("{}", config_json);
 
-                match serde_json::from_str::<CharacterSkillConfig>(&config_json) {
-                    Ok(v) => v,
-                    Err(_) => {
-                        let span = get_my_span(&node.borrow().common.span);
-                        let e = CompileError {
-                            span,
-                            t: CompileErrorType::SkillConfigNotExist,
-                            desc: String::from("skill config not exist")
-                        };
-                        return Err(e);
+                if temp.len() == 0 {
+                    CharacterSkillConfig::NoConfig
+                } else {
+                    temp.remove(temp.len() - 1);
+                    let config_json = format!("{{ \"{name}\": {{ {config} }} }}", name=character_name, config=temp);
+                    // println!("{}", config_json);
+
+                    match serde_json::from_str::<CharacterSkillConfig>(&config_json) {
+                        Ok(v) => v,
+                        Err(_) => {
+                            let span = get_my_span(&node.borrow().common.span);
+                            let e = CompileError {
+                                span,
+                                t: CompileErrorType::SkillConfigNotExist,
+                                desc: String::from("skill config not exist")
+                            };
+                            return Err(e);
+                        }
                     }
                 }
             },
@@ -375,7 +418,8 @@ impl<'i> Compiler<'i> for MonaCompilerASTToCode<'i> {
             skill_index: character_skill,
             skill_config,
             var_name: var_name.clone(),
-            is_transformative: transformative
+            is_transformative: transformative,
+            fumo,
         };
 
         if !ctx.add_damage_config(config_obj) {

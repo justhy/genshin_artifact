@@ -1,19 +1,18 @@
 <template>
     <el-select
-        :value="value"
-        @input="$emit('input', $event)"
-        placeholder="武器"
-        size="small"
+        :model-value="modelValue"
+        @update:modelValue="$emit('update:modelValue', $event)"
+        :placeholder="t('misc.weapon')"
     >
         <el-option
             v-for="weapon in weaponList"
             :key="weapon.name"
             :value="weapon.name"
-            :label="weapon.chs"
+            :label="ta(weapon.nameLocale)"
         >
             <div class="option-item">
                 <img :src="weapon.url">
-                <span :style="{ color: getColor(weapon.star) }">{{ weapon.chs }}</span>
+                <span :style="{ color: getColor(weapon.star) }">{{ ta(weapon.nameLocale) }}</span>
             </div>
         </el-option>
         
@@ -23,6 +22,7 @@
 <script>
 import { weaponByType } from "@weapon";
 import qualityColors from "@const/quality_colors";
+import {useI18n} from "@/i18n/i18n";
 
 export default {
     name: "SelectWeapon",
@@ -30,8 +30,9 @@ export default {
         type: {
             default: "Bow",
         },
-        value: {},
+        modelValue: {},
     },
+    emits: ["update:modelValue"],
     computed: {
         weaponList() {
             return weaponByType[this.type] ?? []
@@ -42,12 +43,12 @@ export default {
             return qualityColors[star - 1];
         }
     },
-    watch: {
-        // "type": function (newWeaponType, oldWeaponType) {
-        //     const defaultWeaponData = weaponByType[newWeaponType][0]
-        //     const name = defaultWeaponData.name
-        //     this.$emit("input", name)
-        // }
+    setup() {
+        const { t, ta } = useI18n()
+
+        return {
+            t, ta
+        }
     }
 }
 </script>

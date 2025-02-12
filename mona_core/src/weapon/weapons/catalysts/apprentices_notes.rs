@@ -12,6 +12,7 @@ pub struct ApprenticesNotes;
 impl WeaponTrait for ApprenticesNotes {
     const META_DATA: WeaponStaticData = WeaponStaticData {
         name: WeaponName::ApprenticesNotes,
+        internal_name: "Catalyst_Apprentice",
         weapon_type: WeaponType::Catalyst,
         weapon_sub_stat: None,
         weapon_base: WeaponBaseATKFamily::ATK185,
@@ -19,7 +20,10 @@ impl WeaponTrait for ApprenticesNotes {
         #[cfg(not(target_family = "wasm"))]
         effect: None,
         #[cfg(not(target_family = "wasm"))]
-        chs: "学徒笔记"
+        name_locale: crate::common::i18n::locale!(
+            zh_cn: "学徒笔记",
+            en: "Apprentice's Notes"
+        )
     };
 
     fn get_effect<A: Attribute>(_character: &CharacterCommonData, _config: &WeaponConfig) -> Option<Box<dyn WeaponEffect<A>>> {

@@ -33,14 +33,21 @@ pub struct EmeraldOrb;
 impl WeaponTrait for EmeraldOrb {
     const META_DATA: WeaponStaticData = WeaponStaticData {
         name: WeaponName::EmeraldOrb,
+        internal_name: "Catalyst_Jade",
         weapon_type: WeaponType::Catalyst,
         weapon_sub_stat: Some(WeaponSubStatFamily::EM20),
         weapon_base: WeaponBaseATKFamily::ATK448,
         star: 3,
         #[cfg(not(target_family = "wasm"))]
-        effect: Some("激流：触发蒸发、感电、冰冻、或水元素扩散反应后的12秒内，攻击力提高20%/25%/30%/35%/40%。"),
+        effect: Some(crate::common::i18n::locale!(
+            zh_cn: "触发蒸发、感电、冰冻或水元素扩散反应后的12秒内，攻击力提高<span style=\"color: #409EFF;\">20%-25%-30%-35%-40%</span>。",
+            en: "Upon causing a Vaporize, Electro-Charged, Frozen, or a Hydro-infused Swirl reaction, increases ATK by <span style=\"color: #409EFF;\">20%-25%-30%-35%-40%</span> for 12s."
+        )),
         #[cfg(not(target_family = "wasm"))]
-        chs: "翡玉法球"
+        name_locale: crate::common::i18n::locale!(
+            zh_cn: "翡玉法球",
+            en: "Emerald Orb"
+        )
     };
 
     #[cfg(not(target_family = "wasm"))]

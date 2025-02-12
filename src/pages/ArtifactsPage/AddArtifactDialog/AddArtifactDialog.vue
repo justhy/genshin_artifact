@@ -1,17 +1,23 @@
 <template>
     <el-dialog
-        title="添加圣遗物"
-        :visible.sync="visible"
-        width="80%"
-        :before-close="onCancel"
+        :title="t('artPage.newArt')"
+        :model-value="props.modelValue"
+        @update:model-value="$emit('update:modelValue', $event)"
+        :width="deviceIsPC ? '80%' : '90%'"
     >
-        <h3 class="item-title">套装</h3>
-        <choose-artifact-set :value="setName" @input="handleSetNameChange"
+        <h3 class="item-title">{{ t("misc.artSet") }}</h3>
+        <choose-artifact-set
+            :model-value="setName"
+            @update:modelValue="handleSetNameChange"
             class="hidden-sm-and-down"
         ></choose-artifact-set>
-        <select-artifact-set :value="setName" @input="handleSetNameChange" class="hidden-md-and-up"></select-artifact-set>
+        <select-artifact-set
+            :model-value="setName"
+            @update:modelValue="handleSetNameChange"
+            class="hidden-md-and-up"
+        ></select-artifact-set>
 
-        <h3 class="item-title">位置</h3>
+        <h3 class="item-title">{{ t("misc.artSlot") }}</h3>
         <choose-artifact-position
             v-model="position"
             :setName="setName"
@@ -21,62 +27,56 @@
 
         <el-row :gutter="16">
             <el-col :sm="24" :md="12">
-                <h3 class="item-title">品质</h3>
+                <h3 class="item-title">{{ t("misc.quality") }}</h3>
                 <el-rate
-                    @input="handleStarChange"
-                    :value="star"
+                    @update:modelValue="handleStarChange"
+                    :model-value="star"
                     :max="artifactData.maxStar"
                 ></el-rate>
             </el-col>
             <el-col :sm="24" :md="12">
-                <div class="flex-row">
-                    <h3 style="margin-right: 8px" class="item-title">等级</h3>
-                    <el-button icon="el-icon-d-arrow-left" circle size="mini" title="0级"
-                        @click="level = 0"
-                    ></el-button>
-                    <el-button icon="el-icon-d-arrow-right" circle size="mini" title="满级"
-                        @click="level = star * 4"
-                    ></el-button>
-                </div>
-                
-                <el-input-number
+                <h3 style="margin-right: 8px" class="item-title">{{ t("misc.lvl") }}</h3>
+
+                <el-slider
                     v-model="level"
                     :max="star * 4"
                     :min="0"
-                    size="small"
-                ></el-input-number>
+                    :step="1"
+                    show-input
+                ></el-slider>
                 
             </el-col>
         </el-row>
 
         <el-row :gutter="16">
             <el-col :sm="24" :md="12">
-                <h3 class="item-title">主属性</h3>
+                <h3 class="item-title">{{ t("misc.mainStat") }}</h3>
                 <!-- <choose-main-tag v-model="mainTag" :position="position"></choose-main-tag> -->
                 <select-artifact-main-tag
-                    :value="mainTag"
+                    :model-value="mainTag"
                     :position="position"
-                    @input="handleMainTagChange"
+                    @update:modelValue="handleMainTagChange"
                 ></select-artifact-main-tag>
             </el-col>
             <el-col :sm="24" :md="12">
                 <div class="flex-row">
-                    <h3 style="margin-right: 8px" class="item-title">副属性</h3>
+                    <h3 style="margin-right: 8px" class="item-title">{{ t("misc.subStat") }}</h3>
                     <el-button
-                        icon="el-icon-refresh"
+                        :icon="IconEpRefresh"
                         circle
-                        size="mini"
+                        size="small"
                         @click="shuffleNormalTags"
-                        title="随机"
+                        :title="t('misc.random')"
+                        text
                     ></el-button>
-                    <el-button
-                        icon="el-icon-question"
-                        circle
-                        style="padding: 0"
-                        title="帮助"
-                        type="text"
-                        @click="openHelp"
-                    ></el-button>
+<!--                    <el-button-->
+<!--                        icon="el-icon-question"-->
+<!--                        circle-->
+<!--                        style="padding: 0"-->
+<!--                        title="帮助"-->
+<!--                        type="text"-->
+<!--                        @click="openHelp"-->
+<!--                    ></el-button>-->
                 </div>
                 
                 <select-artifact-normal-tag v-model="normalTags"></select-artifact-normal-tag>
@@ -84,182 +84,199 @@
         </el-row>
 
         <template #footer>
-            <el-button @click="onCancel">取消</el-button>
-            <el-button type="primary" @click="onConfirm">确定</el-button>
+            <el-button @click="emits('update:modelValue', false)">{{ t("misc.cancel") }}</el-button>
+            <el-button type="primary" @click="onConfirm">{{ t("misc.confirm") }}</el-button>
         </template>
     </el-dialog>
 </template>
 
-<script>
-import ChooseArtifactSet from "./ChooseArtifactSet";
-import ChooseArtifactPosition from "./ChooseArtifactPosition";
-import SelectArtifactNormalTag from "@c/SelectArtifactNormalTag";
-import SelectArtifactMainTag from "@c/SelectArtifactMainTag";
+<script setup lang="ts">
+import { type Ref } from "vue"
+
+import ChooseArtifactSet from "./ChooseArtifactSet"
+import ChooseArtifactPosition from "./ChooseArtifactPosition"
+import SelectArtifactNormalTag from "./SelectArtifactNormalTag"
+import SelectArtifactMainTag from "./SelectArtifactMainTag"
 import SelectArtifactSet from "@c/select/SelectArtifactSet"
 import SelectArtifactSlot from "@c/select/SelectArtifactSlot"
 
-import { getDetailName, getArtifactRealValue } from "@util/utils";
-import randomNormalTag from "@/artifacts_numeric/random_normal_tag";
-import { convertDisplayTagValue } from '@util/utils';
-import isArtifactUnique from "@util/isArtifactUnique";
-import { artifactsData } from "@asset/artifacts";
-import { artifactTags } from "@const/artifact";
+import { getDetailName, getArtifactRealValue } from "@util/utils"
+import randomNormalTag from "@/artifacts_numeric/random_normal_tag"
+import { convertDisplayTagValue } from '@util/utils'
+import { artifactsData } from "@asset/artifacts"
+import { artifactTags } from "@const/artifact"
+import type {ArtifactPosition, ArtifactSetName, IArtifactContentOnly, IArtifactTag} from "@/types/artifact"
+import { isArtifactExists } from "@/utils/artifacts"
+import {deviceIsPC} from "@/utils/device"
 
-function convertPercentage(item) {
+import IconEpRefresh from "~icons/ep/refresh"
+import {useI18n} from "@/i18n/i18n";
+
+/// #if !USE_CDN
+// import {ElMessageBox} from "element-plus"
+/// #endif
+
+const { t } = useI18n()
+
+
+interface Props {
+    modelValue: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    modelValue: false
+})
+
+
+interface Emits {
+    (e: "update:modelValue", v: boolean): void,
+    (e: "confirm", v: IArtifactContentOnly): void
+}
+const emits = defineEmits<Emits>()
+
+function convertPercentage(item: IArtifactTag) {
     item.value = getArtifactRealValue(item.name, item.value);
 
     return item;
 }
 
+const setName: Ref<ArtifactSetName> = ref("archaicPetra")
+const position: Ref<ArtifactPosition> = ref("flower")
 
-export default {
-    name: "NewDialog",
-    provide() {
-        return {
-            star: this.star,
-        }
-    },
-    components: {
-        ChooseArtifactSet,
-        ChooseArtifactPosition,
-        SelectArtifactNormalTag,
-        SelectArtifactMainTag,
-        SelectArtifactSet,
-        SelectArtifactSlot
-    },
-    props: {
-        visible: {
-            type: Boolean
-        }
-    },
-    data: function() {
-        return {
-            // 套装名
-            setName: "archaicPetra",
-            // 位置名
-            position: "flower",
-            // 主属性名
-            mainTag: {
-                name: "lifeStatic",
-                value: "4780",
-            },
-            // 副属性
-            normalTags: [],
-            // 星级
-            star: 5,
-            level: 20,
-        }
-    },
-    methods: {
-        handleStarChange(e) {
-            if (e >= this.artifactData.minStar && e <= this.artifactData.maxStar) {
-                this.star = e;
-                this.level = this.star * 4;
-            }
-        },
+interface IArtifactTagString {
+    name: string,
+    value: string
+}
 
-        handleMainTagChange(e) {
-            if (e.name !== this.mainTag.name) {
-                // let maxValue = secondaryTags[e.name].max[5];
-                const maxValue = artifactTags[e.name].max[5]
+const mainTag: Ref<IArtifactTagString> = ref({
+    name: "lifeStatic",
+    value: "4780"
+})
+const normalTags: Ref<IArtifactTagString[]> = ref([])
 
-                this.mainTag.value = convertDisplayTagValue(e.name, maxValue);
-                this.mainTag.name = e.name;
-            } else {
-                this.mainTag = e;
-            }
-        },
+const star = ref(5)
+const level = ref(20)
 
-        handleSetNameChange(e) {
-            this.setName = e;
-            this.star = this.artifactData.maxStar;
-            this.level = this.star * 4;
-        },
+const artifactData = computed((): any => {
+    return artifactsData[setName.value];
+})
 
-        /**
-         * return the final artifact object
-         */
-        getArtifact: function() {
-            return {
-                setName: this.setName,
-                position: this.position,
-                detailName: getDetailName(this.setName, this.position),
-                mainTag: this.getArtifactMainTag(),
-                normalTags: this.getArtifactNormalTags(),
-                omit: this.level < 16,
-                star: this.star,
-                level: this.level,
-                id: 0,  // it's a placeholder, id is determined in Vuex store
-            }
-        },
-
-        getArtifactMainTag() {
-            let temp = Object.assign({}, this.mainTag);
-            temp.value = parseFloat(temp.value);
-
-            if (isNaN(temp.value)) {
-                temp.value = 0;
-            }
-
-            return convertPercentage(temp);
-        },
-
-        getArtifactNormalTags() {
-            let temp = [];
-            for (let item of this.normalTags) {
-                if (item.value === "" || item.value === "0") {
-                    continue;
-                }
-
-                temp.push(convertPercentage({
-                    name: item.name,
-                    value: parseFloat(item.value),
-                }));
-            }
-
-            return temp;
-        },
-
-        onConfirm() {
-            let result = this.getArtifact();
-
-            if (!isArtifactUnique(this.$store.getters["artifacts/allFlat"], result)) {
-                this.$confirm("检测到已有相同圣遗物，是否继续？", "提示", {
-                    confirmButtonText: "继续",
-                    cancelButtonText: "取消",
-                    type: "warning",
-                }).then(() => {
-                    this.$emit("confirm", result);
-                }).catch(() => {});
-            } else {
-                this.$emit("confirm", result);
-            }
-        },
-        
-        onCancel() {
-            this.$emit("close");
-        },
-
-        shuffleNormalTags() {
-            let temp = randomNormalTag(5, 20, [this.mainTag.name]);
-            for (let i = 0, l = temp.length; i < l; i++) {
-                temp[i].value = convertDisplayTagValue(temp[i].name, temp[i].value);
-            }
-
-            this.normalTags = temp;
-        },
-
-        openHelp() {
-            let text = "使用随机副词条，可以快速构建大量合理的圣遗物，可以方便地确定某个角色适合什么圣遗物。例如，快速构建角斗士、乐团、魔女4件套，从而计算胡桃适合什么样的圣遗物组合";
-            this.$alert(text, "帮助");
-        }
-    },
-    computed: {
-        artifactData() {
-            return artifactsData[this.setName];
-        }
+function handleStarChange(e: number) {
+    if (e >= artifactData.value.minStar && e <= artifactData.value.maxStar) {
+        star.value = e;
+        level.value = star.value * 4;
     }
 }
+
+function handleMainTagChange(e: IArtifactTagString) {
+    if (e.name !== mainTag.value.name) {
+        // let maxValue = secondaryTags[e.name].max[5];
+        const maxValue = artifactTags[e.name].max[5]
+
+        mainTag.value.value = convertDisplayTagValue(e.name, maxValue);
+        mainTag.value.name = e.name;
+    } else {
+        mainTag.value = e;
+    }
+}
+
+function handleSetNameChange(e: ArtifactSetName) {
+    setName.value = e;
+    star.value = artifactData.value.maxStar;
+    level.value = star.value * 4;
+}
+
+function getArtifact(): IArtifactContentOnly {
+    return {
+        setName: setName.value,
+        position: position.value,
+        mainTag: getArtifactMainTag(),
+        normalTags: getArtifactNormalTags(),
+        star: star.value,
+        level: level.value,
+    }
+}
+
+function getArtifactMainTag(): IArtifactTag {
+    let temp: IArtifactTag = {
+        name: mainTag.value.name,
+        value: parseFloat(mainTag.value.value)
+    }
+
+    if (isNaN(temp.value)) {
+        temp.value = 0;
+    }
+
+    convertPercentage(temp);
+    return temp
+}
+
+function getArtifactNormalTags(): IArtifactTag[] {
+    let temp = [];
+    for (let item of normalTags.value) {
+        if (item.value === "" || item.value === "0") {
+            continue;
+        }
+
+        let tag = {
+            name: item.name,
+            value: parseFloat(item.value)
+        } as IArtifactTag
+        convertPercentage(tag)
+        temp.push(tag);
+    }
+
+    return temp;
+}
+
+function shuffleNormalTags() {
+    let temp = randomNormalTag(5, 20, [mainTag.value.name]);
+    for (let i = 0, l = temp.length; i < l; i++) {
+        temp[i].value = convertDisplayTagValue(temp[i].name, temp[i].value);
+    }
+
+    normalTags.value = temp;
+}
+
+function onConfirm() {
+    let result = getArtifact()
+
+    if (isArtifactExists(result)) {
+        ElMessageBox.confirm(
+            t("artPage.dup"),
+            t("misc.hint"),
+            {
+                confirmButtonText: t("misc.cont"),
+                cancelButtonText: t("misc.cancel"),
+                type: "warning",
+            }
+        ).then(() => {
+            emits("confirm", result)
+        }).catch(() => {})
+    } else {
+        emits("confirm", result)
+    }
+}
+
+
+// export default {
+//     provide() {
+//         return {
+//             star: this.star,
+//         }
+//     },
+//     methods: {
+//
+//
+//         openHelp() {
+//             let text = "使用随机副词条，可以快速构建大量合理的圣遗物，可以方便地确定某个角色适合什么圣遗物。例如，快速构建角斗士、乐团、魔女4件套，从而计算胡桃适合什么样的圣遗物组合";
+//             this.$alert(text, "帮助");
+//         }
+//     },
+//     computed: {
+//
+//     }
+// }
 </script>
 
 <style scoped lang="scss">

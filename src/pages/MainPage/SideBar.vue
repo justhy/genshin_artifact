@@ -1,90 +1,115 @@
 <template>
     <div class="root">
         <el-menu
-            default-active="intro"
+            :default-active="doRoute ? $route.fullPath : '/intro'"
             style="border: none"
-            @select="handleSelect"
+            @select="doRoute ? undefined : handleSelect($event)"
             :mode="mode"
+            :router="doRoute"
         >
             <el-menu-item index="/intro">
-                <i class="el-icon-s-home"></i>
-                <span>首页</span>
+                <el-icon><i-ep-home-filled></i-ep-home-filled></el-icon>
+                <span>{{ t("nav.home") }}</span>
+            </el-menu-item>
+            <el-menu-item index="/setup">
+                <el-icon><i-ep-setting></i-ep-setting></el-icon>
+                <span>{{ t("nav.setup") }}</span>
+            </el-menu-item>
+            <el-menu-item index="/account">
+                <el-icon><i-ep-user /></el-icon>
+                <span>{{ t("nav.account") }} / {{ currentAccountName }}</span>
+<!--                <div class="sync-icon">-->
+<!--                    <el-icon>-->
+<!--                        <i-ep-folder-checked v-if="syncStatus === 'synced'" />-->
+<!--                        <i-ep-sort v-else-if="syncStatus === 'syncing'" />-->
+<!--                        <i-ep-folder-remove v-else/>-->
+<!--                    </el-icon>-->
+<!--                </div>-->
             </el-menu-item>
 
             <el-menu-item-group>
                 <template #title>
-                    我的仓库
+                    {{ t("nav.repo") }}
                 </template>
                 <el-menu-item index="/artifacts">
-                    <i class="el-icon-s-help"></i>
-                    圣遗物
+                    <el-icon><i-ep-help-filled /></el-icon>
+                    {{ t("nav.artifact") }}
                 </el-menu-item>
                 <el-menu-item index="/artifacts-kumi">
-                    <i class="el-icon-s-help"></i>
-                    圣遗物套装
+                    <el-icon><i-ep-help-filled /></el-icon>
+                    {{ t("nav.kumi") }}
                 </el-menu-item>
                 <el-menu-item index="/presets">
-                    <i class="el-icon-menu"></i>
-                    计算预设
+                    <el-icon><i-ep-menu /></el-icon>
+                    {{ t("nav.preset") }}
                 </el-menu-item>
             </el-menu-item-group>
 
             <el-menu-item-group>
                 <template #title>
-                    计算
+                    {{ t("nav.compute") }}
                 </template>
                 <el-menu-item index="/calculate">
-                    <i class="el-icon-cpu"></i>
-                    计算器
+                    <el-icon><i-ep-cpu /></el-icon>
+                    {{ t("nav.calculate") }}
                 </el-menu-item>
                 <el-menu-item index="/team-optimization">
-                    <i class="el-icon-s-opportunity"></i>
-                    多人优化
+                    <el-icon><i-ep-cpu /></el-icon>
+                    {{ t("nav.teamOptimize") }}
                 </el-menu-item>
                 <el-menu-item index="/potential">
-                    <i class="el-icon-magic-stick"></i>
-                    圣遗物潜力
+                    <el-icon><i-ep-opportunity /></el-icon>
+                    {{ t("nav.potential") }}
+                </el-menu-item>
+                <el-menu-item index="/best-set">
+                    <el-icon><i-ep-medal /></el-icon>
+                    {{ t("nav.bestSet") }}
                 </el-menu-item>
                 <el-menu-item index="/character">
-                    <i class="el-icon-s-data"></i>
-                    莫娜数据库
+                    <el-icon><i-ep-histogram /></el-icon>
+                    {{ t("nav.monaDB") }}
                 </el-menu-item>
             </el-menu-item-group>
 
             <el-menu-item-group>
-                <template #title>附加功能</template>
+                <template #title>{{ t("nav.other") }}</template>
                 <el-menu-item index="/playground">
-                    <font-awesome-icon :icon="['fas', 'terminal']" style="width: 24px; margin-right: 5px; color: #909399"></font-awesome-icon>
-                    Playground
+                    <el-icon><i-fa6-solid-terminal /></el-icon>
+                    {{ t("nav.playground") }}
                 </el-menu-item>
             </el-menu-item-group>
 
             <el-menu-item-group>
                 <template #title>
-                    关于本站
+                    {{ t("nav.about") }}
                 </template>
-                <el-submenu index="help">
-                    <template slot="title">
+                <el-sub-menu index="help">
+                    <template #title>
+                        <el-icon><i-ep-question-filled /></el-icon>
                         <i class="el-icon-question"></i>
-                        帮助
+                        {{ t("nav.help") }}
                     </template>
                     <el-menu-item index="/help/export-tools">
-                        <i class="el-icon-aim"></i>
-                        导出工具
+                        <el-icon><i-ep-aim /></el-icon>
+                        {{ t("nav.exportTool") }}
                     </el-menu-item>
-                </el-submenu>
+                </el-sub-menu>
 
                 <el-menu-item index="/tomodachi">
-                    <i class="el-icon-link"></i>
-                    友情链接
+                    <el-icon><i-ep-link /></el-icon>
+                    {{ t("nav.link") }}
                 </el-menu-item>
             </el-menu-item-group>
         </el-menu>
     </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from "vue"
+import {useI18n} from "@/i18n/i18n"
+import { useAccountStore } from "@/store/pinia/account"
+
+export default defineComponent({
     name: "SideBar",
     props: {
         items: {
@@ -110,31 +135,31 @@ export default {
         }
     },
     methods: {
-        handleSelect(index) {
-            if (this.doRoute) {
-                this.$router.push(index)
-            } else {
-                this.$emit("select", index)
-            }
+        handleSelect(index: string) {
+            this.$emit("select", index)
+        }
+    },
+    setup() {
+        const { t } = useI18n()
+        const accountStore = useAccountStore()
+
+        return {
+            t,
+            syncStatus: accountStore.syncStatus,
+            currentAccountName: accountStore.currentAccountName,
         }
     }
-}
+})
 </script>
 
 <style scoped>
-.top {
-    height: 220px;
-    background: #409eff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* .root {
-    background: #123456;
-} */
 
 .item {
     padding: 0 32px;
+}
+
+.sync-icon {
+    width: 100%;
+    text-align: right;
 }
 </style>

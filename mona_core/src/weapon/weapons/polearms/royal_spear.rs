@@ -19,7 +19,7 @@ impl<A: Attribute> WeaponEffect<A> for RoyalSpearEffect {
             AttributeName::CriticalBase,
             AttributeName::CriticalAttacking,
             Box::new(move |x, _| royal_series_critical_bonus(refine, x)),
-            Box::new(|grad, _x1, _x2| (grad, 0.0)), // todo
+            Box::new(|grad, _x1, _x2| (grad, 0.0)),
             "宗室被动等效"
         )
     }
@@ -30,14 +30,21 @@ pub struct RoyalSpear;
 impl WeaponTrait for RoyalSpear {
     const META_DATA: WeaponStaticData = WeaponStaticData {
         name: WeaponName::RoyalSpear,
+        internal_name: "Pole_Theocrat",
         weapon_type: WeaponType::Polearm,
         weapon_sub_stat: Some(WeaponSubStatFamily::ATK60),
         weapon_base: WeaponBaseATKFamily::ATK565,
         star: 4,
         #[cfg(not(target_family = "wasm"))]
-        effect: Some("专注：攻击造成伤害时，暴击率提升8%/10%/12%/14%/16%,最多堆叠5次。攻击造成暴击后，移除已有的专注效果。"),
+        effect: Some(crate::common::i18n::locale!(
+            zh_cn: "攻击造成伤害时，暴击率提升<span style=\"color: #409EFF;\">8%-10%-12%-14%-16%</span>，最多堆叠5次。攻击造成暴击后，移除已有的专注效果。",
+            en: "Upon damaging an opponent, increases CRIT Rate by <span style=\"color: #409EFF;\">8%-10%-12%-14%-16%</span>. Max 5 stacks. A CRIT Hit removes all stacks."
+        )),
         #[cfg(not(target_family = "wasm"))]
-        chs: "宗室猎枪"
+        name_locale: crate::common::i18n::locale!(
+            zh_cn: "宗室猎枪",
+            en: "Royal Spear"
+        )
     };
 
     fn get_effect<A: Attribute>(_character: &CharacterCommonData, _config: &WeaponConfig) -> Option<Box<dyn WeaponEffect<A>>> {

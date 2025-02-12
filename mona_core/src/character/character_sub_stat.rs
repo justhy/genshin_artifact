@@ -17,11 +17,13 @@ pub enum CharacterSubStatFamily {
     HealingBonus222,
 
     DEF300,
+    DEF360,
 
     ElementalMastery96,
     ElementalMastery115,
 
     HP240,
+    HP288,
 
     Recharge267,
     Recharge320,
@@ -39,9 +41,11 @@ pub fn get_value_array(family: CharacterSubStatFamily) -> [f64; 5] {
         CharacterSubStatFamily::CriticalRate192 => [0.048, 0.096, 0.096, 0.144, 0.192],
         CharacterSubStatFamily::HealingBonus222 => [0.055, 0.111, 0.111, 0.166, 0.222],
         CharacterSubStatFamily::DEF300 => [0.075, 0.15, 0.15, 0.225, 0.3],
+        CharacterSubStatFamily::DEF360 => [0.09, 0.18, 0.18, 0.27, 0.36],
         CharacterSubStatFamily::ElementalMastery96 => [24.0, 48.0, 48.0, 72.0, 96.0],
         CharacterSubStatFamily::ElementalMastery115 => [29.0, 58.0, 58.0, 86.0, 115.0],
         CharacterSubStatFamily::HP240 => [0.06, 0.12, 0.12, 0.18, 0.24],
+        CharacterSubStatFamily::HP288 => [0.072, 0.144, 0.144, 0.216, 0.288],
         CharacterSubStatFamily::Recharge267 => [0.067, 0.133, 0.133, 0.2, 0.267],
         CharacterSubStatFamily::Recharge320 => [0.08, 0.16, 0.16, 0.24, 0.32],
     }
@@ -58,9 +62,10 @@ pub fn get_stat_name_from_family(family: CharacterSubStatFamily) -> StatName {
         CriticalRate192 => StatName::CriticalRate,
         HealingBonus222 => StatName::HealingBonus,
         DEF300 => StatName::DEFPercentage,
+        DEF360 => StatName::DEFPercentage,
         ElementalMastery96 => StatName::ElementalMastery,
         ElementalMastery115 => StatName::ElementalMastery,
-        HP240 => StatName::HPPercentage,
+        HP240 | HP288 => StatName::HPPercentage,
         Recharge267 => StatName::Recharge,
         Recharge320 => StatName::Recharge,
     }

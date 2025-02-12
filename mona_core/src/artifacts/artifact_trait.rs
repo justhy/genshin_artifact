@@ -3,23 +3,26 @@ use crate::artifacts::effect::ArtifactEffect;
 use crate::artifacts::effect_config::ArtifactEffectConfig;
 use crate::attribute::Attribute;
 use crate::character::character_common_data::CharacterCommonData;
+use crate::common::i18n::I18nLocale;
 use crate::common::item_config_type::ItemConfig;
 
 pub struct ArtifactMetaData {
     pub name: ArtifactSetName,
+    // for historical reasons, this is key
     pub name_mona: &'static str,
-    pub chs: &'static str,
-    pub flower: Option<&'static str>,
-    pub feather: Option<&'static str>,
-    pub sand: Option<&'static str>,
-    pub goblet: Option<&'static str>,
-    pub head: Option<&'static str>,
+    pub name_locale: I18nLocale,
+    pub flower: Option<I18nLocale>,
+    pub feather: Option<I18nLocale>,
+    pub sand: Option<I18nLocale>,
+    pub goblet: Option<I18nLocale>,
+    pub head: Option<I18nLocale>,
     pub star: (usize, usize),
-    pub effect1: Option<&'static str>,
-    pub effect2: Option<&'static str>,
-    pub effect3: Option<&'static str>,
-    pub effect4: Option<&'static str>,
-    pub effect5: Option<&'static str>,
+    pub effect1: Option<I18nLocale>,
+    pub effect2: Option<I18nLocale>,
+    pub effect3: Option<I18nLocale>,
+    pub effect4: Option<I18nLocale>,
+    pub effect5: Option<I18nLocale>,
+    pub internal_id: usize,
 }
 
 pub trait ArtifactTrait {
@@ -30,4 +33,7 @@ pub trait ArtifactTrait {
 
     #[cfg(not(target_family = "wasm"))]
     const CONFIG4: Option<&'static [ItemConfig]> = None;
+
+    #[cfg(not(target_family = "wasm"))]
+    const CONFIG2: Option<&'static [ItemConfig]> = None;
 }

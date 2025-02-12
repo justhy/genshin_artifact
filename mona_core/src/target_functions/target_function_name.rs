@@ -1,21 +1,23 @@
 use num_derive::FromPrimitive;
 use serde::{Serialize, Deserialize};
 use mona_derive::{TargetFunctionData, EnumLen};
-use strum_macros::Display;
+use strum_macros::{Display, EnumIter};
 
 #[derive(Serialize, Deserialize)]
 #[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
-#[derive(TargetFunctionData, EnumLen, FromPrimitive, Display)]
+#[derive(TargetFunctionData, EnumLen, FromPrimitive, Display, EnumIter)]
 pub enum TargetFunctionName {
     MaxATK,
     MaxDEF,
     MaxHP,
     MaxEM,
+    MaxRecharge,
     PyroDamage,
     CryoDamage,
     HydroDamage,
     ElectroDamage,
     AnemoDamage,
+    DendroDamage,
     GeoDamage,
     PhysicalDamage,
     MaxVaporize,
@@ -68,6 +70,7 @@ pub enum TargetFunctionName {
     XianglingDefault,
     XiaoDefault,
     XingqiuDefault,
+    XinyanDamage,
     XinyanDefault,
     YaeMikoDefault,
     YanfeiDefault,
@@ -76,4 +79,35 @@ pub enum TargetFunctionName {
     YunjinDefault,
     ZhongliDefault,
     KukiShinobuDefault,
+    ShikanoinHeizouDefault,
+    TighnariDefault,
+    CynoDefault,
+    NilouDefault,
+    NahidaDefault,
+    WandererDefault,
+    FaruzanDamage,
+    AlhaithamDefault,
+    DehyaDefault,
+    MikaDefault,
+    FreminetDefault,
+    LyneyDefault,
+    NeuvilletteDefault,
+    WriothesleyDefault,
+    FurinaDefault,
+    NaviaDefault,
+    XianyunDefault,
+    ChioriDefault,
+    ArlecchinoDefault,
+    ClorindeDefault,
+    SigewinneDefault,
+    SethosDefault,
+    EmilieDefault,
+    MualaniDefault,
+    KinichDefault,
+    XilonenDefault,
+    ChascaDefault,
+    LanyanDefault,
+    MavuikaDefault,
+    CitlaliDefault,
+    YumemizukiMizukiDefault,
 }

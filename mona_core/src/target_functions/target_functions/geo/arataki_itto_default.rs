@@ -24,8 +24,14 @@ impl TargetFunctionMetaTrait for AratakiIttoDefaultTargetFunction {
     #[cfg(not(target_family = "wasm"))]
     const META_DATA: TargetFunctionMeta = TargetFunctionMeta {
         name: TargetFunctionName::AratakiIttoDefault,
-        chs: "荒泷一斗-最恶鬼王！",
-        description: "荒泷一斗输出",
+        name_locale: crate::common::i18n::locale!(
+            zh_cn: "荒泷一斗-最恶鬼王！",
+            en: "Itto-The Evil"
+        ),
+        description: crate::common::i18n::locale!(
+            zh_cn: "荒泷一斗输出",
+            en: "DPS Itto"
+        ),
         tags: "输出",
         four: TargetFunctionFor::SomeWho(CharacterName::AratakiItto),
         image: TargetFunctionMetaImage::Avatar
@@ -38,51 +44,52 @@ impl TargetFunctionMetaTrait for AratakiIttoDefaultTargetFunction {
 
 impl TargetFunction for AratakiIttoDefaultTargetFunction {
     fn get_target_function_opt_config(&self) -> TargetFunctionOptConfig {
-        TargetFunctionOptConfig {
-            atk_fixed: 0.0,
-            atk_percentage: 0.5,
-            hp_fixed: 0.0,
-            hp_percentage: 0.0,
-            def_fixed: 0.1,
-            def_percentage: 1.0,
-            recharge: 0.2,
-            elemental_mastery: 0.0,
-            critical: 1.0,
-            critical_damage: 1.0,
-            healing_bonus: 0.0,
-            bonus_electro: 0.0,
-            bonus_pyro: 0.0,
-            bonus_hydro: 0.0,
-            bonus_anemo: 0.0,
-            bonus_cryo: 0.0,
-            bonus_geo: 2.0,
-            bonus_dendro: 0.0,
-            bonus_physical: 0.0,
-            sand_main_stats: vec![
-                StatName::ATKPercentage,
-                StatName::DEFPercentage,
-            ],
-            goblet_main_stats: vec![
-                StatName::GeoBonus,
-                StatName::ATKPercentage,
-                StatName::DEFPercentage,
-            ],
-            head_main_stats: vec![
-                StatName::CriticalRate,
-                StatName::CriticalDamage,
-                StatName::DEFPercentage,
-                StatName::ATKPercentage,
-            ],
-            set_names: Some(vec![
-                ArtifactSetName::HuskOfOpulentDreams,
-                ArtifactSetName::ArchaicPetra,
-                ArtifactSetName::RetracingBolide
-            ]),
-            very_critical_set_names: None,
-            normal_threshold: TargetFunctionOptConfig::DEFAULT_NORMAL_THRESHOLD,
-            critical_threshold: TargetFunctionOptConfig::DEFAULT_CRITICAL_THRESHOLD,
-            very_critical_threshold: TargetFunctionOptConfig::DEFAULT_VERY_CRITICAL_THRESHOLD
-        }
+        // TargetFunctionOptConfig {
+        //     atk_fixed: 0.0,
+        //     atk_percentage: 0.5,
+        //     hp_fixed: 0.0,
+        //     hp_percentage: 0.0,
+        //     def_fixed: 0.1,
+        //     def_percentage: 1.0,
+        //     recharge: 0.2,
+        //     elemental_mastery: 0.0,
+        //     critical: 1.0,
+        //     critical_damage: 1.0,
+        //     healing_bonus: 0.0,
+        //     bonus_electro: 0.0,
+        //     bonus_pyro: 0.0,
+        //     bonus_hydro: 0.0,
+        //     bonus_anemo: 0.0,
+        //     bonus_cryo: 0.0,
+        //     bonus_geo: 2.0,
+        //     bonus_dendro: 0.0,
+        //     bonus_physical: 0.0,
+        //     sand_main_stats: vec![
+        //         StatName::ATKPercentage,
+        //         StatName::DEFPercentage,
+        //     ],
+        //     goblet_main_stats: vec![
+        //         StatName::GeoBonus,
+        //         StatName::ATKPercentage,
+        //         StatName::DEFPercentage,
+        //     ],
+        //     head_main_stats: vec![
+        //         StatName::CriticalRate,
+        //         StatName::CriticalDamage,
+        //         StatName::DEFPercentage,
+        //         StatName::ATKPercentage,
+        //     ],
+        //     set_names: Some(vec![
+        //         ArtifactSetName::HuskOfOpulentDreams,
+        //         ArtifactSetName::ArchaicPetra,
+        //         ArtifactSetName::RetracingBolide
+        //     ]),
+        //     very_critical_set_names: None,
+        //     normal_threshold: TargetFunctionOptConfig::DEFAULT_NORMAL_THRESHOLD,
+        //     critical_threshold: TargetFunctionOptConfig::DEFAULT_CRITICAL_THRESHOLD,
+        //     very_critical_threshold: TargetFunctionOptConfig::DEFAULT_VERY_CRITICAL_THRESHOLD
+        // }
+        unimplemented!()
     }
 
     fn get_default_artifact_config(&self, _team_config: &TeamQuantization) -> ArtifactEffectConfig {
@@ -107,7 +114,7 @@ impl TargetFunction for AratakiIttoDefaultTargetFunction {
 
         type DamageEnum = <AratakiItto as CharacterTrait>::DamageEnumType;
         const CONFIG: CharacterSkillConfig = CharacterSkillConfig::AratakiItto { after_q: true };
-        let damage_kesa = AratakiItto::damage::<SimpleDamageBuilder>(&context, DamageEnum::KesagiriCombo, &CONFIG);
+        let damage_kesa = AratakiItto::damage::<SimpleDamageBuilder>(&context, DamageEnum::KesagiriCombo, &CONFIG, None);
         damage_kesa.normal.expectation
     }
 }

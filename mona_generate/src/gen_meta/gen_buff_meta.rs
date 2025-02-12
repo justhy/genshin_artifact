@@ -2,19 +2,24 @@ use mona::buffs::buff_meta::{BuffImage, BuffMetaData};
 use mona::buffs::buff_name::BuffName;
 use askama::Template;
 use mona::artifacts::artifact_trait::ArtifactMetaData;
-use crate::utils::get_internal_character_name;
+use mona::character::CharacterStaticData;
+use mona::weapon::weapon_static_data::WeaponStaticData;
+use crate::gen_meta::gen_locale::get_index_mapping;
+use crate::utils::config_to_json;
 
 struct BuffMeta {
     name: String,
-    chs: String,
+    name_locale: usize,
     image: String,
-    // character | misc
+    // character | misc | weapon | artifact
     image_type: String,
     // if image_type is character, use internal name to get mihoyo image url, not using mine
     character_internal_name: String,
+    weapon_internal_name: String,
+    artifact_internal_name: String,
     genre: String,
     config: Vec<String>,
-    description: String,
+    description: Option<usize>,
 }
 
 #[derive(Template)]
@@ -48,31 +53,59 @@ fn convert_image(i: &BuffImage) -> String {
 
 pub fn gen_buff_meta_as_js_file() -> String {
     let mut data: Vec<BuffMeta> = Vec::new();
+    let index_map = get_index_mapping();
 
     for i in 0_usize..BuffName::LEN {
         let e: BuffName = num::FromPrimitive::from_usize(i).unwrap();
 
         let meta: BuffMetaData = e.get_meta();
         let config = if let Some(x) = e.get_config() {
-            x.iter().map(|c| c.to_json()).collect()
+            x.iter().map(|c| config_to_json(&c)).collect()
         } else {
             Vec::new()
         };
 
-        let description = if let Some(x) = meta.description {
-            String::from(x)
+        let description = if let Some(ref x) = meta.description {
+            Some(*index_map.get(x).unwrap())
         } else {
-            String::new()
+            None
+        };
+
+        let image_type = if let BuffImage::Avatar(_) = meta.image {
+            String::from("character")
+        } else if let BuffImage::Weapon(_) = meta.image {
+            String::from("weapon")
+        } else if let BuffImage::Artifact(_) = meta.image {
+            String::from("artifact")
+        } else {
+            String::from("misc")
         };
 
         data.push(BuffMeta {
             name: meta.name.to_string(),
-            chs: String::from(meta.chs),
+            name_locale: *index_map.get(&meta.name_locale).unwrap(),
             image: convert_image(&meta.image),
-            image_type: if let BuffImage::Avatar(_) = meta.image { String::from("character") } else { String::from("misc") },
+            image_type,
             character_internal_name: if let BuffImage::Avatar(c) = meta.image {
-                get_internal_character_name(c)
+                let c_meta: CharacterStaticData = c.get_static_data();
+                String::from(c_meta.internal_name)
             } else { String::new() },
+            weapon_internal_name: if let BuffImage::Weapon(w) = meta.image {
+                let w_meta: WeaponStaticData = w.get_static_data();
+                String::from(w_meta.internal_name)
+            } else {
+                String::new()
+            },
+            artifact_internal_name: if let BuffImage::Artifact(a) = meta.image {
+                let a_meta: ArtifactMetaData = a.get_meta();
+                if let Some(_) = a_meta.flower {
+                    format!("UI_RelicIcon_{}_4", a_meta.internal_id)
+                } else {
+                    String::new()
+                }
+            } else {
+                String::new()
+            },
             genre: meta.genre.to_string(),
             config,
             description,

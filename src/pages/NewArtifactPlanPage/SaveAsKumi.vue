@@ -1,22 +1,17 @@
 <template>
-    <div>
-        <p class="title">选择收藏夹</p>
-        <!-- <div class="select-dir">
-            <div
-                class="dir-item"
-                v-for="dir in directories"
-                :key="dir.id"
-            >
-                <el-checkbox ref="checkbox" :x-id="dir.id">{{ dir.title }}</el-checkbox>
-            </div>
-        </div> -->
-
+    <el-dialog
+        :model-value="props.modelValue"
+        @update:modelValue="emits('update:modelValue', $event)"
+        :title="t('calcPage.saveKumi')"
+        :width="deviceIsPC ? '60%' : '90%'"
+    >
+        <p class="title">{{ t("calcPage.selectDir") }}</p>
         <el-checkbox-group
             v-model="checkList"
             :min="1"
         >
             <el-checkbox
-                v-for="dir in directories"
+                v-for="dir in kumiStore.dirs.value"
                 :key="dir.id"
                 :label="dir.id"
                 border
@@ -24,83 +19,67 @@
             >{{ dir.title }}</el-checkbox>
         </el-checkbox-group>
 
-        <p class="title">名称</p>
+        <p class="title">{{ t("calcPage.name") }}</p>
         <el-input
             v-model="name"
-            placeholder="输入名称"
+            :placeholder="t('calcPage.enterName')"
         ></el-input>
 
-        <div class="buttons" style="text-align: right; margin-top: 32px">
-<!--            <el-button-->
-<!--            >取消</el-button>-->
-            <el-button
-                type="primary"
-                :disabled="name === ''"
-                @click="handleConfirm"
-            >确定</el-button>
+        <template #footer>
+            <el-button @click="$emit('update:modelValue', false)">{{ t("misc.cancel") }}</el-button>
+            <el-button type="primary" :disabled="name === ''" @click="handleConfirm">{{ t("misc.confirm") }}</el-button>
+        </template>
 
-        </div>
-    </div>
+<!--        <div class="buttons" style="text-align: right; margin-top: 32px">-->
+<!--            <el-button-->
+<!--                type="primary"-->
+<!--                :disabled="name === ''"-->
+<!--                @click="handleConfirm"-->
+<!--            >确定</el-button>-->
+
+<!--        </div>-->
+    </el-dialog>
 </template>
 
-<script>
-import { mapGetters } from "vuex"
+<script setup lang="ts">
+import {deviceIsPC} from "@/utils/device"
+import {useKumiStore} from "@/store/pinia/kumi"
+import {useI18n} from "@/i18n/i18n"
 
-export default {
-    name: "SaveAsKumi",
-    props: {
-        defaultName: {
-            type: String,
-            default: "",
-        }
-    },
-    data() {
-        return {
-            name: this.defaultName,
-            checkList: [0],
-        }
-    },
-    watch: {
-        defaultName(newName) {
-            console.log(newName);
-            this.name = newName
-        }
-    },
-    methods: {
-        getCheckedDirIds() {
-            const components = this.$refs["checkbox"]
-            if (!components) {
-                return []
-            }
+const { t } = useI18n()
 
-            let set = new Set()
-            for (let checkbox of components) {
-                // console.log(checkbox)
-                if (checkbox.isChecked) {
-                    set.add(checkbox.$attrs["x-id"])
-                }
-            }
+const kumiStore = useKumiStore()
 
-            return Array.from(set)
-        },
-
-        handleConfirm() {
-            // const dirIds = this.getCheckedDirIds()
-            const dirIds = this.checkList
-
-            this.$emit("confirm", {
-                dirIds,
-                name: this.name
-            })
-        }
-    },
-    computed: {
-        ...mapGetters("kumi", [
-            "directories",
-            "dirNames"
-        ]),
-    }
+interface Props {
+    defaultName: string,
+    modelValue: boolean,
 }
+
+const props = withDefaults(defineProps<Props>(), {
+    defaultName: ""
+})
+
+interface Emits {
+    (e: "confirm", v: { dirIds: number[], name: string }): void,
+    (e: "update:modelValue", v: boolean): void
+}
+
+const emits = defineEmits<Emits>()
+
+const checkList = ref<number[]>([0])
+const name = ref<string>(props.defaultName)
+
+function handleConfirm() {
+    const dirIds = checkList.value
+
+    emits("confirm", {
+        dirIds, name: name.value
+    })
+}
+
+watch(() => props.defaultName, newName => {
+    name.value = newName
+})
 </script>
 
 <style scoped>

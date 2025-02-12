@@ -34,8 +34,14 @@ impl TargetFunctionMetaTrait for EulaDefaultTargetFunction {
     #[cfg(not(target_family = "wasm"))]
     const META_DATA: TargetFunctionMeta = TargetFunctionMeta {
         name: TargetFunctionName::EulaDefault,
-        chs: "优菈-浪花骑士",
-        description: "普通优菈输出",
+        name_locale: crate::common::i18n::locale!(
+            zh_cn: "优菈-浪花骑士",
+            en: "Eula-Spindrift Knight"
+        ),
+        description: crate::common::i18n::locale!(
+            zh_cn: "普通优菈输出",
+            en: "DPS Eula"
+        ),
         tags: "输出",
         four: TargetFunctionFor::SomeWho(CharacterName::Eula),
         image: TargetFunctionMetaImage::Avatar
@@ -48,49 +54,50 @@ impl TargetFunctionMetaTrait for EulaDefaultTargetFunction {
 
 impl TargetFunction for EulaDefaultTargetFunction {
     fn get_target_function_opt_config(&self) -> TargetFunctionOptConfig {
-        TargetFunctionOptConfig {
-            atk_fixed: 0.1,
-            atk_percentage: 1.0,
-            hp_fixed: 0.0,
-            hp_percentage: 0.0,
-            def_fixed: 0.0,
-            def_percentage: 0.0,
-            recharge: 0.2,
-            elemental_mastery: 0.0,
-            critical: 1.0,
-            critical_damage: 1.0,
-            healing_bonus: 0.0,
-            bonus_electro: 0.0,
-            bonus_pyro: 0.0,
-            bonus_hydro: 0.0,
-            bonus_anemo: 0.0,
-            bonus_cryo: 0.0,
-            bonus_geo: 0.0,
-            bonus_dendro: 0.0,
-            bonus_physical: 2.0,
-            sand_main_stats: vec![
-                StatName::ATKPercentage,
-            ],
-            goblet_main_stats: vec![
-                StatName::PhysicalBonus,
-                StatName::ATKPercentage,
-            ],
-            head_main_stats: vec![
-                StatName::CriticalRate,
-                StatName::CriticalDamage,
-                StatName::ATKPercentage,
-            ],
-            set_names: Some(vec![
-                ArtifactSetName::PaleFlame,
-                ArtifactSetName::BloodstainedChivalry,
-                ArtifactSetName::ShimenawasReminiscence,
-                ArtifactSetName::GladiatorsFinale,
-            ]),
-            very_critical_set_names: None,
-            normal_threshold: TargetFunctionOptConfig::DEFAULT_NORMAL_THRESHOLD,
-            critical_threshold: TargetFunctionOptConfig::DEFAULT_CRITICAL_THRESHOLD,
-            very_critical_threshold: TargetFunctionOptConfig::DEFAULT_VERY_CRITICAL_THRESHOLD
-        }
+        // TargetFunctionOptConfig {
+        //     atk_fixed: 0.1,
+        //     atk_percentage: 1.0,
+        //     hp_fixed: 0.0,
+        //     hp_percentage: 0.0,
+        //     def_fixed: 0.0,
+        //     def_percentage: 0.0,
+        //     recharge: 0.2,
+        //     elemental_mastery: 0.0,
+        //     critical: 1.0,
+        //     critical_damage: 1.0,
+        //     healing_bonus: 0.0,
+        //     bonus_electro: 0.0,
+        //     bonus_pyro: 0.0,
+        //     bonus_hydro: 0.0,
+        //     bonus_anemo: 0.0,
+        //     bonus_cryo: 0.0,
+        //     bonus_geo: 0.0,
+        //     bonus_dendro: 0.0,
+        //     bonus_physical: 2.0,
+        //     sand_main_stats: vec![
+        //         StatName::ATKPercentage,
+        //     ],
+        //     goblet_main_stats: vec![
+        //         StatName::PhysicalBonus,
+        //         StatName::ATKPercentage,
+        //     ],
+        //     head_main_stats: vec![
+        //         StatName::CriticalRate,
+        //         StatName::CriticalDamage,
+        //         StatName::ATKPercentage,
+        //     ],
+        //     set_names: Some(vec![
+        //         ArtifactSetName::PaleFlame,
+        //         ArtifactSetName::BloodstainedChivalry,
+        //         ArtifactSetName::ShimenawasReminiscence,
+        //         ArtifactSetName::GladiatorsFinale,
+        //     ]),
+        //     very_critical_set_names: None,
+        //     normal_threshold: TargetFunctionOptConfig::DEFAULT_NORMAL_THRESHOLD,
+        //     critical_threshold: TargetFunctionOptConfig::DEFAULT_CRITICAL_THRESHOLD,
+        //     very_critical_threshold: TargetFunctionOptConfig::DEFAULT_VERY_CRITICAL_THRESHOLD
+        // }
+        unimplemented!()
     }
 
     fn get_default_artifact_config(&self, _team_config: &TeamQuantization) -> ArtifactEffectConfig {
@@ -121,10 +128,10 @@ impl TargetFunction for EulaDefaultTargetFunction {
 
         type S = <Eula as CharacterTrait>::DamageEnumType;
         let dmg_q = Eula::damage::<SimpleDamageBuilder>(
-            &context, S::QLightfall, &skill_config
+            &context, S::QLightfall, &skill_config, None
         ).normal.expectation;
         let dmg_a = Eula::damage::<SimpleDamageBuilder>(
-            &context, S::Normal1, &skill_config
+            &context, S::Normal1, &skill_config, None
         ).normal.expectation;
 
         dmg_q + dmg_a * 25.0

@@ -4,8 +4,9 @@ use crate::attribute::{Attribute, AttributeName, SimpleAttributeGraph2};
 use crate::character::{Character, CharacterName};
 use crate::character::character_common_data::CharacterCommonData;
 use crate::character::traits::CharacterTrait;
-use crate::character::characters::jean::Jean;
+use crate::character::characters::anemo::jean::Jean;
 use crate::character::skill_config::CharacterSkillConfig;
+use crate::common::i18n::locale;
 use crate::common::item_config_type::{ItemConfig, ItemConfigType};
 use crate::common::StatName;
 use crate::damage::{DamageContext, SimpleDamageBuilder};
@@ -41,8 +42,14 @@ impl TargetFunctionMetaTrait for JeanDefaultTargetFunction {
     #[cfg(not(target_family = "wasm"))]
     const META_DATA: TargetFunctionMeta = TargetFunctionMeta {
         name: TargetFunctionName::JeanDefault,
-        chs: "琴-蒲公英骑士",
-        description: "普通六边形琴",
+        name_locale: crate::common::i18n::locale!(
+            zh_cn: "琴-蒲公英骑士",
+            en: "Jean-Dandelion Knight"
+        ),
+        description: crate::common::i18n::locale!(
+            zh_cn: "普通六边形琴",
+            en: "Jean Default"
+        ),
         tags: "副C,治疗",
         four: TargetFunctionFor::SomeWho(CharacterName::Jean),
         image: TargetFunctionMetaImage::Avatar
@@ -52,7 +59,10 @@ impl TargetFunctionMetaTrait for JeanDefaultTargetFunction {
     const CONFIG: Option<&'static [ItemConfig]> = Some(&[
         ItemConfig {
             name: "damage_weight",
-            title: "治疗-伤害比重（0：纯治疗，1：纯伤害）",
+            title: locale!(
+                zh_cn: "治疗-伤害比重（0：纯治疗，1：纯伤害）",
+                en: "Heal-DMG Weight(0: Pure Heal, 1: Pure DMG）",
+            ),
             config: ItemConfigType::Float { min: 0.0, max: 1.0, default: 0.5 },
         },
         ItemConfig {
@@ -69,48 +79,7 @@ impl TargetFunctionMetaTrait for JeanDefaultTargetFunction {
 
 impl TargetFunction for JeanDefaultTargetFunction {
     fn get_target_function_opt_config(&self) -> TargetFunctionOptConfig {
-        TargetFunctionOptConfig {
-            atk_fixed: 0.1,
-            atk_percentage: 1.0,
-            hp_fixed: 0.0,
-            hp_percentage: 0.0,
-            def_fixed: 0.0,
-            def_percentage: 0.0,
-            recharge: 0.2,
-            elemental_mastery: 0.3,
-            critical: 1.0,
-            critical_damage: 1.0,
-            healing_bonus: 0.0,
-            bonus_electro: 0.0,
-            bonus_pyro: 0.0,
-            bonus_hydro: 0.0,
-            bonus_anemo: 0.0,
-            bonus_cryo: 0.0,
-            bonus_geo: 2.0,
-            bonus_dendro: 0.0,
-            bonus_physical: 0.0,
-            sand_main_stats: vec![
-                StatName::ATKPercentage,
-                StatName::Recharge,
-            ],
-            goblet_main_stats: vec![
-                StatName::AnemoBonus,
-                StatName::ATKPercentage,
-            ],
-            head_main_stats: vec![
-                StatName::CriticalRate,
-                StatName::CriticalDamage,
-            ],
-            set_names: Some(vec![
-                ArtifactSetName::ViridescentVenerer,
-                ArtifactSetName::GladiatorsFinale,
-                ArtifactSetName::ShimenawasReminiscence
-            ]),
-            very_critical_set_names: None,
-            normal_threshold: TargetFunctionOptConfig::DEFAULT_NORMAL_THRESHOLD,
-            critical_threshold: TargetFunctionOptConfig::DEFAULT_CRITICAL_THRESHOLD,
-            very_critical_threshold: TargetFunctionOptConfig::DEFAULT_VERY_CRITICAL_THRESHOLD
-        }
+        unimplemented!()
     }
 
     fn get_default_artifact_config(&self, _team_config: &TeamQuantization) -> ArtifactEffectConfig {
@@ -124,9 +93,9 @@ impl TargetFunction for JeanDefaultTargetFunction {
         };
 
         type S = <Jean as CharacterTrait>::DamageEnumType;
-        let dmg_q = Jean::damage::<SimpleDamageBuilder>(&context, S::Q1, &CharacterSkillConfig::NoConfig).normal.expectation;
+        let dmg_q = Jean::damage::<SimpleDamageBuilder>(&context, S::Q1, &CharacterSkillConfig::NoConfig, None).normal.expectation;
         let dmg_q = dmg_q * 1.8;
-        let heal_q = Jean::damage::<SimpleDamageBuilder>(&context, S::QHeal1, &CharacterSkillConfig::NoConfig).normal.expectation;
+        let heal_q = Jean::damage::<SimpleDamageBuilder>(&context, S::QHeal1, &CharacterSkillConfig::NoConfig, None).normal.expectation;
         let heal_q = heal_q * 1.3;
 
         let recharge = attribute.get_value(AttributeName::Recharge);

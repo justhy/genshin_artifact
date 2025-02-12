@@ -44,6 +44,20 @@ pub use traveling_doctor::TravelingDoctor;
 pub use vermillion_hereafter::VermillionHereafter;
 pub use viridescent_venerer::ViridescentVenerer;
 pub use wanderers_troupe::WanderersTroupe;
+pub use deepwood_memories::DeepwoodMemories;
+pub use gilded_dreams::GildedDreams;
+pub use desert_pavilion_chronicle::DesertPavilionChronicle;
+pub use flower_of_paradise_lost::FlowerOfParadiseLost;
+pub use nymphs_dream::NymphsDream;
+pub use vourukashas_glow::VourukashasGlow;
+pub use marechaussee_hunter::MarechausseeHunter;
+pub use golden_troupe::GoldenTroupe;
+pub use song_of_days_past::SongOfDaysPast;
+pub use nighttime_whispers_in_the_echoing_woods::NighttimeWhispersInTheEchoingWoods;
+pub use fragment_of_harmonic_whimsy::FragmentOfHarmonicWhimsy;
+pub use unfinished_reverie::UnfinishedReverie;
+pub use scroll_of_the_hero_of_cinder_city::ScrollOfTheHeroOfCinderCity;
+pub use obsidian_codex::ObsidianCodex;
 
 pub mod empty;
 pub mod adventurer;
@@ -85,6 +99,20 @@ pub mod viridescent_venerer;
 pub mod wanderers_troupe;
 pub mod vermillion_hereafter;
 pub mod echoes_of_an_offering;
+pub mod deepwood_memories;
+pub mod gilded_dreams;
+pub mod desert_pavilion_chronicle;
+pub mod flower_of_paradise_lost;
+pub mod nymphs_dream;
+pub mod vourukashas_glow;
+pub mod marechaussee_hunter;
+pub mod golden_troupe;
+pub mod song_of_days_past;
+pub mod nighttime_whispers_in_the_echoing_woods;
+pub mod fragment_of_harmonic_whimsy;
+pub mod unfinished_reverie;
+pub mod scroll_of_the_hero_of_cinder_city;
+pub mod obsidian_codex;
 
 pub fn get_effect<T: Attribute>(name: ArtifactSetName, config: &ArtifactEffectConfig, character: &Character<T>) -> Box<dyn ArtifactEffect<T>> {
     name.create_effect(config, &character.common_data)

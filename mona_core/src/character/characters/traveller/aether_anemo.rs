@@ -3,7 +3,7 @@ use crate::attribute::{Attribute, AttributeName};
 use crate::character::character_common_data::CharacterCommonData;
 use crate::character::{CharacterConfig, CharacterName, CharacterStaticData};
 use crate::character::character_sub_stat::CharacterSubStatFamily;
-use crate::character::characters::albedo::AlbedoRoleEnum;
+use crate::character::characters::geo::albedo::AlbedoRoleEnum;
 use crate::character::skill_config::CharacterSkillConfig;
 use crate::character::traits::{CharacterSkillMap, CharacterSkillMapItem, CharacterTrait};
 use crate::common::{ChangeAttribute, Element, SkillType, WeaponType};
@@ -15,6 +15,7 @@ use crate::weapon::weapon_common_data::WeaponCommonData;
 use strum_macros::{EnumCount as EnumCountMacro, EnumString};
 use strum::EnumCount;
 use std::str::FromStr;
+use crate::common::i18n::{hit_n_dmg, locale, plunging_dmg};
 
 pub struct AetherAnemoSkillType {
     pub normal_dmg1: [f64; 15],
@@ -118,7 +119,8 @@ impl AetherAnemoDamageEnum {
         match *self {
             Normal1 | Normal2 | Normal3 | Normal4 | Normal5 => SkillType::NormalAttack,
             Charged11 | Charged12 => SkillType::ChargedAttack,
-            Plunging1 | Plunging2 | Plunging3 => SkillType::PlungingAttack,
+            Plunging1 => SkillType::PlungingAttackInAction,
+            Plunging2 | Plunging3 => SkillType::PlungingAttackOnGround,
             E1 | E2 | E3 | E4 => SkillType::ElementalSkill,
             Q1 | Q2Hydro | Q2Cryo | Q2Electro | Q2Pyro => SkillType::ElementalBurst
         }
@@ -134,7 +136,7 @@ pub struct AetherAnemo;
 impl CharacterTrait for AetherAnemo {
     const STATIC_DATA: CharacterStaticData = CharacterStaticData {
         name: CharacterName::AetherAnemo,
-        chs: "空-风",
+        internal_name: "PlayerBoy",
         element: Element::Anemo,
         hp: [912, 2342, 3024, 4529, 5031, 5766, 6411, 7164, 7648, 8401, 8885, 9638, 10122, 10875],
         atk: [18, 46, 59, 88, 98, 113, 125, 140, 149, 164, 174, 188, 198, 212],
@@ -142,9 +144,22 @@ impl CharacterTrait for AetherAnemo {
         sub_stat: CharacterSubStatFamily::ATK240,
         weapon_type: WeaponType::Sword,
         star: 5,
-        skill_name1: "普通攻击·异邦铁风",
-        skill_name2: "风涡剑",
-        skill_name3: "风息激荡"
+        skill_name1: locale!(
+            zh_cn: "普通攻击·异邦铁风",
+            en: "Normal Attack: Foreign Ironwind",
+        ),
+        skill_name2: locale!(
+            zh_cn: "风涡剑",
+            en: "Palm Vortex",
+        ),
+        skill_name3: locale!(
+            zh_cn: "风息激荡",
+            en: "Gust Surge",
+        ),
+        name_locale: locale!(
+            zh_cn: "空-风",
+            en: "Aether(Anemo)",
+        )
     };
     type SkillType = AetherAnemoSkillType;
     const SKILL: Self::SkillType = AETHER_ANEMO_SKILL;
@@ -154,33 +169,33 @@ impl CharacterTrait for AetherAnemo {
     #[cfg(not(target_family = "wasm"))]
     const SKILL_MAP: CharacterSkillMap = CharacterSkillMap {
         skill1: Some(&[
-            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Normal1 as usize, chs: "一段伤害" },
-            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Normal2 as usize, chs: "二段伤害" },
-            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Normal3 as usize, chs: "三段伤害" },
-            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Normal4 as usize, chs: "四段伤害" },
-            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Normal5 as usize, chs: "五段伤害" },
-            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Charged11 as usize, chs: "重击伤害-1" },
-            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Charged12 as usize, chs: "重击伤害-2" },
-            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Plunging1 as usize, chs: "下坠期间伤害" },
-            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Plunging2 as usize, chs: "低空坠地冲击伤害" },
-            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Plunging3 as usize, chs: "高空坠地冲击伤害" },
+            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Normal1 as usize, text: hit_n_dmg!(1) },
+            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Normal2 as usize, text: hit_n_dmg!(2) },
+            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Normal3 as usize, text: hit_n_dmg!(3) },
+            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Normal4 as usize, text: hit_n_dmg!(4) },
+            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Normal5 as usize, text: hit_n_dmg!(5) },
+            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Charged11 as usize, text: locale!(zh_cn: "重击伤害-1", en: "Charged Attack-1") },
+            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Charged12 as usize, text: locale!(zh_cn: "重击伤害-2", en: "Charged Attack-2") },
+            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Plunging1 as usize, text: plunging_dmg!(1) },
+            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Plunging2 as usize, text: plunging_dmg!(2) },
+            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Plunging3 as usize, text: plunging_dmg!(3) },
         ]),
         skill2: Some(&[
-            CharacterSkillMapItem { index: AetherAnemoDamageEnum::E1 as usize, chs: "初始切割伤害" },
-            CharacterSkillMapItem { index: AetherAnemoDamageEnum::E2 as usize, chs: "最大切割伤害" },
-            CharacterSkillMapItem { index: AetherAnemoDamageEnum::E3 as usize, chs: "初始爆风伤害" },
-            CharacterSkillMapItem { index: AetherAnemoDamageEnum::E4 as usize, chs: "最大爆风伤害" },
+            CharacterSkillMapItem { index: AetherAnemoDamageEnum::E1 as usize, text: locale!(zh_cn: "初始切割伤害", en: "Initial Cutting DMG") },
+            CharacterSkillMapItem { index: AetherAnemoDamageEnum::E2 as usize, text: locale!(zh_cn: "最大切割伤害", en: "Max Cutting DMG") },
+            CharacterSkillMapItem { index: AetherAnemoDamageEnum::E3 as usize, text: locale!(zh_cn: "初始爆风伤害", en: "Initial Storm DMG") },
+            CharacterSkillMapItem { index: AetherAnemoDamageEnum::E4 as usize, text: locale!(zh_cn: "最大爆风伤害", en: "Max Storm DMG") },
         ]),
         skill3: Some(&[
-            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Q1 as usize, chs: "龙卷风伤害" },
-            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Q2Pyro as usize, chs: "附加火元素伤害" },
-            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Q2Hydro as usize, chs: "附加水元素伤害" },
-            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Q2Electro as usize, chs: "附加雷元素伤害" },
-            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Q2Cryo as usize, chs: "附加冰元素伤害" },
+            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Q1 as usize, text: locale!(zh_cn: "龙卷风伤害", en: "Tornado DMG") },
+            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Q2Pyro as usize, text: locale!(zh_cn: "附加火元素伤害", en: "Additional Pyro DMG") },
+            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Q2Hydro as usize, text: locale!(zh_cn: "附加水元素伤害", en: "Additional Hydro DMG") },
+            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Q2Electro as usize, text: locale!(zh_cn: "附加雷元素伤害", en: "Additional Electro DMG") },
+            CharacterSkillMapItem { index: AetherAnemoDamageEnum::Q2Cryo as usize, text: locale!(zh_cn: "附加冰元素伤害", en: "Additional Cryo DMG") },
         ])
     };
 
-    fn damage_internal<D: DamageBuilder>(context: &DamageContext<'_, D::AttributeType>, s: usize, config: &CharacterSkillConfig) -> D::Result {
+    fn damage_internal<D: DamageBuilder>(context: &DamageContext<'_, D::AttributeType>, s: usize, config: &CharacterSkillConfig, fumo: Option<Element>) -> D::Result {
         let s: AetherAnemoDamageEnum = num::FromPrimitive::from_usize(s).unwrap();
         let (s1, s2, s3) = context.character_common_data.get_3_skill();
 
@@ -212,7 +227,8 @@ impl CharacterTrait for AetherAnemo {
             &context.enemy,
             s.get_element(),
             s.get_skill_type(),
-            context.character_common_data.level
+            context.character_common_data.level,
+            fumo,
         )
     }
 
@@ -223,6 +239,6 @@ impl CharacterTrait for AetherAnemo {
     }
 
     fn get_target_function_by_role(role_index: usize, team: &TeamQuantization, c: &CharacterCommonData, w: &WeaponCommonData) -> Box<dyn TargetFunction> {
-        todo!()
+        unimplemented!()
     }
 }

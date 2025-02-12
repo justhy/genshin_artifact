@@ -1,5 +1,17 @@
 #![allow(unused_imports)]
 #![allow(clippy::approx_constant)]
+#![allow(unused_variables)]
+#![allow(unreachable_patterns)]
+#![allow(clippy::approx_constant)]
+#![allow(unused_mut)]
+#![allow(unused_assignments)]
+#![allow(dead_code)]
+#![allow(unused_macros)]
+#![allow(unused_imports)]
+#![allow(unused_variables)]
+#![allow(unreachable_patterns)]
+#![allow(unused_must_use)]
+#![allow(noop_method_call)]
 
 // pub mod character;
 // pub mod attribute;
@@ -31,3 +43,5 @@ pub use applications::common_interface::CommonInterface;
 pub use applications::bonus_per_stat::interface_wasm::BonusPerStat;
 
 pub use applications::dsl::dsl_interface::DSLInterface;
+// calc best artifact set and main stats
+pub use applications::artifact_best_set::wasm_interface::CalcArtifactBestSet;

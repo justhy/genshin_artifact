@@ -1,129 +1,165 @@
 <template>
-    <div>
-        <div style="margin-bottom: 16px;">
-            <el-radio-group v-model="damageType" size="small" style="margin-right: 24px;">
-                <el-radio-button label="normal">{{ normalDamageName }}</el-radio-button>
-                <el-radio-button v-if="showMeltOption" label="melt">融化</el-radio-button>
-                <el-radio-button v-if="showVaporizeOption" label="vaporize">蒸发</el-radio-button>
-            </el-radio-group>
+    <div style="margin-bottom: 16px;" class="flex-row">
+        <el-radio-group v-model="damageType" style="margin-right: 24px;">
+            <el-radio-button label="normal">{{ normalDamageName }}</el-radio-button>
+            <el-radio-button v-if="showMeltOption" label="melt">融化</el-radio-button>
+            <el-radio-button v-if="showVaporizeOption" label="vaporize">蒸发</el-radio-button>
+            <el-radio-button v-if="showSpreadOption" label="spread">蔓激化</el-radio-button>
+            <el-radio-button v-if="showAggravateOption" label="aggravate">超激化</el-radio-button>
+        </el-radio-group>
 
-            <span class="damage-display" v-if="damageType === 'normal'">{{ Math.round(damageNormal) }}</span>
-            <span class="damage-display" v-if="damageType === 'melt'">{{ Math.round(damageMelt) }}</span>
-            <span class="damage-display" v-if="damageType === 'vaporize'">{{ Math.round(damageVaporize) }}</span>
-        </div>
+        <span class="damage-display" v-if="damageType === 'normal'">{{ Math.round(damageNormal) }}</span>
+        <span class="damage-display" v-if="damageType === 'melt'">{{ Math.round(damageMelt) }}</span>
+        <span class="damage-display" v-if="damageType === 'vaporize'">{{ Math.round(damageVaporize) }}</span>
+        <span class="damage-display" v-if="damageType === 'spread'">{{ Math.round(damageSpread) }}</span>
+        <span class="damage-display" v-if="damageType === 'aggravate'">{{ Math.round(damageAggravate) }}</span>
+    </div>
 
-        <div class="header-row" style="overflow: auto; margin-bottom: 16px;">
-            <div>
-                <div class="big-title base-damage-region">{{ baseRegionName }}</div>
-                <div class="header-row">
-                    <damage-analysis-util
-                        v-if="atkRatioState.length > 0"
-                        :arr="atkState"
-                        title="攻击力"
-                    ></damage-analysis-util>
-                    <damage-analysis-util
-                        v-if="atkRatioState.length > 0"
-                        :arr="atkRatioState"
-                        title="攻击力倍率"
-                    ></damage-analysis-util>
-                    <damage-analysis-util
-                        v-if="defRatioState.length > 0"
-                        :arr="defState"
-                        title="防御力"
-                    ></damage-analysis-util>
-                    <damage-analysis-util
-                        v-if="defRatioState.length > 0"
-                        :arr="defRatioState"
-                        title="防御力倍率"
-                    ></damage-analysis-util>
-                    <damage-analysis-util
-                        v-if="hpRatioState.length > 0"
-                        :arr="hpState"
-                        title="生命值"
-                    ></damage-analysis-util>
-                    <damage-analysis-util
-                        v-if="hpRatioState.length > 0"
-                        :arr="hpRatioState"
-                        title="生命值倍率"
-                    ></damage-analysis-util>
-                    <damage-analysis-util
-                        v-if="extraDamageState.length > 0"
-                        :arr="extraDamageState"
-                        title="其他"
-                    ></damage-analysis-util>
+    <div class="header-row" style="overflow: auto; margin-bottom: 16px;">
+        <div>
+            <div class="big-title base-damage-region" :title="Math.round(baseDamageSpread*1000)/1000" v-if="damageType === 'spread'">{{ baseRegionName }}</div>
+            <div class="big-title base-damage-region" :title="Math.round(baseDamageAggravate*1000)/1000" v-else-if="damageType === 'aggravate'">{{ baseRegionName }}</div>
+            <div class="big-title base-damage-region" :title="Math.round(baseDamage*1000)/1000" v-else>{{ baseRegionName }}</div>
+            <div class="header-row">
+                <damage-analysis-util
+                    v-if="atkRatioState.length > 0"
+                    :arr="atkState"
+                    title="攻击力"
+                ></damage-analysis-util>
+                <damage-analysis-util
+                    v-if="atkRatioState.length > 0"
+                    :arr="atkRatioState"
+                    title="攻击力倍率"
+                ></damage-analysis-util>
+                <damage-analysis-util
+                    v-if="defRatioState.length > 0"
+                    :arr="defState"
+                    title="防御力"
+                ></damage-analysis-util>
+                <damage-analysis-util
+                    v-if="defRatioState.length > 0"
+                    :arr="defRatioState"
+                    title="防御力倍率"
+                ></damage-analysis-util>
+                <damage-analysis-util
+                    v-if="hpRatioState.length > 0"
+                    :arr="hpState"
+                    title="生命值"
+                ></damage-analysis-util>
+                <damage-analysis-util
+                    v-if="hpRatioState.length > 0"
+                    :arr="hpRatioState"
+                    title="生命值倍率"
+                ></damage-analysis-util>
+                <damage-analysis-util
+                    v-if="emRatioState.length > 0"
+                    :arr="emState"
+                    title="元素精通"
+                ></damage-analysis-util>
+                <damage-analysis-util
+                    v-if="emRatioState.length > 0"
+                    :arr="emRatioState"
+                    title="元素精通倍率"
+                ></damage-analysis-util>
+                <damage-analysis-util
+                    v-if="extraDamageState.length > 0"
+                    :arr="extraDamageState"
+                    title="其他"
+                ></damage-analysis-util>
+                <div v-if="damageType === 'spread'" style="min-width: 100px">
+                    <div class="big-title" style="background: rgb(236, 245, 255)">蔓激化基础伤害</div>
+                    <div class="header-row" style="height: 100%; display: flex; align-items: center; justify-content: center">
+                        <span>{{ Math.round(baseDamageQuicken * 1000) / 1000 }}</span>
+                    </div>
                 </div>
-            </div>
-            <div v-show="!isHeal">
-                <div class="big-title critical-region">暴击</div>
-                <div class="header-row">
-                    <damage-analysis-util
-                        :arr="criticalState"
-                        title="暴击率"
-                    ></damage-analysis-util>
-                    <damage-analysis-util
-                        :arr="criticalDamageState"
-                        title="暴击伤害"
-                    ></damage-analysis-util>
+                <div v-if="damageType === 'aggravate'" style="min-width: 100px">
+                    <div class="big-title" style="background: rgb(236, 245, 255)">超激化基础伤害</div>
+                    <div class="header-row" style="height: 100%; display: flex; align-items: center; justify-content: center">
+                        <span>{{ Math.round(baseDamageQuicken * 1000) / 1000 }}</span>
+                    </div>
                 </div>
-            </div>
-            <div>
-                <div class="big-title bonus-region">加成</div>
-                <div class="header-row">
-                    <damage-analysis-util
-                        :arr="bonusRegionState"
-                        :title="bonusRegionName"
-                    ></damage-analysis-util>
-                </div>
-            </div>
-            <div v-show="damageType === 'melt' || damageType === 'vaporize'">
-                <div class="big-title reaction-ratio-region">反应倍率</div>
-                <div class="header-row" style="height: 100%; display: flex; align-items: center; justify-content: center">
-                    <span>{{ reactionRatio }}</span>
-                </div>
-            </div>
-            <div v-if="damageType === 'melt'">
-                <div class="big-title melt-region">增幅伤害加成</div>
-                <div class="header-row">
-                    <damage-analysis-util
-                        :arr="meltEnhanceState"
-                        title="融化伤害加成"
-                    ></damage-analysis-util>
-                </div>
-            </div>
-            <div v-if="damageType === 'vaporize'">
-                <div class="big-title vaporize-region">增幅伤害加成</div>
-                <div class="header-row">
-                    <damage-analysis-util
-                        :arr="vaporizeEnhanceState"
-                        title="蒸发伤害加成"
-                    ></damage-analysis-util>
-                </div>
+                <damage-analysis-util
+                    v-if="damageType === 'spread'"
+                    :arr="spreadState"
+                    title="蔓激化伤害提升"
+                ></damage-analysis-util>
+                <damage-analysis-util
+                    v-if="damageType === 'aggravate'"
+                    :arr="aggravateState"
+                    title="超激化伤害提升"
+                ></damage-analysis-util>
             </div>
         </div>
-
-        <div v-if="!isHeal" class="header-row" style="overflow: auto">
-            <div>
-                <div class="big-title def-minus">防御乘区</div>
-                <div class="header-row">
-                    <damage-analysis-util
-                        :arr="defMinusState"
-                        title="减防"
-                    ></damage-analysis-util>
-                    <damage-analysis-util
-                        :arr="defPenetrationState"
-                        title="穿防"
-                    ></damage-analysis-util>
-                </div>
+        <div v-show="isDamage">
+            <div class="big-title critical-region" :title="Math.round(this.critical * this.criticalDamage * 1000)/1000">暴击</div>
+            <div class="header-row">
+                <damage-analysis-util
+                    :arr="criticalState"
+                    title="暴击率"
+                ></damage-analysis-util>
+                <damage-analysis-util
+                    :arr="criticalDamageState"
+                    title="暴击伤害"
+                ></damage-analysis-util>
             </div>
+        </div>
+        <div>
+            <div class="big-title bonus-region">加成</div>
+            <div class="header-row">
+                <damage-analysis-util
+                    :arr="bonusRegionState"
+                    :title="bonusRegionName"
+                ></damage-analysis-util>
+            </div>
+        </div>
+        <div v-if="damageType === 'melt' || damageType === 'vaporize'">
+            <div class="big-title reaction-ratio-region">反应倍率</div>
+            <div class="header-row" style="height: 100%; display: flex; align-items: center; justify-content: center">
+                <span>{{ reactionRatio }}</span>
+            </div>
+        </div>
+        <div v-if="damageType === 'melt'">
+            <div class="big-title melt-region">增幅伤害加成</div>
+            <div class="header-row">
+                <damage-analysis-util
+                    :arr="meltEnhanceState"
+                    title="融化伤害加成"
+                ></damage-analysis-util>
+            </div>
+        </div>
+        <div v-if="damageType === 'vaporize'">
+            <div class="big-title vaporize-region">增幅伤害加成</div>
+            <div class="header-row">
+                <damage-analysis-util
+                    :arr="vaporizeEnhanceState"
+                    title="蒸发伤害加成"
+                ></damage-analysis-util>
+            </div>
+        </div>
+    </div>
 
-            <div>
-                <div class="big-title res-minus">抗性乘区</div>
-                <div class="header-row">
-                    <damage-analysis-util
-                        :arr="resMinusState"
-                        title="减抗"
-                    ></damage-analysis-util>
-                </div>
+    <div v-if="isDamage" class="header-row" style="overflow: auto">
+        <div>
+            <div class="big-title def-minus">防御乘区</div>
+            <div class="header-row">
+                <damage-analysis-util
+                    :arr="defMinusState"
+                    title="减防"
+                ></damage-analysis-util>
+                <damage-analysis-util
+                    :arr="defPenetrationState"
+                    title="穿防"
+                ></damage-analysis-util>
+            </div>
+        </div>
+
+        <div>
+            <div class="big-title res-minus">抗性乘区</div>
+            <div class="header-row">
+                <damage-analysis-util
+                    :arr="resMinusState"
+                    title="减抗"
+                ></damage-analysis-util>
             </div>
         </div>
     </div>
@@ -131,6 +167,7 @@
 
 <script>
 import DamageAnalysisUtil from "./DamageAnalysisUtil"
+import { LEVEL_MULTIPLIER } from "@/constants/levelMultiplier"
 
 function sum(arr) {
     let s = 0
@@ -153,6 +190,8 @@ export default {
             damageType: "normal",
             element: "Pyro",
             isHeal: false,
+            isShield: false,
+            isDamage: true,
 
             atkState: [{ name: "test", value: 1000, checked: true }],
             atkRatioState: [{ name: "test", value: 1000, checked: true }],
@@ -160,7 +199,11 @@ export default {
             defRatioState: [],
             hpState: [],
             hpRatioState: [],
+            emState: [],
+            emRatioState: [],
             extraDamageState: [],
+            spreadState: [],
+            aggravateState: [],
             criticalState: [],
             criticalDamageState: [],
             meltEnhanceState: [],
@@ -174,7 +217,7 @@ export default {
     },
     methods: {
         setValue(analysis) {
-            // console.log(analysis)
+            console.log(analysis)
             let map = {
                 "atkState": "atk",
                 "atkRatioState": "atk_ratio",
@@ -182,6 +225,8 @@ export default {
                 "defRatioState": "def_ratio",
                 "hpState": "hp",
                 "hpRatioState": "hp_ratio",
+                "emState": "em",
+                "emRatioState": "em_ratio",
                 "extraDamageState": "extra_damage",
                 "criticalState": "critical",
                 "criticalDamageState": "critical_damage",
@@ -191,10 +236,14 @@ export default {
                 "defMinusState": "def_minus",
                 "defPenetrationState": "def_penetration",
                 "resMinusState": "res_minus",
-                "healingBonusState": "healing_bonus"
+                "healingBonusState": "healing_bonus",
+                "aggravateState": "aggravate_compose",
+                "spreadState": "spread_compose",
             }
             this.element = analysis.element
             this.isHeal = analysis.is_heal
+            this.isShield = analysis.is_shield
+            this.isDamage = !this.isHeal && !this.isShield
             this.damageType = "normal"
             for (let key in map) {
                 let fromKey = map[key]
@@ -222,15 +271,29 @@ export default {
                 "Cryo": "冰元素伤害",
                 "Physical": "物理伤害"
             }
-            return map[this.element]
+            if (this.isHeal) {
+                return "治疗量"
+            } else if (this.isShield) {
+                return "护盾量"
+            } else {
+                return map[this.element]
+            }
         },
 
         showMeltOption() {
-            return this.element === "Cryo" || this.element === "Pyro"
+            return (this.element === "Cryo" || this.element === "Pyro") && this.isDamage
         },
 
         showVaporizeOption() {
-            return this.element === "Pyro" || this.element === "Hydro"
+            return (this.element === "Pyro" || this.element === "Hydro") && this.isDamage
+        },
+
+        showSpreadOption() {
+            return this.element === "Dendro"
+        },
+
+        showAggravateOption() {
+            return this.element === "Electro"
         },
         
         baseRegionName() {
@@ -292,6 +355,14 @@ export default {
             return sum(this.hpRatioState)
         },
 
+        em() {
+            return sum(this.emState)
+        },
+
+        emRatio() {
+            return sum(this.emRatioState)
+        },
+
         extraDamage() {
             return sum(this.extraDamageState)
         },
@@ -305,7 +376,7 @@ export default {
         },
 
         critical() {
-            return sum(this.criticalState)
+            return Math.min(sum(this.criticalState), 1)
         },
 
         criticalDamage() {
@@ -333,16 +404,35 @@ export default {
         },
 
         baseDamage() {
-            return this.atk * this.atkRatio + this.def * this.defRatio + this.hp * this.hpRatio + this.extraDamage;
+            return this.atk * this.atkRatio + this.def * this.defRatio + this.hp * this.hpRatio + this.em * this.emRatio + this.extraDamage;
         },
 
-        damageNormal() {
-            const enemyLevel = this.enemyConfig.level
-            const characterLevel = this.characterLevel
-            const c = 100 + characterLevel
-            const def_ratio = c / ((1 - this.defPenetration) * (1 - this.defMinus) * (100 + enemyLevel) + c)
-            const res = 0.1 - this.resMinus
+        spreadEnhance() {
+            return sum(this.spreadState)
+        },
 
+        aggravateEnhance() {
+            console.log(this.aggravateState)
+            return sum(this.aggravateState)
+        },
+
+        baseDamageSpread() {
+            return this.baseDamage + LEVEL_MULTIPLIER[this.characterLevel - 1] * 1.25 * (1 + this.spreadEnhance)
+        },
+
+        baseDamageAggravate() {
+            return this.baseDamage + LEVEL_MULTIPLIER[this.characterLevel - 1] * 1.15 * (1 + this.aggravateEnhance)
+        },
+
+        baseDamageQuicken() {
+            return LEVEL_MULTIPLIER[this.characterLevel - 1] * (this.damageType === "spread" ? 1.25 : 1.15)
+        },
+
+        resRatio() {
+            // default res to 0.1
+            // console.log(this.enemyConfig)
+            const originalRes = this.enemyConfig[this.element.toLowerCase() + "_res"]
+            const res = originalRes - this.resMinus
             let res_ratio
             if (res > 0.75) {
                 res_ratio = 1 / (1 + res * 4)
@@ -351,11 +441,30 @@ export default {
             } else {
                 res_ratio = 1 - res / 2
             }
+            return res_ratio
+        },
+
+        defMultiplier() {
+            const enemyLevel = this.enemyConfig.level
+            const characterLevel = this.characterLevel
+            const c = 100 + characterLevel
+            return c / ((1 - this.defPenetration) * (1 - this.defMinus) * (100 + enemyLevel) + c)
+        },
+
+        damageSpread() {
+            return this.baseDamageSpread * (1 + this.critical * this.criticalDamage) * (1 + this.bonus) * this.resRatio * this.defMultiplier
+        },
+
+        damageAggravate() {
+            return this.baseDamageAggravate * (1 + this.critical * this.criticalDamage) * (1 + this.bonus) * this.resRatio * this.defMultiplier
+        },
+
+        damageNormal() {
             let d
             if (this.isHeal) {
                 d = this.baseDamage * (1 + this.healingBonus)
             } else {
-                d = this.baseDamage * (1 + this.critical * this.criticalDamage) * (1 + this.bonus) * res_ratio * def_ratio
+                d = this.baseDamage * (1 + this.critical * this.criticalDamage) * (1 + this.bonus) * this.resRatio * this.defMultiplier
             }
             return d
         },

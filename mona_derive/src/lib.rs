@@ -1,3 +1,17 @@
+#![allow(unused_imports)]
+#![allow(unused_variables)]
+#![allow(unreachable_patterns)]
+#![allow(clippy::approx_constant)]
+#![allow(unused_mut)]
+#![allow(unused_assignments)]
+#![allow(dead_code)]
+#![allow(unused_macros)]
+#![allow(unused_imports)]
+#![allow(unused_variables)]
+#![allow(unreachable_patterns)]
+#![allow(unused_must_use)]
+#![allow(noop_method_call)]
+
 extern crate proc_macro;
 use proc_macro::TokenStream;
 
@@ -126,10 +140,12 @@ pub fn derive_artifact_data(input: TokenStream) -> TokenStream {
     let mut rows_effect = String::new();
     let mut rows_meta = String::new();
     let mut rows_config4 = String::new();
+    let mut rows_config2 = String::new();
     for v in vars.iter() {
         rows_effect.push_str(&format!("ArtifactSetName::{n} => crate::artifacts::effects::{n}::create_effect(config, common),\n", n=v));
         rows_meta.push_str(&format!("ArtifactSetName::{n} => crate::artifacts::effects::{n}::META_DATA,\n", n=v));
         rows_config4.push_str(&format!("ArtifactSetName::{n} => crate::artifacts::effects::{n}::CONFIG4,\n", n=v));
+        rows_config2.push_str(&format!("ArtifactSetName::{n} => crate::artifacts::effects::{n}::CONFIG2,\n", n=v))
     }
 
     let output = format!(
@@ -158,11 +174,19 @@ pub fn derive_artifact_data(input: TokenStream) -> TokenStream {
                     {rows_config4}
                 }}
             }}
+
+            #[cfg(not(target_family = "wasm"))]
+            pub fn get_config2(&self) -> Option<&'static [ItemConfig]> {{
+                match *self {{
+                    {rows_config2}
+                }}
+            }}
         }}
         "#,
         rows_effect=rows_effect,
         rows_meta=rows_meta,
-        rows_config4=rows_config4
+        rows_config4=rows_config4,
+        rows_config2=rows_config2
     );
 
     output.parse().unwrap()
@@ -287,7 +311,7 @@ pub fn derive_character_data(input: TokenStream) -> TokenStream {
     for v in vars.iter() {
         rows_meta_data.push_str(&format!("CharacterName::{n} => crate::character::characters::{n}::STATIC_DATA,\n", n=v));
         rows_effect.push_str(&format!("CharacterName::{n} => crate::character::characters::{n}::new_effect(common_data, config),\n", n=v));
-        rows_damage.push_str(&format!("CharacterName::{n} => crate::character::characters::{n}::damage_internal::<D>(context, skill_index, skill_config),\n", n=v));
+        rows_damage.push_str(&format!("CharacterName::{n} => crate::character::characters::{n}::damage_internal::<D>(context, skill_index, skill_config, fumo),\n", n=v));
         rows_tf.push_str(&format!("CharacterName::{n} => crate::character::characters::{n}::get_target_function_by_role(role_index, team, character, weapon),\n", n=v));
         rows_skill_map.push_str(&format!("CharacterName::{n} => crate::character::characters::{n}::SKILL_MAP,\n", n=v));
         rows_config_data.push_str(&format!("CharacterName::{n} => crate::character::characters::{n}::CONFIG_DATA,\n", n=v));
@@ -309,7 +333,7 @@ pub fn derive_character_data(input: TokenStream) -> TokenStream {
                 match *self {{ {rows_effect} }}
             }}
 
-            pub fn damage<D: DamageBuilder>(context: &DamageContext<'_, D::AttributeType>, skill_index: usize, skill_config: &CharacterSkillConfig) -> D::Result {{
+            pub fn damage<D: DamageBuilder>(context: &DamageContext<'_, D::AttributeType>, skill_index: usize, skill_config: &CharacterSkillConfig, fumo: Option<Element>) -> D::Result {{
                 match context.character_common_data.name {{ {rows_damage} }}
             }}
 

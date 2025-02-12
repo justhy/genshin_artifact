@@ -1,81 +1,77 @@
 <template>
     <el-select
-        @input="$emit('input', $event)"
-        :value="value"
-        :disabled="disabled"
-        size="small"
-        :multiple="multiple"
-        :multiple-limit="multipleLimit"
-        :placeholder="placeholder"
+        @update:modelValue="emits('update:modelValue', $event)"
+        :model-value="props.modelValue"
+        :disabled="props.disabled"
+        :multiple="props.multiple"
+        :multiple-limit="props.multipleLimit"
+        :placeholder="props.placeholder"
     >
         <el-option
-            v-if="anyOption"
-            label="任意"
+            v-if="props.anyOption"
+            :label="t('misc.any')"
             value="any"
         >
         </el-option>
         <el-option
             v-for="item in allArtifactsName"
             :key="item.name"
-            :label="item.chs"
+            :label="ta(item.nameLocale)"
             :value="item.name"
         >
             <div class="item">
                 <img :src="item.url" class="tn">
-                <span>{{ item.chs }}</span>
+                <span>{{ ta(item.nameLocale) }}</span>
             </div>
         </el-option>
     </el-select>
 </template>
 
-<script>
-import { artifactsData } from "@asset/artifacts";
-import { getArtifactThumbnailURL } from "@util/utils";
+<script setup lang="ts">
+import { artifactsData } from "@asset/artifacts"
+import { getArtifactThumbnailURL } from "@util/utils"
+import {useI18n} from "@/i18n/i18n"
 
-let allArtifacts = Object.values(artifactsData);
-allArtifacts.sort((a, b) => {
+let allArtifacts = Object.values(artifactsData)
+allArtifacts.sort((a: any, b: any) => {
     return b.maxStar - a.maxStar;
-});
-let allArtifactsName = allArtifacts.map(item => {
+})
+let allArtifactsName = allArtifacts.map((item: any) => {
     return {
         name: item.eng,
-        chs: item.chs,
+        // chs: item.chs,
         url: getArtifactThumbnailURL(item.eng),
+        nameLocale: item.nameLocale,
     };
 });
+Object.freeze(allArtifactsName)
 
 
-export default {
-    name: "SelectArtifactSet",
-    created: function () {
-        this.allArtifactsName = allArtifactsName;
-    },
-    props: {
-        value: {
-            type: String | Array,
-            required: true,
-        },
-        disabled: {
-            type: Boolean,
-            default: false,
-        },
-        anyOption: {
-            type: Boolean,
-            default: false,
-        },
-        multiple: {
-            type: Boolean,
-            default: false,
-        },
-        multipleLimit: {
-            default: 2
-        },
-        placeholder: {
-            type: String,
-            default: "请选择"
-        }
-    }
+interface Emits {
+    (e: "update:modelValue", value: string | string[]): void
 }
+
+const emits = defineEmits<Emits>()
+
+interface Props {
+    modelValue: string | string[],
+    disabled?: boolean,
+    anyOption?: boolean,
+    multiple?: boolean,
+    multipleLimit?: number,
+    placeholder?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    modelValue: "",
+    disabled: false,
+    anyOption: false,
+    multiple: false,
+    multipleLimit: 2,
+    placeholder: "Select"
+})
+
+const { t, ta } = useI18n()
 </script>
 
 <style scoped>

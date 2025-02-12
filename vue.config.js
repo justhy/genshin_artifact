@@ -6,8 +6,11 @@ const { readFileSync, existsSync } = require("fs")
 const { execSync } = require("child_process")
 const yaml = require("js-yaml")
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin")
-
-// const BEIAN_CODE = "浙ICP备2021004987号";
+const AutoImport = require("unplugin-auto-import/webpack")
+const Components = require("unplugin-vue-components/webpack")
+const { ElementPlusResolver } = require("unplugin-vue-components/resolvers")
+const IconsResolver = require("unplugin-icons/resolver")
+const Icons = require("unplugin-icons/webpack")
 
 const revision = execSync("git rev-parse HEAD").toString().trim().substring(0, 7)
 console.log("revision: ", revision)
@@ -56,24 +59,24 @@ const month = now.getMonth()
 const date = now.getDate()
 const buildDate = `${year}/${month + 1}/${date}`
 
+const useCDN = !!customEnv["USE_CDN"]
 
-const resources = {
-    js: [
-        { url: "https://npm.elemecdn.com/vue@2.6.11/dist/vue.min.js", global: "Vue", name: "vue" },
-        { url: "https://npm.elemecdn.com/vue-router@3.4.8/dist/vue-router.min.js", global: "VueRouter", name: "vue-router" },
-        { url: "https://npm.elemecdn.com/vuex@3.5.1/dist/vuex.min.js", global: "Vuex", name: "vuex" },
-        { url: "https://npm.elemecdn.com/element-ui@2.15.6/lib/index.js", global: "ELEMENT", name: "element-ui" },
-        { url: "https://npm.elemecdn.com/@vue/composition-api@1.6.1/dist/vue-composition-api.prod.js", global: "VueCompositionAPI", name: "@vue/composition-api" },
-        { url: "https://npm.elemecdn.com/echarts@5.3.0/dist/echarts.min.js", global: "echarts", name: "echarts" },
-        { url: "https://npm.elemecdn.com/vue-echarts@6.0.0-rc.4/dist/index.umd.min.js", global: "VueECharts", name: "vue-echarts" },
-        { url: "https://npm.elemecdn.com/fuse.js@6.5.3/dist/fuse.min.js", global: "Fuse", name: "fuse.js" },
-        { url: "", global: "monaco", name: "monaco-editor" }
-    ],
-    css: [
-        { url: "https://npm.elemecdn.com/element-ui@2.15.6/lib/theme-chalk/index.css" },
-        { url: "https://npm.elemecdn.com/element-ui@2.15.6/lib/theme-chalk/display.css" },
-    ]
-}
+
+// const resources = {
+//     js: [
+//         { url: "https://npm.elemecdn.com/vue@3.2.36/dist/vue.global.prod.js", global: "Vue", name: "vue" },
+//         { url: "https://npm.elemecdn.com/vue-router@4.0.16/dist/vue-router.global.prod.js", global: "VueRouter", name: "vue-router" },
+//         // { url: "https://npm.elemecdn.com/element-ui@2.15.6/lib/index.js", global: "ELEMENT", name: "element-ui" },
+//         { url: "https://npm.elemecdn.com/echarts@5.3.0/dist/echarts.min.js", global: "echarts", name: "echarts" },
+//         { url: "https://npm.elemecdn.com/vue-echarts@6.1.0/dist/index.umd.min.js", global: "VueECharts", name: "vue-echarts" },
+//         { url: "https://npm.elemecdn.com/fuse.js@6.6.2/dist/fuse.min.js", global: "Fuse", name: "fuse.js" },
+//         { url: "", global: "monaco", name: "monaco-editor" }
+//     ],
+//     css: [
+//         // { url: "https://npm.elemecdn.com/element-ui@2.15.6/lib/theme-chalk/index.css" },
+//         // { url: "https://npm.elemecdn.com/element-ui@2.15.6/lib/theme-chalk/display.css" },
+//     ]
+// }
 
 
 module.exports = {
@@ -91,6 +94,31 @@ module.exports = {
         }
     },
     configureWebpack: {
+        plugins: [
+            AutoImport({
+                imports: ["vue"],
+                resolvers: [
+                    ElementPlusResolver(),
+                    IconsResolver({
+                        prefix: "Icon"
+                    })
+                ],
+                dts: path.resolve(__dirname, "src", 'auto-imports.d.ts'),
+            }),
+            Components({
+                resolvers: [
+                    ElementPlusResolver(),
+                    IconsResolver({
+                        enabledCollections: ["ep", "fa6-brands", "fa6-solid"]
+                    })
+                ],
+
+                dts: path.resolve(__dirname, "src", 'components.d.ts'),
+            }),
+            Icons({
+                autoInstall: true
+            }),
+        ],
         resolve: {
             extensions: [".vue", ".png", ".jpg", ".webp"],
             alias: {
@@ -116,21 +144,17 @@ module.exports = {
                 // "genshin_panel": path.resolve(__dirname, "../../ts/genshin/dist"),
             }
         },
-        // externals: process.env.NODE_ENV === "development" ? {} : {
-        //     vue: "Vue",
-        //     "vue-router": "VueRouter",
-        //     vuex: "Vuex",
-        //     "element-ui": "ELEMENT",
-        //     "vue-echarts": "VueECharts",
-        //     "fuse.js": "Fuse",
-        //     "@vue/composition-api": "VueCompositionAPI",
-        // },
         experiments: {
             asyncWebAssembly: true
         },
-        // plugins: [new MonacoWebpackPlugin()]
     },
     chainWebpack: config => {
+        // use custom i18n loader
+        config.module.rule("i18n-js")
+            .test(/\.i18n$/)
+            .use("i18n-loader")
+                .loader("./loaders/i18n_loader.js")
+
         // merge custom env
         config.plugin("define").tap(definitions => {
             const definePluginConverted = convertKVToDefinePlugin(customEnv)
@@ -155,63 +179,45 @@ module.exports = {
             .options({
                 "USE_CDN": !!customEnv["USE_CDN"]
             })
+        config.module.rule("vue")
+            .use("ifdef")
+            .loader("ifdef-loader")
+            .options({
+                "USE_CDN": !!customEnv["USE_CDN"]
+            })
 
-        // if (process.env.NODE_ENV === "production") {
-        if (customEnv["USE_CDN"]) {
-            // console.log("externals")
-            // config.set("externalsType", "script")
+        if (useCDN) {
+            const assets = {
+                js: [
+                    { url: "https://npm.elemecdn.com/vue@3.2.36/dist/vue.global.prod.js", name: "vue", global: "Vue" },
+                    { url: "https://npm.elemecdn.com/vue-router@4.0.16/dist/vue-router.global.prod.js", name: "vue-router", global: "VueRouter" },
+                    { url: "https://npm.elemecdn.com/echarts@5.3.3/dist/echarts.min.js", name: "echarts", global: "echarts" },
+                    { url: "https://npm.elemecdn.com/vue-echarts@6.1.0/dist/index.umd.min.js", name: "vue-echarts", global: "VueECharts" },
+                ],
+                css: [
+                    { url: "https://npm.elemecdn.com/element-plus@2.2.6/dist/index.css" },
+                ]
+            }
+
+            const externals = {
+                "monaco-editor": "monaco"
+            }
+
+            for (const item of assets.js) {
+                externals[item.name] = item.global
+            }
+
+            config.externals(externals)
+
             config.plugin("html").tap(args => {
-                args[0].cdn = resources
+                args[0].cdn = assets
                 return args
             })
 
-            let externals = {}
-            for (const item of resources.js) {
-                externals[item.name] = item.global
-            }
-            // console.log(externals)
-            config.externals(externals)
             // config.externals({
-                // "vue": [
-                //     "https://npm.elemecdn.com/vue@2.6.11/dist/vue.min.js",
-                //     "Vue"
-                // ],
-                // "vue-router": [
-                //     "https://npm.elemecdn.com/vue-router@3.4.8/dist/vue-router.min.js",
-                //     "VueRouter"
-                // ],
-                // "vuex": [
-                //     "https://npm.elemecdn.com/vuex@3.5.1/dist/vuex.min.js",
-                //     "Vuex"
-                // ],
-                // "element-ui": [
-                //     "https://npm.elemecdn.com/element-ui@2.15.6/lib/index.js",
-                //     "ELEMENT"
-                // ],
-                // "@vue/composition-api": [
-                //     "https://npm.elemecdn.com/@vue/composition-api@1.6.1/dist/vue-composition-api.prod.js",
-                //     "VueCompositionAPI"
-                // ],
-                // "e-charts": [
-                //     "https://npm.elemecdn.com/echarts@5.3.0/dist/echarts.min.js",
-                //     "echarts"
-                // ],
-                // "vue-echarts": [
-                //     "https://npm.elemecdn.com/vue-echarts@6.0.0-rc.4/dist/index.umd.min.js",
-                //     "VueECharts"
-                // ],
-                // "fuse.js": [
-                //     "https://npm.elemecdn.com/fuse.js@6.5.3/dist/fuse.min.js",
-                //     "Fuse"
-                // ]
-                // vue: "Vue",
-                // "vue-router": "VueRouter",
-                // vuex: "Vuex",
-                // "element-ui": "ELEMENT",
-                // "vue-echarts": "VueECharts",
-                // "fuse.js": "Fuse",
-                // "@vue/composition-api": "VueCompositionAPI",
+            //     "monaco-editor": "var monaco",
             // })
+            // config.set("externalsType", "script")
         }
     },
     productionSourceMap: false,

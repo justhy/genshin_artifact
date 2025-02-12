@@ -10,34 +10,33 @@
         <div style="padding: 0 20px">
             <el-row :gutter="16">
                 <el-col :span="12">
-                    <p class="config-title">套装</p>
+                    <p class="config-title">{{ t("misc.artifactSet") }}</p>
                     <select-artifact-set
                         v-model="setName"
                     ></select-artifact-set>
                 </el-col>
                 <el-col :span="12">
-                    <p class="config-title">位置</p>
+                    <p class="config-title">{{ t("misc.artSlot") }}</p>
                     <select-artifact-slot
-                        :value="position"
-                        @input="handleChangePosition"
+                        :model-value="position"
+                        @update:modelValue="handleChangePosition"
                     ></select-artifact-slot>
                 </el-col>
             </el-row>
 
             <el-row :gutter="16">
                 <el-col :span="12">
-                    <p class="config-title">品质</p>
+                    <p class="config-title">{{ t("misc.quality") }}</p>
                     <el-rate
                         v-model="star"
                     ></el-rate>
                 </el-col>
                 <el-col :span="12">
-                    <p class="config-title">等级</p>
+                    <p class="config-title">{{ t("misc.lvl") }}</p>
                     <el-input-number
                         v-model="level"
                         :max="20"
                         :min="0"
-                        size="small"
                     ></el-input-number>
                 </el-col>
             </el-row>
@@ -46,7 +45,7 @@
         <el-divider></el-divider>
 
         <div class="section">
-            <p class="config-title">词条</p>
+            <p class="config-title">{{ t("misc.stat") }}</p>
 
             <input-artifact-main-stat v-model="mainStat"
                 style="margin-bottom: 24px"
@@ -64,8 +63,7 @@
                     ></input-artifact-sub-stat>
 
                     <el-button
-                        size="mini"
-                        icon="el-icon-delete"
+                        :icon="IconEpDelete"
                         type="danger"
                         @click="handleRemoveSubStat(index)"
                     ></el-button>
@@ -73,23 +71,22 @@
             </div>
         </div>
 
-
         <el-divider></el-divider>
 
         <div class="section">
             <el-row :gutter="12">
                 <el-col :span="12">
                     <el-button type="primary" class="button"
-                        @click="$emit('confirm', artifactId)"
+                        @click="emits('confirm', artifactId)"
                     >
-                        确定
+                        {{ t("misc.confirm") }}
                     </el-button>
                 </el-col>
                 <el-col :span="12">
                     <el-button class="button"
-                               @click="$emit('cancel')"
+                               @click="emits('cancel')"
                     >
-                        取消
+                        {{ t("misc.cancel") }}
                     </el-button>
                 </el-col>
             </el-row>
@@ -97,156 +94,180 @@
     </div>
 </template>
 
-<script>
-import flowerIcon from "@image/misc/flower.png"
-import {getArtifact, getArtifactImage, getArtifactImageByArtifact} from "@util/artifacts"
-import { artifactsData } from "@artifact"
-import { artifactTags, mainStatMap } from "@const/artifact"
-import { positions } from "@const/misc"
+<script setup lang="ts">
+import { ref } from "vue"
 
-import InputArtifactSubStat from "@c/input/InputArtifactSubStat"
+import {getArtifact, getArtifactImage, positionToIndex} from "@/utils/artifacts"
+import { artifactsData } from "@artifact"
+import { artifactTags, mainStatMap } from "@/constants/artifact"
+import { positions } from "@/constants/artifact"
+
+import InputArtifactSubStat from "@/components/input/InputArtifactSubStat.vue"
 import InputArtifactMainStat from "@c/input/InputArtifactMainStat"
 import SelectArtifactSet from "@c/select/SelectArtifactSet"
 import SelectArtifactSlot from "@c/select/SelectArtifactSlot"
+import type {
+    ArtifactPosition,
+    ArtifactSetName,
+    IArtifactTag,
+    ArtifactSubStatName,
+    ArtifactMainStat
+} from "@/types/artifact"
+import type { ArtifactStatName } from "@/types/artifact"
+
+import IconEpDelete from "~icons/ep/delete"
+import {useI18n} from "@/i18n/i18n";
 
 
-export default {
-    name: "EditArtifact",
-    components: {
-        InputArtifactSubStat,
-        InputArtifactMainStat,
-        SelectArtifactSet,
-        SelectArtifactSlot,
-    },
-    data() {
-        return {
-            artifactId: -1,
+const { t, ta } = useI18n()
 
-            setName: "berserker",
-            star: 5,
-            level: 20,
-            position: "flower",
-            mainStat: { name: "attackStatic", value: 0 },
-            subStats: [
-                { name: null, value: 0 },
-                { name: null, value: 0 },
-                { name: null, value: 0 },
-                { name: null, value: 0 },
-            ]
-        }
-    },
-    methods: {
-        handleChangePosition(position) {
-            this.position = position
+interface Emits {
+    (e: "update:modelValue", v: any): void,
+    (e: "confirm", id: number): void,
+    (e: "cancel"): void
+}
 
-            const mainStatList = mainStatMap[this.position]
-            if (mainStatList.indexOf(this.mainStat.name) < 0) {
-                const newMainStatName = mainStatList[0]
-                const newMainStatValue = artifactTags[newMainStatName].max["5"]
+const emits = defineEmits<Emits>()
 
-                this.mainStat = this.convertStat({
-                    name: newMainStatName,
-                    value: newMainStatValue
-                })
-            }
-        },
 
-        convertStat(stat) {
-            const data = artifactTags[stat.name]
-            if (data.percentage) {
-                // return { name: stat.name, value: stat.value * 100 }
-                return { name: stat.name, value: (stat.value * 100).toFixed(1) }
-            } else {
-                return { name: stat.name, value: stat.value }
-            }
-        },
+const artifactId = ref(-1)
 
-        convertStatBack(stat) {
-            if (!stat.name) {
-                return null
-            }
+const setName = ref<ArtifactSetName>("berserker")
+const star = ref(5)
+const level = ref(20)
+const position = ref<ArtifactPosition>("flower")
+const mainStat = ref<any>({ name: "attackStatic", value: 0 })
 
-            const data = artifactTags[stat.name]
-            let value = parseFloat(stat.value)
-            if (data.percentage) {
-                value /= 100
-            }
+interface ArtifactStatNullable {
+    name: null | ArtifactSubStatName,
+    value: number
+}
+const subStats = ref<ArtifactStatNullable[]>([
+    { name: null, value: 0 },
+    { name: null, value: 0 },
+    { name: null, value: 0 },
+    { name: null, value: 0 },
+])
 
-            return { name: stat.name, value }
-        },
+function convertStat(stat: IArtifactTag) {
+    const data = artifactTags[stat.name]
+    if (data.percentage) {
+        // return { name: stat.name, value: stat.value * 100 }
+        return { name: stat.name, value: (stat.value * 100).toFixed(1) }
+    } else {
+        return { name: stat.name, value: stat.value }
+    }
+}
 
-        setId(id) {
-            const artifact = getArtifact(id)
+function handleChangePosition(p: ArtifactPosition) {
+    position.value = p
 
-            this.artifactId = artifact.id
-            this.setName = artifact.setName
-            this.star = artifact.star
-            this.level = artifact.level
-            this.position = artifact.position
-            this.mainStat = this.convertStat(artifact.mainTag)
+    const mainStatList = mainStatMap[p]
+    if (mainStatList.indexOf(mainStat.value.name) < 0) {
+        const newMainStatName = mainStatList[0]
+        const newMainStatValue = artifactTags[newMainStatName].max["5"]
 
-            let subStats = []
-            for (let stat of artifact.normalTags) {
-                subStats.push(this.convertStat(stat))
-            }
-            while (subStats.length < 4) {
-                subStats.push({ name: null, value: 0 })
-            }
-            this.subStats = subStats
-        },
+        mainStat.value = convertStat({
+            name: newMainStatName,
+            value: newMainStatValue
+        })
+    }
+}
 
-        getNewArtifact() {
-            const mainStat = this.convertStatBack(this.mainStat)
-            let subStats = []
-            for (let stat of this.subStats) {
-                const convertResult = this.convertStatBack(stat)
-                if (convertResult) {
-                    subStats.push(convertResult)
-                }
-            }
+function handleRemoveSubStat(index: number) {
+    subStats.value[index] = { name: null, value: 0 }
+}
 
-            return {
-                setName: this.setName,
-                star: this.star,
-                level: this.level,
-                position: this.position,
-                mainTag: mainStat,
-                normalTags: subStats
-            }
-        },
+function convertStatBack(stat: any) {
+    if (!stat.name || !stat.value) {
+        return null
+    }
 
-        handleRemoveSubStat(index) {
-            this.$set(this.subStats, index, { name: null, value: 0 })
-        }
-    },
-    computed: {
-        image() {
-            return getArtifactImage(this.setName, this.position)
-        },
+    const data = artifactTags[stat.name as ArtifactStatName]
+    let value = parseFloat(stat.value)
+    if (data.percentage) {
+        value /= 100
+    }
+    if (isNaN(value)) {
+        return null
+    }
 
-        title() {
-            const data = artifactsData[this.setName]
-            return data[this.position].chs
-        }
-    },
-    watch: {
-        setName(newValue, oldValue) {
-            if (newValue === oldValue) {
-                return
-            }
+    return { name: stat.name, value }
+}
 
-            const data = artifactsData[newValue]
-            if (!data[this.position]) {
-                for (let position in positions) {
-                    if (data[[position]]) {
-                        this.position = position
-                        break
-                    }
-                }
+
+const image = computed(() => {
+    return getArtifactImage(setName.value, position.value)
+})
+
+const title = computed(() => {
+    const data = artifactsData[setName.value]
+    return ta(data[position.value]?.text)
+})
+
+watch(() => setName.value, (newValue, oldValue) => {
+    if (newValue === oldValue) {
+        return
+    }
+
+    const data = artifactsData[newValue]
+    if (!data[position.value]) {
+        for (let p of positions) {
+            if (data[p]) {
+                position.value = p
+                break
             }
         }
     }
+})
+
+
+function setId(id: number) {
+    const artifact = getArtifact(id)
+
+    if (artifact) {
+        artifactId.value = artifact.id
+        setName.value = artifact.setName
+        star.value = artifact.star
+        level.value = artifact.level
+        position.value = artifact.position
+        mainStat.value = convertStat(artifact.mainTag)
+
+        let ss: any = []
+        for (let stat of artifact.normalTags) {
+            ss.push(convertStat(stat))
+        }
+        while (ss.length < 4) {
+            ss.push({ name: null, value: 0 })
+        }
+        subStats.value = ss
+    }
 }
+
+function getNewArtifact() {
+    const ms = convertStatBack(mainStat.value)
+    let ss = []
+    for (let stat of subStats.value) {
+        const convertResult = convertStatBack(stat)
+        if (convertResult) {
+            ss.push(convertResult)
+        }
+    }
+
+    return {
+        setName: setName.value,
+        star: star.value,
+        level: level.value,
+        position: position.value,
+        mainTag: ms,
+        normalTags: ss
+    }
+}
+
+defineExpose({
+    setId,
+    getNewArtifact
+})
 </script>
 
 <style scoped lang="scss">

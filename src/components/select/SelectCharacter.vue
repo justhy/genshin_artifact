@@ -1,64 +1,85 @@
 <template>
-    <el-select
-        :value="value"
-        @input="$emit('input', $event)"
-        placeholder="角色"
-        size="small"
+    <el-cascader
+        :model-value="modelValue"
+        @update:modelValue="handleInput"
+        :placeholder="t('misc.character')"
+        :options="options"
     >
-        <el-option-group
-            v-for="(group, elementName) in characterByElement"
-            :key="elementName"
-            :label="element2Chs(elementName)"
-        >
-            <el-option
-                v-for="character in group"
-                :key="character.name"
-                :label="character.chs"
-                :value="character.name"
-            >
-                <div class="option-item flex-row">
-                    <img :src="character.avatar">
-                    <span :style="{ color: getColor(character.star) }">{{ character.chs }}</span>
-                </div>
-            </el-option>
-        </el-option-group>
-    </el-select>
+        <template #default="{ node, data }">
+            <div class="option-item flex-row">
+                <template v-if="node.isLeaf">
+                    <div class="option-item flex-row">
+                        <img :src="data.avatar">
+                        <span :style="{ color: getColor(data.star) }">{{ data.label }}</span>
+                    </div>
+                </template>
+                <template v-else>
+                    <span>{{ data.label }}</span>
+                </template>
+            </div>
+        </template>
+    </el-cascader>
 </template>
 
 <script>
-import { characterByElement } from "@character";
+import { characterByElement, characterData } from "@character";
 import qualityColors from "@const/quality_colors";
+import {useI18n} from "@/i18n/i18n";
 
 export default {
     name: "SelectCharacter",
-    props: ["value"],
+    props: ["modelValue"],
+    emits: ["update:modelValue"],
     data() {
         return {
-            characterByElement
+            characterByElement,
         }
     },
     methods: {
-        element2Chs(element) {
-            switch(element) {
-                case "Pyro":
-                    return "火";
-                case "Cryo":
-                    return "冰";
-                case "Dendro":
-                    return "草";
-                case "Electro":
-                    return "雷";
-                case "Anemo":
-                    return "风";
-                case "Geo":
-                    return "岩";
-                case "Hydro":
-                    return "水";
-            }
-        },
-
         getColor(star) {
             return qualityColors[star - 1];
+        },
+
+        handleInput(value) {
+            const name = value[1] ?? "Amber"
+            this.$emit("update:modelValue", name)
+        }
+    },
+    setup() {
+        const { t, ta } = useI18n()
+
+        const elements = ["Pyro", "Cryo", "Anemo", "Electro", "Hydro", "Geo", "Dendro"]
+
+        const options = computed(() => {
+            const result = []
+            for (const element of elements) {
+                const locale = t("ele", element)
+
+                const characters = []
+                for (const character of characterByElement[element]) {
+                    const characterName = character.name
+                    const characterNameLocale = ta(characterData[characterName].nameLocale)
+                    characters.push({
+                        value: characterName,
+                        label: characterNameLocale,
+                        avatar: character.avatar,
+                        star: character.star,
+                    })
+                }
+
+                result.push({
+                    value: element,
+                    label: locale,
+                    children: characters
+                })
+            }
+            return result
+        })
+
+        return {
+            t,
+            ta,
+            options,
         }
     }
 }

@@ -44,9 +44,9 @@ fn main() {
 
     let ast = to_ast.convert_program(object).unwrap();
 
-    // for item in ast.borrow().statements.iter() {
-    //     println!("{}", item.borrow().common.span.as_str());
-    // }
+    for item in ast.borrow().statements.iter() {
+        println!("{}", item.borrow().common.span.as_str());
+    }
 
     let compiler = MonaCompilerASTToCode::new(ast);
     let code = compiler.compile().unwrap();
@@ -55,12 +55,13 @@ fn main() {
 
     // println!("{}", code);
     let character: Character<SimpleAttributeGraph2> = Character::new(
-        CharacterName::KamisatoAyaka,
+        CharacterName::Yelan,
         90,
         false,
         0,
         8, 8, 8,
-        &CharacterConfig::NoConfig
+        &CharacterConfig::NoConfig,
+        // &CharacterConfig::Neuvillette {current_hp: 100},
     );
     let weapon = Weapon::new(
         WeaponName::MistsplitterReforged,

@@ -3,6 +3,7 @@ use crate::artifacts::effect_config::ArtifactEffectConfig;
 use crate::attribute::{SimpleAttributeGraph2, AttributeCommon, Attribute, AttributeName};
 use crate::character::Character;
 use crate::character::character_common_data::CharacterCommonData;
+use crate::common::i18n::locale;
 use crate::common::item_config_type::{ItemConfig, ItemConfigType};
 use crate::common::StatName;
 use crate::enemies::Enemy;
@@ -22,8 +23,14 @@ impl TargetFunctionMetaTrait for PhysicalDamageTargetFunction {
     #[cfg(not(target_family = "wasm"))]
     const META_DATA: TargetFunctionMeta = TargetFunctionMeta {
         name: TargetFunctionName::PhysicalDamage,
-        chs: "物伤",
-        description: "物理伤害最大化或最大化期望",
+        name_locale: crate::common::i18n::locale!(
+            zh_cn: "物伤",
+            en: "Physical DMG"
+        ),
+        description: crate::common::i18n::locale!(
+            zh_cn: "物理伤害最大化或最大化期望",
+            en: "Maximize Crit or Avg Physical Damage"
+        ),
         tags: "输出",
         four: TargetFunctionFor::Common,
         image: TargetFunctionMetaImage::Custom("misc/sword")
@@ -33,7 +40,10 @@ impl TargetFunctionMetaTrait for PhysicalDamageTargetFunction {
     const CONFIG: Option<&'static [ItemConfig]> = Some(&[
         ItemConfig {
             name: "t",
-            title: "类型",
+            title: locale!(
+                zh_cn: "类型",
+                en: "Type"
+            ),
             config: ItemConfigType::Option {
                 options: "期望,最大值",
                 default: 0
@@ -55,49 +65,50 @@ impl TargetFunctionMetaTrait for PhysicalDamageTargetFunction {
 
 impl TargetFunction for PhysicalDamageTargetFunction {
     fn get_target_function_opt_config(&self) -> TargetFunctionOptConfig {
-        TargetFunctionOptConfig {
-            atk_fixed: 0.1,
-            atk_percentage: 1.0,
-            hp_fixed: 0.0,
-            hp_percentage: 0.0,
-            def_fixed: 0.0,
-            def_percentage: 0.0,
-            recharge: 0.0,
-            elemental_mastery: 0.0,
-            critical: 1.0,
-            critical_damage: 1.0,
-            healing_bonus: 0.0,
-            bonus_electro: 0.0,
-            bonus_pyro: 0.0,
-            bonus_hydro: 0.0,
-            bonus_anemo: 0.0,
-            bonus_cryo: 0.0,
-            bonus_geo: 0.0,
-            bonus_dendro: 0.0,
-            bonus_physical: 1.0,
-            sand_main_stats: vec![
-                StatName::ATKPercentage,
-            ],
-            goblet_main_stats: vec![
-                StatName::PhysicalBonus,
-                StatName::ATKPercentage,
-            ],
-            head_main_stats: vec![
-                StatName::CriticalRate,
-                StatName::CriticalDamage,
-                StatName::ATKPercentage,
-            ],
-            set_names: Some(vec![
-                ArtifactSetName::PaleFlame,
-                ArtifactSetName::BloodstainedChivalry,
-                ArtifactSetName::ShimenawasReminiscence,
-                ArtifactSetName::GladiatorsFinale,
-            ]),
-            very_critical_set_names: None,
-            normal_threshold: TargetFunctionOptConfig::DEFAULT_NORMAL_THRESHOLD,
-            critical_threshold: TargetFunctionOptConfig::DEFAULT_CRITICAL_THRESHOLD,
-            very_critical_threshold: TargetFunctionOptConfig::DEFAULT_VERY_CRITICAL_THRESHOLD
-        }
+        // TargetFunctionOptConfig {
+        //     atk_fixed: 0.1,
+        //     atk_percentage: 1.0,
+        //     hp_fixed: 0.0,
+        //     hp_percentage: 0.0,
+        //     def_fixed: 0.0,
+        //     def_percentage: 0.0,
+        //     recharge: 0.0,
+        //     elemental_mastery: 0.0,
+        //     critical: 1.0,
+        //     critical_damage: 1.0,
+        //     healing_bonus: 0.0,
+        //     bonus_electro: 0.0,
+        //     bonus_pyro: 0.0,
+        //     bonus_hydro: 0.0,
+        //     bonus_anemo: 0.0,
+        //     bonus_cryo: 0.0,
+        //     bonus_geo: 0.0,
+        //     bonus_dendro: 0.0,
+        //     bonus_physical: 1.0,
+        //     sand_main_stats: vec![
+        //         StatName::ATKPercentage,
+        //     ],
+        //     goblet_main_stats: vec![
+        //         StatName::PhysicalBonus,
+        //         StatName::ATKPercentage,
+        //     ],
+        //     head_main_stats: vec![
+        //         StatName::CriticalRate,
+        //         StatName::CriticalDamage,
+        //         StatName::ATKPercentage,
+        //     ],
+        //     set_names: Some(vec![
+        //         ArtifactSetName::PaleFlame,
+        //         ArtifactSetName::BloodstainedChivalry,
+        //         ArtifactSetName::ShimenawasReminiscence,
+        //         ArtifactSetName::GladiatorsFinale,
+        //     ]),
+        //     very_critical_set_names: None,
+        //     normal_threshold: TargetFunctionOptConfig::DEFAULT_NORMAL_THRESHOLD,
+        //     critical_threshold: TargetFunctionOptConfig::DEFAULT_CRITICAL_THRESHOLD,
+        //     very_critical_threshold: TargetFunctionOptConfig::DEFAULT_VERY_CRITICAL_THRESHOLD
+        // }
+        unimplemented!()
     }
 
     fn get_default_artifact_config(&self, _team_config: &TeamQuantization) -> ArtifactEffectConfig {

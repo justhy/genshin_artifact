@@ -1,5 +1,5 @@
 use std::string::ToString;
-use strum_macros::Display;
+use strum_macros::{Display, EnumIter};
 use num_derive::FromPrimitive;
 use serde::{Serialize, Deserialize};
 use mona_derive::{WeaponData, EnumLen};
@@ -10,8 +10,9 @@ use crate::common::item_config_type::ItemConfig;
 #[derive(Serialize, Deserialize)]
 #[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
 #[derive(FromPrimitive, Display)]
-#[derive(WeaponData, EnumLen)]
+#[derive(WeaponData, EnumLen, EnumIter)]
 pub enum WeaponName {
+    // sword
     MistsplitterReforged,
     AquilaFavonia,
     SummitShaper,
@@ -41,7 +42,26 @@ pub enum WeaponName {
     SilverSword,
     DullBlade,
     HaranGeppakuFutsu,
+    CursedBlade,
+    SapwoodBlade,
+    XiphosMoonlight,
+    KeyOfKhajNisut,
+    ToukabouShigure,
+    LightOfFoliarIncision,
+    WolfFang,
+    FinaleOfTheDeep,
+    FleuveCendreFerryman,
+    TheDockhandsAssistant,
+    SwordOfNarzissenkreuz,
+    SplendorOfTranquilWaters,
+    UrakuMisugiri,
+    Absolution,
+    FluteOfEzpitzal,
+    SturdyBone,
+    PeakPatrolSong,
+    CalamityOfEshu,
 
+    // claymore
     WolfsGravestone,
     SkywardPride,
     TheUnforged,
@@ -68,7 +88,21 @@ pub enum WeaponName {
     FerrousShadow,
     OldMercsPal,
     WasterGreatsword,
+    ForestRegalia,
+    MakhairaAquamarine,
+    BeaconOfTheReedSea,
+    MailedFlower,
+    TalkingStick,
+    TidalShadow,
+    PortablePowerSaw,
+    UltimateOverlordsMegaMagicSword,
+    Verdict,
+    EarthShaker,
+    FangOfTheMountainKing,
+    FruitfulHook,
+    AThousandBlazingSuns,
 
+    // polearm
     EngulfingLightning,
     SkywardSpine,
     PrimordialJadeWingedSpear,
@@ -92,7 +126,20 @@ pub enum WeaponName {
     WhiteTassel,
     IronPoint,
     BeginnersProtector,
+    Moonpiercer,
+    MissiveWindspear,
+    StaffOfTheScarletSands,
+    BalladOfTheFjords,
+    RightfulReward,
+    ProspectorsDrill,
+    DialoguesOfTheDesertSages,
+    CrimsonMoonsSemblance,
+    LumidouceElegy,
+    FootprintOfTheRainbow,
+    MountainBracingBolt,
+    TamayurateiNoOhanashi,
 
+    // catalyst
     LostPrayerToTheSacredWinds,
     SkywardAtlas,
     EverlastingMoonglow,
@@ -119,6 +166,23 @@ pub enum WeaponName {
     TwinNephrite,
     PocketGrimoire,
     ApprenticesNotes,
+    FruitOfFulfillment,
+    WanderingEvenstar,
+    AThousandFloatingDreams,
+    TulaytullahsRemembrance,
+    JadeFallsSplendor,
+    SacrificialJade,
+    FlowingPurity,
+    BalladOfTheBoundlessBlue,
+    CashflowSupervision,
+    TomeOfTheEternalFlow,
+    CranesEchoingCall,
+    AshGravenDrinkingHorn,
+    RingOfYaxche,
+    SurfsUp,
+    WaveridingWhirl,
+    StarcallersWatch,
+    SunnyMorningSleepIn,
 
     // bows
     PolarStar,
@@ -150,4 +214,17 @@ pub enum WeaponName {
     HuntersBow,
     AquaSimulacra,
     FadingTwilight,
+    HuntersPath,
+    Trawler,
+    KingsSquire,
+    IbisPiercer,
+    TheFirstGreatMagic,
+    ScionOfTheBlazingSun,
+    SongOfStillness,
+    RangeGauge,
+    Cloudforged,
+    SilvershowerHeartstrings,
+    ChainBreaker,
+    FlowerWreathedFeathers,
+    AstralVulturesCrimsonPlumage,
 }

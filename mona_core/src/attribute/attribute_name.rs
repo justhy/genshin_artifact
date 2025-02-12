@@ -2,8 +2,15 @@ use crate::common::{SkillType, Element};
 
 #[derive(Hash, Eq, PartialEq, Clone, Copy, Debug)]
 pub enum AttributeName {
+    // 自定义数据，应当只用在角色的特定的Effect中，否则容易使用不当，产生冲突
+    USER1,
+    USER2,
+
     HealingBonus,
+    IncomingHealingBonus,
     ElementalMastery,
+    // 不参与精通转换的计算，例如草神天赋不被船桨计算
+    ElementalMasteryExtra,
     Recharge,
     ShieldStrength,
 
@@ -86,7 +93,11 @@ pub enum AttributeName {
     BonusGeo,
     BonusDendro,
     BonusPhysical,
+    BonusNormalAndElemental, // 普通攻击&元素伤害 todo 以后应该重构掉
 
+    EnhanceBurgeon,
+    EnhanceHyperbloom,
+    EnhanceBloom,
     EnhanceOverload,
     EnhanceBurning,
     EnhanceShatter,
@@ -99,6 +110,8 @@ pub enum AttributeName {
     EnhanceSwirlBase,
     EnhanceVaporize,
     EnhanceMelt,
+    EnhanceAggravate,
+    EnhanceSpread,
 
     HPRatioBase,
     HPRatioNormalAttack,
@@ -149,6 +162,7 @@ pub enum AttributeName {
     ExtraDmgNormalAttack,
     ExtraDmgChargedAttack,
     ExtraDmgPlungingAttack,
+    ExtraDmgPlungingAttackLowHigh, // 坠地冲击额外伤害，由于闲云而首次引进
     ExtraDmgElementalSkill,
     ExtraDmgElementalBurst,
     ExtraDmgElectro,
@@ -159,6 +173,9 @@ pub enum AttributeName {
     ExtraDmgGeo,
     ExtraDmgDendro,
     ExtraDmgPhysical,
+
+    // introduced because of YumemizukiMizuki C1
+    SwirlExtraDmg,
 }
 
 impl AttributeName {
@@ -175,13 +192,14 @@ impl AttributeName {
         }
     }
 
-    pub fn bonus_name_by_skill_type(skill_type: SkillType) -> AttributeName {
+    pub fn bonus_name_by_skill_type(skill_type: SkillType) -> Option<AttributeName> {
         match skill_type {
-            SkillType::NormalAttack => AttributeName::BonusNormalAttack,
-            SkillType::ChargedAttack => AttributeName::BonusChargedAttack,
-            SkillType::PlungingAttack => AttributeName::BonusPlungingAttack,
-            SkillType::ElementalSkill => AttributeName::BonusElementalSkill,
-            SkillType::ElementalBurst => AttributeName::BonusElementalBurst,
+            SkillType::NormalAttack => Some(AttributeName::BonusNormalAttack),
+            SkillType::ChargedAttack => Some(AttributeName::BonusChargedAttack),
+            SkillType::PlungingAttackOnGround | SkillType::PlungingAttackInAction => Some(AttributeName::BonusPlungingAttack),
+            SkillType::ElementalSkill => Some(AttributeName::BonusElementalSkill),
+            SkillType::ElementalBurst => Some(AttributeName::BonusElementalBurst),
+            SkillType::NoneType => None,
         }
     }
 
@@ -198,13 +216,14 @@ impl AttributeName {
         }
     }
 
-    pub fn critical_rate_name_by_skill_type(skill_type: SkillType) -> AttributeName {
+    pub fn critical_rate_name_by_skill_type(skill_type: SkillType) -> Option<AttributeName> {
         match skill_type {
-            SkillType::NormalAttack => AttributeName::CriticalNormalAttack,
-            SkillType::ChargedAttack => AttributeName::CriticalChargedAttack,
-            SkillType::PlungingAttack => AttributeName::CriticalPlungingAttack,
-            SkillType::ElementalSkill => AttributeName::CriticalElementalSkill,
-            SkillType::ElementalBurst => AttributeName::CriticalElementalBurst,
+            SkillType::NormalAttack => Some(AttributeName::CriticalNormalAttack),
+            SkillType::ChargedAttack => Some(AttributeName::CriticalChargedAttack),
+            SkillType::PlungingAttackOnGround | SkillType::PlungingAttackInAction => Some(AttributeName::CriticalPlungingAttack),
+            SkillType::ElementalSkill => Some(AttributeName::CriticalElementalSkill),
+            SkillType::ElementalBurst => Some(AttributeName::CriticalElementalBurst),
+            SkillType::NoneType => None,
         }
     }
 
@@ -221,13 +240,14 @@ impl AttributeName {
         }
     }
 
-    pub fn critical_damage_name_by_skill_name(skill_type: SkillType) -> AttributeName {
+    pub fn critical_damage_name_by_skill_name(skill_type: SkillType) -> Option<AttributeName> {
         match skill_type {
-            SkillType::NormalAttack => AttributeName::CriticalDamageNormalAttack,
-            SkillType::ChargedAttack => AttributeName::CriticalDamageChargedAttack,
-            SkillType::PlungingAttack => AttributeName::CriticalDamagePlungingAttack,
-            SkillType::ElementalSkill => AttributeName::CriticalDamageElementalSkill,
-            SkillType::ElementalBurst => AttributeName::CriticalDamageElementalBurst,
+            SkillType::NormalAttack => Some(AttributeName::CriticalDamageNormalAttack),
+            SkillType::ChargedAttack => Some(AttributeName::CriticalDamageChargedAttack),
+            SkillType::PlungingAttackOnGround | SkillType::PlungingAttackInAction => Some(AttributeName::CriticalDamagePlungingAttack),
+            SkillType::ElementalSkill => Some(AttributeName::CriticalDamageElementalSkill),
+            SkillType::ElementalBurst => Some(AttributeName::CriticalDamageElementalBurst),
+            SkillType::NoneType => None,
         }
     }
 
@@ -244,13 +264,14 @@ impl AttributeName {
         }
     }
 
-    pub fn hp_ratio_name_by_skill_type(skill_type: SkillType) -> AttributeName {
+    pub fn hp_ratio_name_by_skill_type(skill_type: SkillType) -> Option<AttributeName> {
         match skill_type {
-            SkillType::NormalAttack => AttributeName::HPRatioNormalAttack,
-            SkillType::ChargedAttack => AttributeName::HPRatioChargedAttack,
-            SkillType::PlungingAttack => AttributeName::HPRatioPlungingAttack,
-            SkillType::ElementalSkill => AttributeName::HPRatioElementalSkill,
-            SkillType::ElementalBurst => AttributeName::HPRatioElementalBurst,
+            SkillType::NormalAttack => Some(AttributeName::HPRatioNormalAttack),
+            SkillType::ChargedAttack => Some(AttributeName::HPRatioChargedAttack),
+            SkillType::PlungingAttackOnGround | SkillType::PlungingAttackInAction => Some(AttributeName::HPRatioPlungingAttack),
+            SkillType::ElementalSkill => Some(AttributeName::HPRatioElementalSkill),
+            SkillType::ElementalBurst => Some(AttributeName::HPRatioElementalBurst),
+            SkillType::NoneType => None,
         }
     }
 
@@ -267,13 +288,14 @@ impl AttributeName {
         }
     }
 
-    pub fn def_ratio_name_by_skill_type(skill_type: SkillType) -> AttributeName {
+    pub fn def_ratio_name_by_skill_type(skill_type: SkillType) -> Option<AttributeName> {
         match skill_type {
-            SkillType::NormalAttack => AttributeName::DEFRatioNormalAttack,
-            SkillType::ChargedAttack => AttributeName::DEFRatioChargedAttack,
-            SkillType::PlungingAttack => AttributeName::DEFRatioPlungingAttack,
-            SkillType::ElementalSkill => AttributeName::DEFRatioElementalSkill,
-            SkillType::ElementalBurst => AttributeName::DEFRatioElementalBurst,
+            SkillType::NormalAttack => Some(AttributeName::DEFRatioNormalAttack),
+            SkillType::ChargedAttack => Some(AttributeName::DEFRatioChargedAttack),
+            SkillType::PlungingAttackOnGround | SkillType::PlungingAttackInAction => Some(AttributeName::DEFRatioPlungingAttack),
+            SkillType::ElementalSkill => Some(AttributeName::DEFRatioElementalSkill),
+            SkillType::ElementalBurst => Some(AttributeName::DEFRatioElementalBurst),
+            SkillType::NoneType => None,
         }
     }
 
@@ -290,13 +312,14 @@ impl AttributeName {
         }
     }
 
-    pub fn atk_ratio_name_by_skill_type(skill_type: SkillType) -> AttributeName {
+    pub fn atk_ratio_name_by_skill_type(skill_type: SkillType) -> Option<AttributeName> {
         match skill_type {
-            SkillType::NormalAttack => AttributeName::ATKRatioNormalAttack,
-            SkillType::ChargedAttack => AttributeName::ATKRatioChargedAttack,
-            SkillType::PlungingAttack => AttributeName::ATKRatioPlungingAttack,
-            SkillType::ElementalSkill => AttributeName::ATKRatioElementalSkill,
-            SkillType::ElementalBurst => AttributeName::ATKRatioElementalBurst,
+            SkillType::NormalAttack => Some(AttributeName::ATKRatioNormalAttack),
+            SkillType::ChargedAttack => Some(AttributeName::ATKRatioChargedAttack),
+            SkillType::PlungingAttackOnGround | SkillType::PlungingAttackInAction => Some(AttributeName::ATKRatioPlungingAttack),
+            SkillType::ElementalSkill => Some(AttributeName::ATKRatioElementalSkill),
+            SkillType::ElementalBurst => Some(AttributeName::ATKRatioElementalBurst),
+            SkillType::NoneType => None,
         }
     }
 
@@ -313,13 +336,14 @@ impl AttributeName {
         }
     }
 
-    pub fn extra_dmg_name_by_skill_type(skill_type: SkillType) -> AttributeName {
+    pub fn extra_dmg_name_by_skill_type(skill_type: SkillType) -> Option<AttributeName> {
         match skill_type {
-            SkillType::NormalAttack => AttributeName::ExtraDmgNormalAttack,
-            SkillType::ChargedAttack => AttributeName::ExtraDmgChargedAttack,
-            SkillType::PlungingAttack => AttributeName::ExtraDmgPlungingAttack,
-            SkillType::ElementalSkill => AttributeName::ExtraDmgElementalSkill,
-            SkillType::ElementalBurst => AttributeName::ExtraDmgElementalBurst,
+            SkillType::NormalAttack => Some(AttributeName::ExtraDmgNormalAttack),
+            SkillType::ChargedAttack => Some(AttributeName::ExtraDmgChargedAttack),
+            SkillType::PlungingAttackOnGround | SkillType::PlungingAttackInAction => Some(AttributeName::ExtraDmgPlungingAttack),
+            SkillType::ElementalSkill => Some(AttributeName::ExtraDmgElementalSkill),
+            SkillType::ElementalBurst => Some(AttributeName::ExtraDmgElementalBurst),
+            SkillType::NoneType => None,
         }
     }
 

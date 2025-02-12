@@ -3,63 +3,66 @@
         <div
             v-for="position in availablePositions"
             :key="position"
-            :class="{active: position === value}"
+            :class="{active: position === props.modelValue}"
             class="item"
-            @click="$emit('input', position)"
+            @click="emits('update:modelValue', position)"
         >
             <img
                 :src="selectedArtData[position].url"
                 class="image"
             >
             <p class="text">
-                {{ selectedArtData[position].chs }}
+                {{ ta(selectedArtData[position].text) }}
             </p>
         </div>
     </div>
 </template>
 
-<script>
-import { artifactsData } from "../../../assets/artifacts";
+<script setup lang="ts">
+import { computed, watch } from "vue"
 
-export default {
-    name: "PositionChoose",
-    created: function () {
-        this.artifactsData = artifactsData;
-    },
-    props: {
-        setName: {
-            type: String,
-        },
-        value: {
-            type: String
-        }
-    },
-    methods: {
-        choose(position) {
-            this.$emit("input", position);
-        }
-    },
-    computed: {
-        selectedArtData() {
-            return this.artifactsData[this.setName] || {};
-        },
+import { artifactsData } from "../../../assets/artifacts"
+import type {ArtifactPosition, ArtifactSetName} from "@/types/artifact"
+import { positions } from "@/constants/artifact"
+import {useI18n} from "@/i18n/i18n"
+import {positionToIndex} from "@/utils/artifacts"
 
-        availablePositions() {
-            return ["flower", "feather", "sand", "cup", "head"].filter((value) => {
-                return Object.prototype.hasOwnProperty.call(this.selectedArtData, value);
-            });
-        }
-    },
-    watch: {
-        setName() {
-            if (this.availablePositions.indexOf(this.value) === -1) {
-                // the last selected position does not exist on current set
-                let autoSelectedPosition = this.availablePositions[0];
-                this.$emit("input", autoSelectedPosition);
-            }
-        }
-    }
+
+const { t, ta } = useI18n()
+
+
+interface Props {
+    modelValue: ArtifactPosition,
+    setName: ArtifactSetName
 }
+
+const props = withDefaults(defineProps<Props>(), {
+    modelValue: "flower",
+    setName: "archaicPetra"
+})
+
+interface Emits {
+    (e: "update:modelValue", v: ArtifactPosition): void
+}
+
+const emits = defineEmits<Emits>()
+
+const selectedArtData = computed(() => {
+    return (artifactsData as any)[props.setName]
+})
+
+const availablePositions = computed((): ArtifactPosition[] => {
+    return positions.filter(value => {
+        return Object.prototype.hasOwnProperty.call(selectedArtData.value, value)
+    })
+})
+
+watch(() => props.setName, () => {
+    if (availablePositions.value.indexOf(props.modelValue) === -1) {
+        const autoSelectedPosition = availablePositions.value[0]
+        emits("update:modelValue", autoSelectedPosition)
+    }
+})
 </script>
 
 <style scoped>
@@ -95,6 +98,7 @@ export default {
     font-size: 12px;
     text-align: center;
     width: 48px;
+    word-break: normal;
 }
 
 .image {

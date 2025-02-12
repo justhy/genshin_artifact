@@ -1,28 +1,9 @@
-import store from "@/store/store"
-
 import { deepCopy } from "@util/common"
 import { upgradeCharacterConfig } from "@util/character"
 import { upgradeWeaponConfig } from "@util/weapon"
 import { upgradeTargetFunctionConfig } from "@util/targetFunction"
 import { upgradeArtifactConfig } from "@util/artifacts"
 import { convertArtifactName, convertArtifactStatName } from "@util/converter"
-
-export function createOrUpdatePreset(item, name) {
-    item = upgradePresetItem(item)
-    store.commit("presets/addOrOverwrite", {
-        item, name
-    })
-}
-
-export function deletePreset(name) {
-    store.commit("presets/delete", {
-        name
-    })
-}
-
-export function getPresetEntryByName(name) {
-    return store.state.presets.presets[name]
-}
 
 export function checkImportFormat(obj) {
     if (!Array.isArray(obj)) {

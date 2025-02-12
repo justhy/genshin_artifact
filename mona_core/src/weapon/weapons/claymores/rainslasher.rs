@@ -39,21 +39,28 @@ pub struct Rainslasher;
 impl WeaponTrait for Rainslasher {
     const META_DATA: WeaponStaticData = WeaponStaticData {
         name: WeaponName::Rainslasher,
+        internal_name: "Claymore_Perdue",
         weapon_type: WeaponType::Claymore,
         weapon_sub_stat: Some(WeaponSubStatFamily::EM36),
         weapon_base: WeaponBaseATKFamily::ATK510,
         star: 4,
         #[cfg(not(target_family = "wasm"))]
-        effect: Some("止水息雷：对处于水元素或雷元素影响下的敌人，造成的伤害提高20％/24%/28%/32%/36%。"),
+        effect: Some(crate::common::i18n::locale!(
+            zh_cn: "对处于水元素或雷元素影响下的敌人，造成的伤害提高<span style=\"color: #409EFF;\">20%-24%-28%-32%-36%</span>。",
+            en: "Increases DMG against opponents affected by Hydro or Electro by <span style=\"color: #409EFF;\">20%-24%-28%-32%-36%</span>."
+        )),
         #[cfg(not(target_family = "wasm"))]
-        chs: "雨裁"
+        name_locale: crate::common::i18n::locale!(
+            zh_cn: "雨裁",
+            en: "Rainslasher"
+        )
     };
 
     #[cfg(not(target_family = "wasm"))]
     const CONFIG_DATA: Option<&'static [ItemConfig]> = Some(&[
         ItemConfig {
             name: "rate",
-            title: "被动应用比例",
+            title: ItemConfig::DEFAULT_RATE_TITLE,
             config: ItemConfigType::Float { min: 0.0, max: 1.0, default: 0.0 }
         }
     ]);

@@ -12,6 +12,7 @@ pub struct SilverSword;
 impl WeaponTrait for SilverSword {
     const META_DATA: WeaponStaticData = WeaponStaticData {
         name: WeaponName::SilverSword,
+        internal_name: "Sword_Silver",
         weapon_type: WeaponType::Sword,
         weapon_sub_stat: None,
         weapon_base: WeaponBaseATKFamily::ATK243,
@@ -19,7 +20,10 @@ impl WeaponTrait for SilverSword {
         #[cfg(not(target_family = "wasm"))]
         effect: None,
         #[cfg(not(target_family = "wasm"))]
-        chs: "银剑"
+        name_locale: crate::common::i18n::locale!(
+            zh_cn: "银剑",
+            en: "Silver Sword"
+        )
     };
 
     fn get_effect<A: Attribute>(_character: &CharacterCommonData, _config: &WeaponConfig) -> Option<Box<dyn WeaponEffect<A>>> {

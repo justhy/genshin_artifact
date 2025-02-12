@@ -1,59 +1,85 @@
 <template>
-    <div>
-        <div class="item">
-            <span class="title">等级</span>
-            <el-input-number
-                :value="value.level"
-                @input="handleInput('level', $event)"
-                :min="60"
-                :max="100"
-                size="small"
-            ></el-input-number>
-        </div>
+    <div class="item">
+        <span class="title">{{ t("misc.lvl") }}</span>
+        <el-input-number
+            :model-value="modelValue.level"
+            @update:modelValue="handleInput('level', $event)"
+            :min="60"
+            :max="120"
+        ></el-input-number>
+    </div>
 
-        <div
-            v-for="item in resNames"
-            class="item"
-        >
-            <span class="title">{{ item.title }}</span>
-            <el-slider
-                :value="value[item.name]"
-                @input="handleInput(item.name, $event)"
-                class="input"
-                :min="-1"
-                :max="1"
-                :step="0.1"
-                :show-input="true"
-            ></el-slider>
-        </div>
+    <div
+        v-for="ele in elements8"
+        :key="ele"
+        class="item"
+    >
+        <span class="title">{{ t("res", ele) }}</span>
+        <el-slider
+            :model-value="modelValue[resNameMap[ele]]"
+            @update:modelValue="handleInput(ele, $event)"
+            class="input"
+            :min="-1"
+            :max="1"
+            :step="0.1"
+            :show-input="true"
+        ></el-slider>
     </div>
 </template>
 
 <script>
-const resNames = [
-    { name: "electro_res", title: "雷抗" },
-    { name: "pyro_res", title: "火抗" },
-    { name: "hydro_res", title: "水抗" },
-    { name: "cryo_res", title: "冰抗" },
-    { name: "geo_res", title: "岩抗" },
-    { name: "anemo_res", title: "风抗" },
-    { name: "dendro_res", title: "草抗" },
-    { name: "physical_res", title: "物抗" }
-]
-Object.freeze(resNames)
+import {useI18n} from "@/i18n/i18n";
+
+const resNameMap = {
+    Electro: "electro_res",
+    Pyro: "pyro_res",
+    Hydro: "hydro_res",
+    Cryo: "cryo_res",
+    Geo: "geo_res",
+    Anemo: "anemo_res",
+    Dendro: "dendro_res",
+    Physical: "physical_res",
+}
+Object.freeze(resNameMap)
+
+import { elements8 } from "@/constants/misc"
 
 export default {
     name: "EnemyConfig",
-    props: ["value"],
-    created() {
-        this.resNames = resNames
+    props: ["modelValue"],
+    emits: ["update:modelValue"],
+    // created() {
+    //     this.resNames = resNames
+    // },
+    data() {
+        return {
+            elements8,
+            resNameMap,
+        }
     },
     methods: {
         handleInput(name, value) {
-            let temp = Object.assign({}, this.value)
-            temp[name] = value
+            if (name === "level") {
+                let temp = Object.assign({}, this.modelValue)
+                temp["level"] = value
+                this.$emit("update:modelValue", temp)
+            } else {
+                const resName = this.resNameMap[name]
 
-            this.$emit("input", temp)
+                if (this.modelValue[resName] !== value) {
+                    let temp = Object.assign({}, this.modelValue)
+                    temp[this.resNameMap[name]] = value
+
+                    this.$emit("update:modelValue", temp)
+                }
+            }
+        }
+    },
+    setup() {
+        const { t } = useI18n()
+
+        return {
+            t
         }
     }
 }

@@ -40,8 +40,14 @@ impl TargetFunctionMetaTrait for XinyanDefaultTargetFunction {
     #[cfg(not(target_family = "wasm"))]
     const META_DATA: TargetFunctionMeta = TargetFunctionMeta {
         name: TargetFunctionName::XinyanDefault,
-        chs: "辛焱-燥热旋律",
-        description: "普通辅助辛焱",
+        name_locale: crate::common::i18n::locale!(
+            zh_cn: "辛焱-燥热旋律",
+            en: "Xinyan-Blazing Riff"
+        ),
+        description: crate::common::i18n::locale!(
+            zh_cn: "普通辅助辛焱",
+            en: "Support Xinyan"
+        ),
         tags: "辅助",
         four: TargetFunctionFor::SomeWho(CharacterName::Xinyan),
         image: TargetFunctionMetaImage::Avatar
@@ -56,7 +62,10 @@ impl TargetFunctionMetaTrait for XinyanDefaultTargetFunction {
         },
         ItemConfig {
             name: "damage_demand",
-            title: "伤害需求",
+            title: crate::common::i18n::locale!(
+                zh_cn: "伤害需求",
+                en: "Damage Requirement",
+            ),
             config: ItemConfigType::Float { min: 0.0, max: 1.0, default: 0.5 }
         }
     ]);
@@ -68,53 +77,54 @@ impl TargetFunctionMetaTrait for XinyanDefaultTargetFunction {
 
 impl TargetFunction for XinyanDefaultTargetFunction {
     fn get_target_function_opt_config(&self) -> TargetFunctionOptConfig {
-        TargetFunctionOptConfig {
-            atk_fixed: 0.0,
-            atk_percentage: 1.0,
-            hp_fixed: 0.0,
-            hp_percentage: 0.0,
-            def_fixed: 0.1,
-            def_percentage: 1.0,
-            recharge: 1.0,
-            elemental_mastery: 0.0,
-            critical: 1.0,
-            critical_damage: 1.0,
-            healing_bonus: 0.0,
-            bonus_electro: 0.0,
-            bonus_pyro: 0.0,
-            bonus_hydro: 0.0,
-            bonus_anemo: 0.0,
-            bonus_cryo: 0.0,
-            bonus_geo: 0.0,
-            bonus_dendro: 0.0,
-            bonus_physical: 1.0,
-            sand_main_stats: vec![
-                StatName::ATKPercentage,
-                StatName::DEFPercentage,
-                StatName::Recharge,
-            ],
-            goblet_main_stats: vec![
-                StatName::PhysicalBonus,
-                StatName::ATKPercentage,
-                StatName::DEFPercentage,
-            ],
-            head_main_stats: vec![
-                StatName::CriticalRate,
-                StatName::CriticalDamage,
-                StatName::DEFPercentage,
-                StatName::ATKPercentage,
-            ],
-            set_names: Some(vec![
-                ArtifactSetName::HuskOfOpulentDreams,
-                ArtifactSetName::DefendersWill,
-                ArtifactSetName::Gambler,
-                ArtifactSetName::ArchaicPetra,
-            ]),
-            very_critical_set_names: None,
-            normal_threshold: TargetFunctionOptConfig::DEFAULT_NORMAL_THRESHOLD,
-            critical_threshold: TargetFunctionOptConfig::DEFAULT_CRITICAL_THRESHOLD,
-            very_critical_threshold: TargetFunctionOptConfig::DEFAULT_VERY_CRITICAL_THRESHOLD
-        }
+        // TargetFunctionOptConfig {
+        //     atk_fixed: 0.0,
+        //     atk_percentage: 1.0,
+        //     hp_fixed: 0.0,
+        //     hp_percentage: 0.0,
+        //     def_fixed: 0.1,
+        //     def_percentage: 1.0,
+        //     recharge: 1.0,
+        //     elemental_mastery: 0.0,
+        //     critical: 1.0,
+        //     critical_damage: 1.0,
+        //     healing_bonus: 0.0,
+        //     bonus_electro: 0.0,
+        //     bonus_pyro: 0.0,
+        //     bonus_hydro: 0.0,
+        //     bonus_anemo: 0.0,
+        //     bonus_cryo: 0.0,
+        //     bonus_geo: 0.0,
+        //     bonus_dendro: 0.0,
+        //     bonus_physical: 1.0,
+        //     sand_main_stats: vec![
+        //         StatName::ATKPercentage,
+        //         StatName::DEFPercentage,
+        //         StatName::Recharge,
+        //     ],
+        //     goblet_main_stats: vec![
+        //         StatName::PhysicalBonus,
+        //         StatName::ATKPercentage,
+        //         StatName::DEFPercentage,
+        //     ],
+        //     head_main_stats: vec![
+        //         StatName::CriticalRate,
+        //         StatName::CriticalDamage,
+        //         StatName::DEFPercentage,
+        //         StatName::ATKPercentage,
+        //     ],
+        //     set_names: Some(vec![
+        //         ArtifactSetName::HuskOfOpulentDreams,
+        //         ArtifactSetName::DefendersWill,
+        //         ArtifactSetName::Gambler,
+        //         ArtifactSetName::ArchaicPetra,
+        //     ]),
+        //     very_critical_set_names: None,
+        //     normal_threshold: TargetFunctionOptConfig::DEFAULT_NORMAL_THRESHOLD,
+        //     critical_threshold: TargetFunctionOptConfig::DEFAULT_CRITICAL_THRESHOLD,
+        //     very_critical_threshold: TargetFunctionOptConfig::DEFAULT_VERY_CRITICAL_THRESHOLD
+        // }
+        unimplemented!()
     }
 
     fn get_default_artifact_config(&self, _team_config: &TeamQuantization) -> ArtifactEffectConfig {
@@ -135,7 +145,7 @@ impl TargetFunction for XinyanDefaultTargetFunction {
         let r = attribute.get_value(AttributeName::Recharge).min(self.recharge_demand) / self.recharge_demand;
 
         type S = <Xinyan as CharacterTrait>::DamageEnumType;
-        let dmg_q = Xinyan::damage::<SimpleDamageBuilder>(&context, S::Q1, &CharacterSkillConfig::NoConfig).normal.expectation;
+        let dmg_q = Xinyan::damage::<SimpleDamageBuilder>(&context, S::Q1, &CharacterSkillConfig::NoConfig, None).normal.expectation;
 
         ((1.0 + atk_for_other) * r) * (r * dmg_q * self.damage_demand + def * 10.0 * (1.0 - self.damage_demand))
     }

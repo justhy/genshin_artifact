@@ -1,6 +1,6 @@
 use crate::artifacts::{Artifact, ArtifactSetName};
 use crate::artifacts::effect_config::ArtifactEffectConfig;
-use crate::attribute::{Attribute, AttributeName, SimpleAttributeGraph2};
+use crate::attribute::{Attribute, AttributeName, SimpleAttributeGraph2, AttributeCommon};
 use crate::character::{Character, CharacterName};
 use crate::character::character_common_data::CharacterCommonData;
 use crate::common::item_config_type::{ItemConfig, ItemConfigType};
@@ -35,8 +35,14 @@ impl TargetFunctionMetaTrait for SucroseDefaultTargetFunction {
     #[cfg(not(target_family = "wasm"))]
     const META_DATA: TargetFunctionMeta = TargetFunctionMeta {
         name: TargetFunctionName::SucroseDefault,
-        chs: "砂糖-无害甜度",
-        description: "普通辅助砂糖",
+        name_locale: crate::common::i18n::locale!(
+            zh_cn: "砂糖-无害甜度",
+            en: "Sucrose-Harmless Sweetie"
+        ),
+        description: crate::common::i18n::locale!(
+            zh_cn: "普通辅助砂糖",
+            en: "Support Sucrose"
+        ),
         tags: "辅助",
         four: TargetFunctionFor::SomeWho(CharacterName::Sucrose),
         image: TargetFunctionMetaImage::Avatar
@@ -58,45 +64,46 @@ impl TargetFunctionMetaTrait for SucroseDefaultTargetFunction {
 
 impl TargetFunction for SucroseDefaultTargetFunction {
     fn get_target_function_opt_config(&self) -> TargetFunctionOptConfig {
-        TargetFunctionOptConfig {
-            atk_fixed: 0.0,
-            atk_percentage: 0.0,
-            hp_fixed: 0.0,
-            hp_percentage: 0.0,
-            def_fixed: 0.0,
-            def_percentage: 0.0,
-            recharge: 1.0,
-            elemental_mastery: 1.0,
-            critical: 0.0,
-            critical_damage: 0.0,
-            healing_bonus: 0.0,
-            bonus_electro: 0.0,
-            bonus_pyro: 0.0,
-            bonus_hydro: 0.0,
-            bonus_anemo: 0.0,
-            bonus_cryo: 0.0,
-            bonus_geo: 0.0,
-            bonus_dendro: 0.0,
-            bonus_physical: 0.0,
-            sand_main_stats: vec![
-                StatName::Recharge,
-                StatName::ElementalMastery,
-            ],
-            goblet_main_stats: vec![
-                StatName::ElementalMastery,
-            ],
-            head_main_stats: vec![
-                StatName::ElementalMastery,
-            ],
-            set_names: Some(vec![
-            ]),
-            very_critical_set_names: Some(vec![
-                ArtifactSetName::ViridescentVenerer
-            ]),
-            normal_threshold: TargetFunctionOptConfig::DEFAULT_NORMAL_THRESHOLD,
-            critical_threshold: TargetFunctionOptConfig::DEFAULT_CRITICAL_THRESHOLD,
-            very_critical_threshold: TargetFunctionOptConfig::DEFAULT_VERY_CRITICAL_THRESHOLD
-        }
+        // TargetFunctionOptConfig {
+        //     atk_fixed: 0.0,
+        //     atk_percentage: 0.0,
+        //     hp_fixed: 0.0,
+        //     hp_percentage: 0.0,
+        //     def_fixed: 0.0,
+        //     def_percentage: 0.0,
+        //     recharge: 1.0,
+        //     elemental_mastery: 1.0,
+        //     critical: 0.0,
+        //     critical_damage: 0.0,
+        //     healing_bonus: 0.0,
+        //     bonus_electro: 0.0,
+        //     bonus_pyro: 0.0,
+        //     bonus_hydro: 0.0,
+        //     bonus_anemo: 0.0,
+        //     bonus_cryo: 0.0,
+        //     bonus_geo: 0.0,
+        //     bonus_dendro: 0.0,
+        //     bonus_physical: 0.0,
+        //     sand_main_stats: vec![
+        //         StatName::Recharge,
+        //         StatName::ElementalMastery,
+        //     ],
+        //     goblet_main_stats: vec![
+        //         StatName::ElementalMastery,
+        //     ],
+        //     head_main_stats: vec![
+        //         StatName::ElementalMastery,
+        //     ],
+        //     set_names: Some(vec![
+        //     ]),
+        //     very_critical_set_names: Some(vec![
+        //         ArtifactSetName::ViridescentVenerer
+        //     ]),
+        //     normal_threshold: TargetFunctionOptConfig::DEFAULT_NORMAL_THRESHOLD,
+        //     critical_threshold: TargetFunctionOptConfig::DEFAULT_CRITICAL_THRESHOLD,
+        //     very_critical_threshold: TargetFunctionOptConfig::DEFAULT_VERY_CRITICAL_THRESHOLD
+        // }
+        unimplemented!()
     }
 
     fn get_default_artifact_config(&self, _team_config: &TeamQuantization) -> ArtifactEffectConfig {
@@ -118,7 +125,8 @@ impl TargetFunction for SucroseDefaultTargetFunction {
         };
         let r = attribute.get_value(AttributeName::Recharge).min(self.recharge_demand);
 
-        let em = attribute.get_value(AttributeName::ElementalMastery);
+        // let em = attribute.get_value(AttributeName::ElementalMastery);
+        let em = attribute.get_em_all();
 
         vv * r * em
     }

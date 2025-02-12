@@ -11,6 +11,8 @@ pub struct DamageAnalysis {
     pub hp_ratio: HashMap<String, f64>,
     pub def: HashMap<String, f64>,
     pub def_ratio: HashMap<String, f64>,
+    pub em: HashMap<String, f64>,
+    pub em_ratio: HashMap<String, f64>,
     pub extra_damage: HashMap<String, f64>,
     pub bonus: HashMap<String, f64>,
     pub critical: HashMap<String, f64>,
@@ -19,6 +21,8 @@ pub struct DamageAnalysis {
     pub vaporize_enhance: HashMap<String, f64>,
     pub healing_bonus: HashMap<String, f64>,
     pub shield_strength: HashMap<String, f64>,
+    pub spread_compose: HashMap<String, f64>,
+    pub aggravate_compose: HashMap<String, f64>,
 
     pub def_minus: HashMap<String, f64>,
     pub def_penetration: HashMap<String, f64>,
@@ -30,7 +34,9 @@ pub struct DamageAnalysis {
 
     pub normal: DamageResult,
     pub melt: Option<DamageResult>,
-    pub vaporize: Option<DamageResult>
+    pub vaporize: Option<DamageResult>,
+    pub spread: Option<DamageResult>,
+    pub aggravate: Option<DamageResult>,
 }
 
 pub struct HealAnalysis {
